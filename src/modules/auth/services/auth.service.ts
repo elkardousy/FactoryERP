@@ -1,33 +1,42 @@
-import {
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { users } from '@prisma/client';
 
 import { LoginDto } from '../use-cases/login';
 import { UsersRepository } from '../repositories/users.repository';
 import { PasswordService } from './password.service';
-import { TokenService } from './token.service';
-import { SessionService } from './session.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersRepository: UsersRepository,
     private readonly passwordService: PasswordService,
-    private readonly tokenService: TokenService,
-    private readonly sessionService: SessionService,
   ) {}
 
+  /**
+   * Finds an active (non-locked) user by id.
+   * Used by JwtStrategy to re-validate the user on every request.
+   */
+  async findActiveById(userId: bigint): Promise<users | null> {
+    return this.usersRepository.findActiveById(userId);
+  }
+
+  /**
+   * Validates credentials and enforces account-level security policies.
+   * Returns the full user record on success.
+   */
   async validateUser(
     username: string,
     password: string,
-  ) {
-    const user =
-      await this.usersRepository.findActiveUser(username);
+  ): Promise<users> {
+    const user = await this.usersRepository.findActiveUser(username);
 
     if (!user) {
+      throw new UnauthorizedException('Invalid username or password.');
+    }
+
+    if (user.locked_at !== null) {
       throw new UnauthorizedException(
-        'Invalid username or password.',
+        'Account is locked. Please contact an administrator.',
       );
     }
 
@@ -37,30 +46,22 @@ export class AuthService {
     );
 
     if (!valid) {
-      await this.usersRepository.incrementFailedLogin(
-        user.user_id,
-      );
+      await this.usersRepository.incrementFailedLogin(user.user_id);
+      throw new UnauthorizedException('Invalid username or password.');
+    }
 
-      throw new UnauthorizedException(
-        'Invalid username or password.',
-      );
-    };
-    
+    if (user.must_change_password) {
+      // Intentionally allow login to proceed; the use-case surfaces the flag
+      // so the client can redirect to the change-password flow.
+    }
 
-    await this.usersRepository.updateLastLogin(
-      user.user_id,
-    );
+    await this.usersRepository.updateLastLogin(user.user_id);
 
     return user;
   }
 
-  async login(dto: LoginDto) {
-    // سنبنيها في الخطوة القادمة
-    const user = await this.validateUser(
-      dto.username,
-      dto.password,
-    );
-
-    return user;
+  /** Kept so existing callers that pass a LoginDto still compile. */
+  async login(dto: LoginDto): Promise<users> {
+    return this.validateUser(dto.username, dto.password);
   }
 }

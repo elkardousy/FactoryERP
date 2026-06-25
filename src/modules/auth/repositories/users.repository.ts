@@ -10,6 +10,17 @@ export class UsersRepository extends BaseRepository {
     super(prisma);
   }
 
+  async findActiveById(userId: bigint): Promise<users | null> {
+    return this.db.users.findFirst({
+      where: {
+        user_id:   userId,
+        is_active: true,
+        status:    UserStatusEnum.ACTIVE,
+      },
+      include: { roles: true },
+    });
+  }
+
   async findById(userId: bigint): Promise<users | null> {
     return this.db.users.findUnique({
       where: {

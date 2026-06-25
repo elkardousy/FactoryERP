@@ -2007,6 +2007,7 @@ model user_sessions {
   device_id String @db.VarChar(200)
   device_platform String @db.VarChar(20)
   ip_address Unsupported("inet")?
+  refresh_token_hash String? @db.VarChar(500)
   started_at DateTime @db.Timestamptz(6) @default(now())
   last_activity_at DateTime @db.Timestamptz(6) @default(now())
   expires_at DateTime @db.Timestamptz(6)

@@ -8,4 +8,6 @@ export interface LoginResult {
     roleId: bigint;
   };
   tokens: TokenPair;
+  sessionId: bigint;
+  mustChangePassword: boolean;
 }
