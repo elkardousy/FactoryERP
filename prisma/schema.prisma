@@ -1,13 +1,2211 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["factory"]
+}
+
+enum WarehouseTypeEnum {
+  RAW
+  WIP
+  FINISHED_GOODS
+  @@map("warehouse_type_enum")
+  @@schema("factory")
+}
+
+enum ContainerStatusEnum {
+  DRAFT
+  IN_AUDIT
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+  POSTED
+  @@map("container_status_enum")
+  @@schema("factory")
+}
+
+enum DiscrepancyTypeEnum {
+  SHORTAGE
+  OVERAGE
+  DAMAGE
+  UNEXPECTED
+  @@map("discrepancy_type_enum")
+  @@schema("factory")
+}
+
+enum ReleaseTypeEnum {
+  FULL
+  PARTIAL
+  @@map("release_type_enum")
+  @@schema("factory")
+}
+
+enum OrderStatusEnum {
+  DRAFT
+  PLANNED
+  IN_PRODUCTION
+  PRODUCTION_COMPLETE
+  CLOSED
+  @@map("order_status_enum")
+  @@schema("factory")
+}
+
+enum PartStatusEnum {
+  PENDING
+  RELEASED
+  COMPLETE
+  RETURNED
+  @@map("part_status_enum")
+  @@schema("factory")
+}
+
+enum StageStatusEnum {
+  PENDING
+  IN_PROGRESS
+  COMPLETE
+  @@map("stage_status_enum")
+  @@schema("factory")
+}
+
+enum ScrapTypeEnum {
+  SEWING_DEFECT
+  MATERIAL_DEFECT
+  STAIN
+  DAMAGE
+  SIZE_ISSUE
+  OTHER
+  @@map("scrap_type_enum")
+  @@schema("factory")
+}
+
+enum IncompleteReasonEnum {
+  MISSING_PART
+  MISSING_MATERIAL
+  PRODUCTION_ISSUE
+  OTHER
+  @@map("incomplete_reason_enum")
+  @@schema("factory")
+}
+
+enum TxnTypeEnum {
+  RECEIVING
+  RELEASE
+  WIP_CONSUMPTION
+  QUALITY_OUTPUT
+  PACKING
+  RETURN
+  ADJUSTMENT
+  SUPPLEMENTARY_RELEASE
+  @@map("txn_type_enum")
+  @@schema("factory")
+}
+
+enum BagStatusEnum {
+  RECEIVED
+  AVAILABLE
+  RESERVED
+  RELEASED
+  IN_WIP
+  RETURNED
+  CLOSED
+  @@map("bag_status_enum")
+  @@schema("factory")
+}
+
+enum PackingOrderStatusEnum {
+  DRAFT
+  IN_PROCESS
+  ASSEMBLED
+  VERIFIED
+  POSTED
+  CANCELLED
+  @@map("packing_order_status_enum")
+  @@schema("factory")
+}
+
+enum EmployeeTypeEnum {
+  WORKER
+  SUPERVISOR
+  MANAGER
+  @@map("employee_type_enum")
+  @@schema("factory")
+}
+
+enum ShiftTypeEnum {
+  MORNING
+  AFTERNOON
+  NIGHT
+  @@map("shift_type_enum")
+  @@schema("factory")
+}
+
+enum AttendanceStatusEnum {
+  PRESENT
+  ABSENT
+  HALF_DAY
+  LEAVE
+  PUBLIC_HOLIDAY
+  @@map("attendance_status_enum")
+  @@schema("factory")
+}
+
+enum MachineTypeEnum {
+  OVERLOCK
+  SINGER
+  ZIGZAG
+  TWO_NEEDLE
+  FORMATTER
+  TICKET
+  OTHER
+  @@map("machine_type_enum")
+  @@schema("factory")
+}
+
+enum MachineStatusEnum {
+  INACTIVE
+  ACTIVE
+  BREAKDOWN
+  MAINTENANCE
+  STOPPED
+  @@map("machine_status_enum")
+  @@schema("factory")
+}
+
+enum DowntimeReasonEnum {
+  BREAKDOWN
+  PREVENTIVE_MAINTENANCE
+  CORRECTIVE_MAINTENANCE
+  OPERATOR_STOP
+  POWER_FAILURE
+  MATERIAL_WAITING
+  CHANGEOVER
+  QUALITY_ISSUE
+  OTHER
+  @@map("downtime_reason_enum")
+  @@schema("factory")
+}
+
+enum WorkflowStatusEnum {
+  DRAFT
+  PENDING
+  IN_REVIEW
+  APPROVED
+  REJECTED
+  ESCALATED
+  CANCELLED
+  @@map("workflow_status_enum")
+  @@schema("factory")
+}
+
+enum StepActionEnum {
+  SUBMITTED
+  APPROVED
+  REJECTED
+  ESCALATED
+  RECALLED
+  REASSIGNED
+  @@map("step_action_enum")
+  @@schema("factory")
+}
+
+enum SupplementaryReasonEnum {
+  NEGLIGENCE
+  GENUINE_SHORTAGE
+  @@map("supplementary_reason_enum")
+  @@schema("factory")
+}
+
+enum SupplementaryStatusEnum {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+  TRANSFERRED
+  CANCELLED
+  @@map("supplementary_status_enum")
+  @@schema("factory")
+}
+
+enum CmoPriorityEnum {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+  @@map("cmo_priority_enum")
+  @@schema("factory")
+}
+
+enum CmoStatusEnum {
+  DRAFT
+  CONFIRMED
+  IN_PROGRESS
+  PARTIALLY_DELIVERED
+  FULFILLED
+  CLOSED
+  CANCELLED
+  @@map("cmo_status_enum")
+  @@schema("factory")
+}
+
+enum CmoLineStatusEnum {
+  PENDING
+  RELEASED
+  IN_PRODUCTION
+  PRODUCED
+  PACKED
+  PARTIALLY_DELIVERED
+  FULLY_DELIVERED
+  CANCELLED
+  @@map("cmo_line_status_enum")
+  @@schema("factory")
+}
+
+enum ShippingOrderStatusEnum {
+  DRAFT
+  LOADING
+  LOADED
+  DISPATCHED
+  DELIVERED
+  CANCELLED
+  @@map("shipping_order_status_enum")
+  @@schema("factory")
+}
+
+enum RootCauseCategoryEnum {
+  ACTUAL_CONTAINER_SHORTAGE
+  PRODUCTION_LINE_NEGLIGENCE
+  EXCESSIVE_SCRAP
+  COUNTING_ERROR
+  QUALITY_REPLACEMENT
+  PACKAGING_LIST_VARIANCE
+  OTHER
+  @@map("root_cause_category_enum")
+  @@schema("factory")
+}
+
+enum AccountabilityClosureEnum {
+  OPEN
+  IN_REVIEW
+  CLOSED
+  @@map("accountability_closure_enum")
+  @@schema("factory")
+}
+
+enum InvestigationTypeEnum {
+  INVENTORY_VARIANCE
+  PHYSICAL_COUNT_DISCREPANCY
+  MISSING_BAG
+  MISSING_PART
+  CONTAINER_SHORTAGE
+  SUPPLEMENTARY_MATERIAL_ABUSE
+  OTHER
+  @@map("investigation_type_enum")
+  @@schema("factory")
+}
+
+enum PermissionTypeEnum {
+  VIEW
+  CREATE
+  UPDATE
+  DELETE
+  APPROVE
+  REJECT
+  CANCEL
+  PRINT
+  EXPORT
+  @@map("permission_type_enum")
+  @@schema("factory")
+}
+
+enum UserStatusEnum {
+  ACTIVE
+  INACTIVE
+  LOCKED
+  PENDING_ACTIVATION
+  @@map("user_status_enum")
+  @@schema("factory")
+}
+
+model customers {
+  customer_id BigInt @id @default(autoincrement())
+  customer_code String @db.VarChar(20) @unique
+  customer_name String @db.VarChar(200)
+  is_active Boolean @default(true)
+  created_at DateTime @db.Timestamptz(6) @default(now())
+  updated_at DateTime @db.Timestamptz(6) @default(now())
+  models models[] @relation("models__customer_id__customers")
+  physical_bags physical_bags[] @relation("physical_bags__customer_id__customers")
+  finished_goods_bags finished_goods_bags[] @relation("finished_goods_bags__customer_id__customers")
+  customer_manufacturing_orders customer_manufacturing_orders[] @relation("customer_manufacturing_orders__customer_id__customers")
+  shipping_orders shipping_orders[] @relation("shipping_orders__customer_id__customers")
+  @@schema("factory")
+}
+
+model suppliers {
+  supplier_id BigInt @id @default(autoincrement())
+  supplier_code String @db.VarChar(20) @unique
+  supplier_name String @db.VarChar(200)
+  contact_info Json? @db.JsonB
+  is_active Boolean @default(true)
+  created_at DateTime @db.Timestamptz(6) @default(now())
+  updated_at DateTime @db.Timestamptz(6) @default(now())
+  containers containers[] @relation("containers__supplier_id__suppliers")
+  @@schema("factory")
+}
+
+model colors {
+  color_id BigInt @id @default(autoincrement())
+  color_code String @db.VarChar(20) @unique
+  color_name String @db.VarChar(100)
+  hex_value String? @db.Char(7)
+  model_colors model_colors[] @relation("model_colors__color_id__colors")
+  packing_pattern_lines packing_pattern_lines[] @relation("packing_pattern_lines__color_id__colors")
+  packaging_list_items packaging_list_items[] @relation("packaging_list_items__color_id__colors")
+  receiving_audit_items receiving_audit_items[] @relation("receiving_audit_items__color_id__colors")
+  scrap_records scrap_records[] @relation("scrap_records__color_id__colors")
+  inventory_transactions inventory_transactions[] @relation("inventory_transactions__color_id__colors")
+  physical_bag_contents physical_bag_contents[] @relation("physical_bag_contents__color_id__colors")
+  physical_bag_content_adjustments physical_bag_content_adjustments[] @relation("physical_bag_content_adjustments__color_id__colors")
+  quality_output_boxes quality_output_boxes[] @relation("quality_output_boxes__color_id__colors")
+  dozen_assembly_lines dozen_assembly_lines[] @relation("dozen_assembly_lines__color_id__colors")
+  customer_manufacturing_order_lines customer_manufacturing_order_lines[] @relation("customer_manufacturing_order_lines__color_id__colors")
+  @@schema("factory")
+}
+
+model sizes {
+  size_id BigInt @id @default(autoincrement())
+  size_code String @db.VarChar(10) @unique
+  sort_order Int
+  model_sizes model_sizes[] @relation("model_sizes__size_id__sizes")
+  packing_pattern_lines packing_pattern_lines[] @relation("packing_pattern_lines__size_id__sizes")
+  packaging_list_items packaging_list_items[] @relation("packaging_list_items__size_id__sizes")
+  receiving_audit_items receiving_audit_items[] @relation("receiving_audit_items__size_id__sizes")
+  scrap_records scrap_records[] @relation("scrap_records__size_id__sizes")
+  inventory_transactions inventory_transactions[] @relation("inventory_transactions__size_id__sizes")
+  physical_bag_contents physical_bag_contents[] @relation("physical_bag_contents__size_id__sizes")
+  physical_bag_content_adjustments physical_bag_content_adjustments[] @relation("physical_bag_content_adjustments__size_id__sizes")
+  quality_output_boxes quality_output_boxes[] @relation("quality_output_boxes__size_id__sizes")
+  dozen_assembly_lines dozen_assembly_lines[] @relation("dozen_assembly_lines__size_id__sizes")
+  customer_manufacturing_order_lines customer_manufacturing_order_lines[] @relation("customer_manufacturing_order_lines__size_id__sizes")
+  @@schema("factory")
+}
+
+model production_lines {
+  line_id BigInt @id @default(autoincrement())
+  line_code String @db.VarChar(10) @unique
+  line_name String @db.VarChar(100)
+  is_active Boolean @default(true)
+  production_orders production_orders[] @relation("production_orders__line_id__production_lines")
+  production_stage_logs production_stage_logs[] @relation("production_stage_logs__line_id__production_lines")
+  wip_inventory wip_inventory[] @relation("wip_inventory__line_id__production_lines")
+  employees employees[] @relation("employees__primary_line_id__production_lines")
+  employee_stage_assignments employee_stage_assignments[] @relation("employee_stage_assignments__line_id__production_lines")
+  line_kpi_summary line_kpi_summary[] @relation("line_kpi_summary__line_id__production_lines")
+  machines machines[] @relation("machines__assigned_line_id__production_lines")
+  machine_assignments machine_assignments[] @relation("machine_assignments__line_id__production_lines")
+  machine_oee_snapshots machine_oee_snapshots[] @relation("machine_oee_snapshots__line_id__production_lines")
+  @@schema("factory")
+}
+
+model warehouses {
+  warehouse_id BigInt @id @default(autoincrement())
+  warehouse_code String @db.VarChar(20) @unique
+  warehouse_name String @db.VarChar(200)
+  warehouse_type WarehouseTypeEnum
+  is_active Boolean @default(true)
+  release_group_lines release_group_lines[] @relation("release_group_lines__source_warehouse_id__warehouses")
+  return_transactions return_transactions[] @relation("return_transactions__destination_warehouse_id__warehouses")
+  inventory_bags inventory_bags[] @relation("inventory_bags__warehouse_id__warehouses")
+  physical_bags physical_bags[] @relation("physical_bags__current_warehouse_id__warehouses")
+  physical_bag_movements physical_bag_movements[] @relation("physical_bag_movements__from_warehouse_id__warehouses")
+  physical_bag_movements_to_warehouse_id physical_bag_movements[] @relation("physical_bag_movements__to_warehouse_id__warehouses")
+  finished_goods_bags finished_goods_bags[] @relation("finished_goods_bags__warehouse_id__warehouses")
+  supplementary_request_lines supplementary_request_lines[] @relation("supplementary_request_lines__source_warehouse_id__warehouses")
+  inventory_investigations inventory_investigations[] @relation("inventory_investigations__warehouse_id__warehouses")
+  @@schema("factory")
+}
+
+model production_stages {
+  stage_id BigInt @id @default(autoincrement())
+  stage_code String @db.VarChar(30) @unique
+  stage_name String @db.VarChar(100)
+  sequence_order Int @unique
+  production_stage_logs production_stage_logs[] @relation("production_stage_logs__stage_id__production_stages")
+  scrap_records scrap_records[] @relation("scrap_records__stage_id__production_stages")
+  incomplete_item_records incomplete_item_records[] @relation("incomplete_item_records__stage_id__production_stages")
+  employees employees[] @relation("employees__primary_stage_id__production_stages")
+  employee_stage_assignments employee_stage_assignments[] @relation("employee_stage_assignments__stage_id__production_stages")
+  employee_daily_output employee_daily_output[] @relation("employee_daily_output__stage_id__production_stages")
+  stage_standard_minutes stage_standard_minutes[] @relation("stage_standard_minutes__stage_id__production_stages")
+  employee_kpi_daily employee_kpi_daily[] @relation("employee_kpi_daily__stage_id__production_stages")
+  machines machines[] @relation("machines__assigned_stage_id__production_stages")
+  machine_assignments machine_assignments[] @relation("machine_assignments__stage_id__production_stages")
+  supplementary_request_negligence supplementary_request_negligence[] @relation("supplementary_request_negligence__stage_id__production_stages")
+  @@schema("factory")
+}
+
+model departments {
+  department_id BigInt @id @default(autoincrement())
+  dept_code String @db.VarChar(20) @unique
+  dept_name String @db.VarChar(100)
+  is_active Boolean @default(true)
+  employees employees[] @relation("employees__department_id__departments")
+  inventory_investigations inventory_investigations[] @relation("inventory_investigations__responsible_department_id__departments")
+  users users[] @relation("users__department_id__departments")
+  roles roles[] @relation("roles__department_id__departments")
+  @@schema("factory")
+}
+
+model models {
+  model_id BigInt @id @default(autoincrement())
+  customer_id BigInt
+  model_code String @db.VarChar(50)
+  model_name String? @db.VarChar(200)
+  is_active Boolean @default(true)
+  created_at DateTime @db.Timestamptz(6) @default(now())
+  updated_at DateTime @db.Timestamptz(6) @default(now())
+  customers customers @relation("models__customer_id__customers", fields: [customer_id], references: [customer_id])
+  model_parts model_parts[] @relation("model_parts__model_id__models")
+  model_colors model_colors[] @relation("model_colors__model_id__models")
+  model_sizes model_sizes[] @relation("model_sizes__model_id__models")
+  packing_patterns packing_patterns[] @relation("packing_patterns__model_id__models")
+  packaging_list_items packaging_list_items[] @relation("packaging_list_items__model_id__models")
+  receiving_audit_items receiving_audit_items[] @relation("receiving_audit_items__model_id__models")
+  production_orders production_orders[] @relation("production_orders__model_id__models")
+  inventory_bags inventory_bags[] @relation("inventory_bags__model_id__models")
+  inventory_transactions inventory_transactions[] @relation("inventory_transactions__model_id__models")
+  physical_bags physical_bags[] @relation("physical_bags__model_id__models")
+  quality_output_boxes quality_output_boxes[] @relation("quality_output_boxes__model_id__models")
+  finished_goods_bags finished_goods_bags[] @relation("finished_goods_bags__model_id__models")
+  stage_standard_minutes stage_standard_minutes[] @relation("stage_standard_minutes__model_id__models")
+  customer_manufacturing_order_lines customer_manufacturing_order_lines[] @relation("customer_manufacturing_order_lines__model_id__models")
+  inventory_investigations inventory_investigations[] @relation("inventory_investigations__model_id__models")
+  @@unique([customer_id, model_code])
+  @@index([customer_id])
+  // GIN index (managed in SQL, not PSL): idx_models_code_trgm (model_code)
+  @@schema("factory")
+}
+
+model model_parts {
+  part_id BigInt @id @default(autoincrement())
+  model_id BigInt
+  part_code String @db.VarChar(10)
+  part_description String? @db.VarChar(200)
+  sort_order Int @default(0)
+  models models @relation("model_parts__model_id__models", fields: [model_id], references: [model_id])
+  packaging_list_items packaging_list_items[] @relation("packaging_list_items__part_id__model_parts")
+  receiving_audit_items receiving_audit_items[] @relation("receiving_audit_items__part_id__model_parts")
+  production_order_parts production_order_parts[] @relation("production_order_parts__part_id__model_parts")
+  return_transactions return_transactions[] @relation("return_transactions__part_id__model_parts")
+  inventory_bags inventory_bags[] @relation("inventory_bags__part_id__model_parts")
+  wip_inventory wip_inventory[] @relation("wip_inventory__part_id__model_parts")
+  inventory_transactions inventory_transactions[] @relation("inventory_transactions__part_id__model_parts")
+  physical_bags physical_bags[] @relation("physical_bags__part_id__model_parts")
+  supplementary_request_lines supplementary_request_lines[] @relation("supplementary_request_lines__part_id__model_parts")
+  inventory_investigations inventory_investigations[] @relation("inventory_investigations__part_id__model_parts")
+  @@unique([model_id, part_code])
+  @@index([model_id])
+  @@schema("factory")
+}
+
+model model_colors {
+  model_color_id BigInt @id @default(autoincrement())
+  model_id BigInt
+  color_id BigInt
+  models models @relation("model_colors__model_id__models", fields: [model_id], references: [model_id])
+  colors colors @relation("model_colors__color_id__colors", fields: [color_id], references: [color_id])
+  @@unique([model_id, color_id])
+  @@index([model_id])
+  @@schema("factory")
+}
+
+model model_sizes {
+  model_size_id BigInt @id @default(autoincrement())
+  model_id BigInt
+  size_id BigInt
+  models models @relation("model_sizes__model_id__models", fields: [model_id], references: [model_id])
+  sizes sizes @relation("model_sizes__size_id__sizes", fields: [size_id], references: [size_id])
+  @@unique([model_id, size_id])
+  @@index([model_id])
+  @@schema("factory")
+}
+
+model roles {
+  role_id BigInt @id @default(autoincrement())
+  role_code String @db.VarChar(30) @unique
+  role_name String @db.VarChar(100)
+  description String?
+  parent_role_id BigInt?
+  role_group String? @db.VarChar(50)
+  department_id BigInt?
+  is_system_role Boolean @default(false)
+  hierarchy_level Int @default(0)
+  roles_parent roles? @relation("roles__parent_role_id__roles", fields: [parent_role_id], references: [role_id])
+  departments departments? @relation("roles__department_id__departments", fields: [department_id], references: [department_id])
+  users users[] @relation("users__role_id__roles")
+  role_permissions role_permissions[] @relation("role_permissions__role_id__roles")
+  workflow_template_steps workflow_template_steps[] @relation("workflow_template_steps__required_role_id__roles")
+  workflow_template_steps_escalation_role_id workflow_template_steps[] @relation("workflow_template_steps__escalation_role_id__roles")
+  roles_children roles[] @relation("roles__parent_role_id__roles")
+  screen_permissions screen_permissions[] @relation("screen_permissions__role_id__roles")
+  approval_permissions approval_permissions[] @relation("approval_permissions__role_id__roles")
+  session_policy session_policy[] @relation("session_policy__role_id__roles")
+  @@schema("factory")
+}
+
+model users {
+  user_id BigInt @id @default(autoincrement())
+  username String @db.VarChar(50) @unique
+  full_name String @db.VarChar(200)
+  email String? @db.VarChar(200) @unique
+  password_hash String @db.VarChar(500)
+  role_id BigInt
+  is_active Boolean @default(true)
+  created_at DateTime @db.Timestamptz(6) @default(now())
+  last_login_at DateTime? @db.Timestamptz(6)
+  department_id BigInt?
+  status UserStatusEnum @default(ACTIVE)
+  must_change_password Boolean @default(false)
+  failed_login_count Int @default(0)
+  locked_at DateTime? @db.Timestamptz(6)
+  locked_reason String? @db.VarChar(200)
+  updated_by BigInt?
+  updated_at DateTime? @db.Timestamptz(6)
+  roles roles @relation("users__role_id__roles", fields: [role_id], references: [role_id])
+  departments departments? @relation("users__department_id__departments", fields: [department_id], references: [department_id])
+  users_parent users? @relation("users__updated_by__users", fields: [updated_by], references: [user_id])
+  audit_events audit_events[] @relation("audit_events__user_id__users")
+  packing_patterns packing_patterns[] @relation("packing_patterns__created_by__users")
+  containers containers[] @relation("containers__created_by__users")
+  containers_approved_by containers[] @relation("containers__approved_by__users")
+  receiving_audit_items receiving_audit_items[] @relation("receiving_audit_items__audited_by__users")
+  production_orders production_orders[] @relation("production_orders__created_by__users")
+  production_orders_closed_by production_orders[] @relation("production_orders__closed_by__users")
+  production_order_parts production_order_parts[] @relation("production_order_parts__released_by__users")
+  release_groups release_groups[] @relation("release_groups__released_by__users")
+  production_stage_logs production_stage_logs[] @relation("production_stage_logs__started_by__users")
+  production_stage_logs_completed_by production_stage_logs[] @relation("production_stage_logs__completed_by__users")
+  scrap_records scrap_records[] @relation("scrap_records__recorded_by__users")
+  incomplete_item_records incomplete_item_records[] @relation("incomplete_item_records__recorded_by__users")
+  return_transactions return_transactions[] @relation("return_transactions__returned_by__users")
+  inventory_transactions inventory_transactions[] @relation("inventory_transactions__executed_by__users")
+  physical_bags physical_bags[] @relation("physical_bags__created_by__users")
+  physical_bag_movements physical_bag_movements[] @relation("physical_bag_movements__performed_by__users")
+  physical_bag_reservations physical_bag_reservations[] @relation("physical_bag_reservations__reserved_by__users")
+  physical_bag_content_adjustments physical_bag_content_adjustments[] @relation("physical_bag_content_adjustments__adjusted_by__users")
+  packing_orders packing_orders[] @relation("packing_orders__created_by__users")
+  packing_orders_started_by packing_orders[] @relation("packing_orders__started_by__users")
+  packing_orders_verified_by packing_orders[] @relation("packing_orders__verified_by__users")
+  packing_orders_posted_by packing_orders[] @relation("packing_orders__posted_by__users")
+  dozen_assemblies dozen_assemblies[] @relation("dozen_assemblies__assembled_by__users")
+  packing_verifications packing_verifications[] @relation("packing_verifications__verified_by__users")
+  employees employees[] @relation("employees__user_id__users")
+  employee_attendance employee_attendance[] @relation("employee_attendance__recorded_by__users")
+  employee_stage_assignments employee_stage_assignments[] @relation("employee_stage_assignments__assigned_by__users")
+  employee_daily_output employee_daily_output[] @relation("employee_daily_output__recorded_by__users")
+  stage_standard_minutes stage_standard_minutes[] @relation("stage_standard_minutes__set_by__users")
+  machines machines[] @relation("machines__created_by__users")
+  machine_assignments machine_assignments[] @relation("machine_assignments__assigned_by__users")
+  machine_status_log machine_status_log[] @relation("machine_status_log__changed_by__users")
+  machine_maintenance_schedule machine_maintenance_schedule[] @relation("machine_maintenance_schedule__created_by__users")
+  machine_downtime_events machine_downtime_events[] @relation("machine_downtime_events__reported_by__users")
+  machine_downtime_events_resolved_by machine_downtime_events[] @relation("machine_downtime_events__resolved_by__users")
+  workflow_instances workflow_instances[] @relation("workflow_instances__submitted_by__users")
+  workflow_step_actions workflow_step_actions[] @relation("workflow_step_actions__action_by__users")
+  supplementary_material_requests supplementary_material_requests[] @relation("supplementary_material_requests__requested_by__users")
+  supplementary_material_requests_transferred_by supplementary_material_requests[] @relation("supplementary_material_requests__transferred_by__users")
+  supplementary_request_negligence supplementary_request_negligence[] @relation("supplementary_request_negligence__reported_by__users")
+  supplementary_request_negligence_closed_by supplementary_request_negligence[] @relation("supplementary_request_negligence__closed_by__users")
+  customer_manufacturing_orders customer_manufacturing_orders[] @relation("customer_manufacturing_orders__created_by__users")
+  customer_manufacturing_orders_updated_by customer_manufacturing_orders[] @relation("customer_manufacturing_orders__updated_by__users")
+  shipping_orders shipping_orders[] @relation("shipping_orders__dispatched_by__users")
+  shipping_orders_created_by shipping_orders[] @relation("shipping_orders__created_by__users")
+  vehicle_loadings vehicle_loadings[] @relation("vehicle_loadings__loaded_by__users")
+  delivery_notes delivery_notes[] @relation("delivery_notes__issued_by__users")
+  proof_of_delivery proof_of_delivery[] @relation("proof_of_delivery__recorded_by__users")
+  inventory_investigations inventory_investigations[] @relation("inventory_investigations__reported_by__users")
+  inventory_investigations_closed_by inventory_investigations[] @relation("inventory_investigations__closed_by__users")
+  inventory_investigation_actions inventory_investigation_actions[] @relation("inventory_investigation_actions__performed_by__users")
+  users_children users[] @relation("users__updated_by__users")
+  user_password_history user_password_history[] @relation("user_password_history__user_id__users")
+  user_password_history_changed_by user_password_history[] @relation("user_password_history__changed_by__users")
+  password_reset_tokens password_reset_tokens[] @relation("password_reset_tokens__user_id__users")
+  password_reset_tokens_issued_by password_reset_tokens[] @relation("password_reset_tokens__issued_by__users")
+  screen_permissions screen_permissions[] @relation("screen_permissions__granted_by__users")
+  approval_permissions approval_permissions[] @relation("approval_permissions__granted_by__users")
+  user_sessions user_sessions[] @relation("user_sessions__user_id__users")
+  user_sessions_revoked_by user_sessions[] @relation("user_sessions__revoked_by__users")
+  session_policy session_policy[] @relation("session_policy__updated_by__users")
+  system_config system_config[] @relation("system_config__updated_by__users")
+  fiscal_years fiscal_years[] @relation("fiscal_years__closed_by__users")
+  number_sequences number_sequences[] @relation("number_sequences__last_reset_by__users")
+  master_data_change_requests master_data_change_requests[] @relation("master_data_change_requests__requested_by__users")
+  master_data_change_requests_reviewed_by master_data_change_requests[] @relation("master_data_change_requests__reviewed_by__users")
+  notifications notifications[] @relation("notifications__recipient_user_id__users")
+  notification_preferences notification_preferences[] @relation("notification_preferences__user_id__users")
+  job_definitions job_definitions[] @relation("job_definitions__updated_by__users")
+  job_execution_log job_execution_log[] @relation("job_execution_log__triggered_by__users")
+  db_backup_log db_backup_log[] @relation("db_backup_log__triggered_by__users")
+  db_restore_log db_restore_log[] @relation("db_restore_log__authorized_by__users")
+  db_restore_log_performed_by db_restore_log[] @relation("db_restore_log__performed_by__users")
+  db_maintenance_log db_maintenance_log[] @relation("db_maintenance_log__triggered_by__users")
+  @@schema("factory")
+}
+
+model permissions {
+  permission_id BigInt @id @default(autoincrement())
+  permission_code String @db.VarChar(100) @unique
+  description String?
+  role_permissions role_permissions[] @relation("role_permissions__permission_id__permissions")
+  @@schema("factory")
+}
+
+model role_permissions {
+  role_id BigInt
+  permission_id BigInt
+  roles roles @relation("role_permissions__role_id__roles", fields: [role_id], references: [role_id])
+  permissions permissions @relation("role_permissions__permission_id__permissions", fields: [permission_id], references: [permission_id])
+  @@id([role_id, permission_id])
+  @@schema("factory")
+}
+
+model audit_events {
+  event_id BigInt @default(autoincrement())
+  event_type String @db.VarChar(100)
+  entity_type String @db.VarChar(50)
+  entity_id String @db.VarChar(50)
+  user_id BigInt
+  occurred_at DateTime @db.Timestamptz(6) @default(now())
+  payload Json @db.JsonB
+  ip_address Unsupported("inet")?
+  client_platform String? @db.VarChar(20)
+  users users @relation("audit_events__user_id__users", fields: [user_id], references: [user_id])
+  @@id([event_id, occurred_at])
+  @@index([entity_type, entity_id, occurred_at])
+  @@index([user_id, occurred_at])
+  @@index([event_type, occurred_at])
+  // GIN index (managed in SQL, not PSL): idx_audit_payload (payload)
+  @@schema("factory")
+}
+
+model packing_patterns {
+  pattern_id BigInt @id @default(autoincrement())
+  model_id BigInt
+  pattern_name String @db.VarChar(100)
+  is_active Boolean @default(true)
+  created_by BigInt
+  created_at DateTime @db.Timestamptz(6) @default(now())
+  models models @relation("packing_patterns__model_id__models", fields: [model_id], references: [model_id])
+  users users @relation("packing_patterns__created_by__users", fields: [created_by], references: [user_id])
+  packing_pattern_lines packing_pattern_lines[] @relation("packing_pattern_lines__pattern_id__packing_patterns")
+  packing_orders packing_orders[] @relation("packing_orders__pattern_id__packing_patterns")
+  @@schema("factory")
+}
+
+model packing_pattern_lines {
+  pattern_line_id BigInt @id @default(autoincrement())
+  pattern_id BigInt
+  color_id BigInt
+  size_id BigInt
+  pieces_per_dozen Int
+  packing_patterns packing_patterns @relation("packing_pattern_lines__pattern_id__packing_patterns", fields: [pattern_id], references: [pattern_id])
+  colors colors @relation("packing_pattern_lines__color_id__colors", fields: [color_id], references: [color_id])
+  sizes sizes @relation("packing_pattern_lines__size_id__sizes", fields: [size_id], references: [size_id])
+  dozen_assembly_lines dozen_assembly_lines[] @relation("dozen_assembly_lines__pattern_line_id__packing_pattern_lines")
+  @@unique([pattern_id, color_id, size_id])
+  @@schema("factory")
+}
+
+model containers {
+  container_id BigInt @id @default(autoincrement())
+  container_number String @db.VarChar(50) @unique
+  supplier_id BigInt
+  arrival_date DateTime @db.Date
+  status ContainerStatusEnum @default(DRAFT)
+  notes String?
+  created_by BigInt
+  created_at DateTime @db.Timestamptz(6) @default(now())
+  approved_by BigInt?
+  approved_at DateTime? @db.Timestamptz(6)
+  suppliers suppliers @relation("containers__supplier_id__suppliers", fields: [supplier_id], references: [supplier_id])
+  users users @relation("containers__created_by__users", fields: [created_by], references: [user_id])
+  users_approved_by users? @relation("containers__approved_by__users", fields: [approved_by], references: [user_id])
+  packaging_list_items packaging_list_items[] @relation("packaging_list_items__container_id__containers")
+  receiving_audit_items receiving_audit_items[] @relation("receiving_audit_items__container_id__containers")
+  receiving_discrepancies receiving_discrepancies[] @relation("receiving_discrepancies__container_id__containers")
+  physical_bags physical_bags[] @relation("physical_bags__container_id__containers")
+  inventory_investigations inventory_investigations[] @relation("inventory_investigations__container_id__containers")
+  @@index([supplier_id])
+  @@index([status])
+  @@index([arrival_date])
+  @@schema("factory")
+}
+
+model packaging_list_items {
+  item_id BigInt @id @default(autoincrement())
+  container_id BigInt
+  model_id BigInt
+  part_id BigInt
+  color_id BigInt
+  size_id BigInt
+  expected_dozens Decimal @db.Decimal(12, 3)
+  containers containers @relation("packaging_list_items__container_id__containers", fields: [container_id], references: [container_id])
+  models models @relation("packaging_list_items__model_id__models", fields: [model_id], references: [model_id])
+  model_parts model_parts @relation("packaging_list_items__part_id__model_parts", fields: [part_id], references: [part_id])
+  colors colors @relation("packaging_list_items__color_id__colors", fields: [color_id], references: [color_id])
+  sizes sizes @relation("packaging_list_items__size_id__sizes", fields: [size_id], references: [size_id])
+  receiving_audit_items receiving_audit_items[] @relation("receiving_audit_items__packaging_list_item_id__packaging_list_items")
+  receiving_discrepancies receiving_discrepancies[] @relation("receiving_discrepancies__packaging_list_item_id__packaging_list_items")
+  @@unique([container_id, model_id, part_id, color_id, size_id])
+  @@index([container_id])
+  @@index([model_id, part_id])
+  @@schema("factory")
+}
+
+model receiving_audit_items {
+  audit_item_id BigInt @id @default(autoincrement())
+  container_id BigInt
+  packaging_list_item_id BigInt?
+  model_id BigInt
+  part_id BigInt
+  color_id BigInt
+  size_id BigInt
+  actual_dozens Decimal @db.Decimal(12, 3) @default(0)
+  audited_by BigInt
+  audited_at DateTime @db.Timestamptz(6) @default(now())
+  containers containers @relation("receiving_audit_items__container_id__containers", fields: [container_id], references: [container_id])
+  packaging_list_items packaging_list_items? @relation("receiving_audit_items__packaging_list_item_id__packaging_list_items", fields: [packaging_list_item_id], references: [item_id])
+  models models @relation("receiving_audit_items__model_id__models", fields: [model_id], references: [model_id])
+  model_parts model_parts @relation("receiving_audit_items__part_id__model_parts", fields: [part_id], references: [part_id])
+  colors colors @relation("receiving_audit_items__color_id__colors", fields: [color_id], references: [color_id])
+  sizes sizes @relation("receiving_audit_items__size_id__sizes", fields: [size_id], references: [size_id])
+  users users @relation("receiving_audit_items__audited_by__users", fields: [audited_by], references: [user_id])
+  physical_bags physical_bags[] @relation("physical_bags__audit_item_id__receiving_audit_items")
+  @@index([container_id])
+  @@schema("factory")
+}
+
+model receiving_discrepancies {
+  discrepancy_id BigInt @id @default(autoincrement())
+  container_id BigInt
+  packaging_list_item_id BigInt?
+  expected_dozens Decimal? @db.Decimal(12, 3)
+  actual_dozens Decimal? @db.Decimal(12, 3)
+  variance_dozens Decimal? @db.Decimal(12, 3) @default(dbgenerated())
+  discrepancy_type DiscrepancyTypeEnum
+  notes String?
+  recorded_at DateTime @db.Timestamptz(6) @default(now())
+  containers containers @relation("receiving_discrepancies__container_id__containers", fields: [container_id], references: [container_id])
+  packaging_list_items packaging_list_items? @relation("receiving_discrepancies__packaging_list_item_id__packaging_list_items", fields: [packaging_list_item_id], references: [item_id])
+  @@index([container_id])
+  @@schema("factory")
+}
+
+model production_orders {
+  order_id BigInt @id @default(autoincrement())
+  order_number String @db.VarChar(20) @unique
+  model_id BigInt
+  line_id BigInt
+  release_type ReleaseTypeEnum
+  status OrderStatusEnum @default(DRAFT)
+  target_dozens Decimal? @db.Decimal(12, 3)
+  notes String?
+  created_by BigInt
+  created_at DateTime @db.Timestamptz(6) @default(now())
+  closed_by BigInt?
+  closed_at DateTime? @db.Timestamptz(6)
+  cmo_line_id BigInt?
+  models models @relation("production_orders__model_id__models", fields: [model_id], references: [model_id])
+  production_lines production_lines @relation("production_orders__line_id__production_lines", fields: [line_id], references: [line_id])
+  users users @relation("production_orders__created_by__users", fields: [created_by], references: [user_id])
+  users_closed_by users? @relation("production_orders__closed_by__users", fields: [closed_by], references: [user_id])
+  customer_manufacturing_order_lines customer_manufacturing_order_lines? @relation("production_orders__cmo_line_id__customer_manufacturing_order_lines", fields: [cmo_line_id], references: [cmo_line_id])
+  production_order_parts production_order_parts[] @relation("production_order_parts__order_id__production_orders")
+  release_groups release_groups[] @relation("release_groups__order_id__production_orders")
+  production_stage_logs production_stage_logs[] @relation("production_stage_logs__order_id__production_orders")
+  scrap_records scrap_records[] @relation("scrap_records__order_id__production_orders")
+  incomplete_item_records incomplete_item_records[] @relation("incomplete_item_records__order_id__production_orders")
+  return_transactions return_transactions[] @relation("return_transactions__order_id__production_orders")
+  wip_inventory wip_inventory[] @relation("wip_inventory__order_id__production_orders")
+  physical_bags physical_bags[] @relation("physical_bags__current_order_id__production_orders")
+  physical_bag_movements physical_bag_movements[] @relation("physical_bag_movements__from_order_id__production_orders")
+  physical_bag_movements_to_order_id physical_bag_movements[] @relation("physical_bag_movements__to_order_id__production_orders")
+  physical_bag_reservations physical_bag_reservations[] @relation("physical_bag_reservations__order_id__production_orders")
+  quality_output_boxes quality_output_boxes[] @relation("quality_output_boxes__order_id__production_orders")
+  packing_orders packing_orders? @relation("packing_orders__production_order_id__production_orders")
+  employee_stage_assignments employee_stage_assignments[] @relation("employee_stage_assignments__order_id__production_orders")
+  employee_daily_output employee_daily_output[] @relation("employee_daily_output__order_id__production_orders")
+  employee_kpi_daily employee_kpi_daily[] @relation("employee_kpi_daily__order_id__production_orders")
+  line_kpi_summary line_kpi_summary[] @relation("line_kpi_summary__order_id__production_orders")
+  machine_downtime_events machine_downtime_events[] @relation("machine_downtime_events__order_id__production_orders")
+  machine_oee_snapshots machine_oee_snapshots[] @relation("machine_oee_snapshots__order_id__production_orders")
+  supplementary_material_requests supplementary_material_requests[] @relation("supplementary_material_requests__order_id__production_orders")
+  @@index([model_id])
+  @@index([line_id])
+  @@index([status])
+  @@index([created_at])
+  // GIN index (managed in SQL, not PSL): idx_prod_orders_number_trgm (order_number)
+  @@index([line_id, status, created_at, model_id, release_type])
+  @@index([cmo_line_id])
+  @@schema("factory")
+}
+
+model production_order_parts {
+  order_part_id BigInt @id @default(autoincrement())
+  order_id BigInt
+  part_id BigInt
+  status PartStatusEnum @default(PENDING)
+  released_at DateTime? @db.Timestamptz(6)
+  released_by BigInt?
+  production_orders production_orders @relation("production_order_parts__order_id__production_orders", fields: [order_id], references: [order_id])
+  model_parts model_parts @relation("production_order_parts__part_id__model_parts", fields: [part_id], references: [part_id])
+  users users? @relation("production_order_parts__released_by__users", fields: [released_by], references: [user_id])
+  release_group_lines release_group_lines[] @relation("release_group_lines__order_part_id__production_order_parts")
+  supplementary_request_lines supplementary_request_lines[] @relation("supplementary_request_lines__order_part_id__production_order_parts")
+  @@unique([order_id, part_id])
+  @@index([order_id])
+  @@index([status])
+  @@schema("factory")
+}
+
+model release_groups {
+  release_group_id BigInt @id @default(autoincrement())
+  order_id BigInt
+  group_number Int
+  released_by BigInt
+  released_at DateTime @db.Timestamptz(6) @default(now())
+  production_orders production_orders @relation("release_groups__order_id__production_orders", fields: [order_id], references: [order_id])
+  users users @relation("release_groups__released_by__users", fields: [released_by], references: [user_id])
+  release_group_lines release_group_lines[] @relation("release_group_lines__release_group_id__release_groups")
+  @@unique([order_id, group_number])
+  @@index([order_id])
+  @@schema("factory")
+}
+
+model release_group_lines {
+  release_line_id BigInt @id @default(autoincrement())
+  release_group_id BigInt
+  order_part_id BigInt
+  source_warehouse_id BigInt
+  dozens_released Decimal @db.Decimal(12, 3)
+  release_groups release_groups @relation("release_group_lines__release_group_id__release_groups", fields: [release_group_id], references: [release_group_id])
+  production_order_parts production_order_parts @relation("release_group_lines__order_part_id__production_order_parts", fields: [order_part_id], references: [order_part_id])
+  warehouses warehouses @relation("release_group_lines__source_warehouse_id__warehouses", fields: [source_warehouse_id], references: [warehouse_id])
+  @@index([release_group_id])
+  @@schema("factory")
+}
+
+model production_stage_logs {
+  log_id BigInt @id @default(autoincrement())
+  order_id BigInt
+  stage_id BigInt
+  line_id BigInt
+  status StageStatusEnum @default(PENDING)
+  input_dozens Decimal? @db.Decimal(12, 3)
+  output_dozens Decimal? @db.Decimal(12, 3)
+  scrap_dozens Decimal @db.Decimal(12, 3) @default(0)
+  incomplete_dozens Decimal @db.Decimal(12, 3) @default(0)
+  started_by BigInt?
+  started_at DateTime? @db.Timestamptz(6)
+  completed_by BigInt?
+  completed_at DateTime? @db.Timestamptz(6)
+  production_orders production_orders @relation("production_stage_logs__order_id__production_orders", fields: [order_id], references: [order_id])
+  production_stages production_stages @relation("production_stage_logs__stage_id__production_stages", fields: [stage_id], references: [stage_id])
+  production_lines production_lines @relation("production_stage_logs__line_id__production_lines", fields: [line_id], references: [line_id])
+  users users? @relation("production_stage_logs__started_by__users", fields: [started_by], references: [user_id])
+  users_completed_by users? @relation("production_stage_logs__completed_by__users", fields: [completed_by], references: [user_id])
+  scrap_records scrap_records[] @relation("scrap_records__log_id__production_stage_logs")
+  incomplete_item_records incomplete_item_records[] @relation("incomplete_item_records__log_id__production_stage_logs")
+  @@unique([order_id, stage_id])
+  @@index([order_id])
+  @@index([status])
+  @@schema("factory")
+}
+
+model scrap_records {
+  scrap_id BigInt @id @default(autoincrement())
+  log_id BigInt
+  order_id BigInt
+  stage_id BigInt
+  scrap_type ScrapTypeEnum
+  dozens_scrapped Decimal @db.Decimal(12, 3)
+  color_id BigInt?
+  size_id BigInt?
+  notes String?
+  recorded_by BigInt
+  recorded_at DateTime @db.Timestamptz(6) @default(now())
+  production_stage_logs production_stage_logs @relation("scrap_records__log_id__production_stage_logs", fields: [log_id], references: [log_id])
+  production_orders production_orders @relation("scrap_records__order_id__production_orders", fields: [order_id], references: [order_id])
+  production_stages production_stages @relation("scrap_records__stage_id__production_stages", fields: [stage_id], references: [stage_id])
+  colors colors? @relation("scrap_records__color_id__colors", fields: [color_id], references: [color_id])
+  sizes sizes? @relation("scrap_records__size_id__sizes", fields: [size_id], references: [size_id])
+  users users @relation("scrap_records__recorded_by__users", fields: [recorded_by], references: [user_id])
+  @@index([order_id, recorded_at])
+  @@index([scrap_type])
+  @@schema("factory")
+}
+
+model incomplete_item_records {
+  incomplete_id BigInt @id @default(autoincrement())
+  log_id BigInt
+  order_id BigInt
+  stage_id BigInt
+  reason_type IncompleteReasonEnum
+  dozens_incomplete Decimal @db.Decimal(12, 3)
+  notes String?
+  recorded_by BigInt
+  recorded_at DateTime @db.Timestamptz(6) @default(now())
+  production_stage_logs production_stage_logs @relation("incomplete_item_records__log_id__production_stage_logs", fields: [log_id], references: [log_id])
+  production_orders production_orders @relation("incomplete_item_records__order_id__production_orders", fields: [order_id], references: [order_id])
+  production_stages production_stages @relation("incomplete_item_records__stage_id__production_stages", fields: [stage_id], references: [stage_id])
+  users users @relation("incomplete_item_records__recorded_by__users", fields: [recorded_by], references: [user_id])
+  @@index([order_id])
+  @@schema("factory")
+}
+
+model return_transactions {
+  return_id BigInt @id @default(autoincrement())
+  order_id BigInt
+  destination_warehouse_id BigInt
+  part_id BigInt
+  dozens_returned Decimal @db.Decimal(12, 3)
+  returned_by BigInt
+  returned_at DateTime @db.Timestamptz(6) @default(now())
+  production_orders production_orders @relation("return_transactions__order_id__production_orders", fields: [order_id], references: [order_id])
+  warehouses warehouses @relation("return_transactions__destination_warehouse_id__warehouses", fields: [destination_warehouse_id], references: [warehouse_id])
+  model_parts model_parts @relation("return_transactions__part_id__model_parts", fields: [part_id], references: [part_id])
+  users users @relation("return_transactions__returned_by__users", fields: [returned_by], references: [user_id])
+  @@schema("factory")
+}
+
+model inventory_bags {
+  bag_id BigInt @id @default(autoincrement())
+  warehouse_id BigInt
+  model_id BigInt
+  part_id BigInt
+  dozens_on_hand Decimal @db.Decimal(12, 3) @default(0)
+  version BigInt @default(0)
+  last_updated DateTime @db.Timestamptz(6) @default(now())
+  warehouses warehouses @relation("inventory_bags__warehouse_id__warehouses", fields: [warehouse_id], references: [warehouse_id])
+  models models @relation("inventory_bags__model_id__models", fields: [model_id], references: [model_id])
+  model_parts model_parts @relation("inventory_bags__part_id__model_parts", fields: [part_id], references: [part_id])
+  @@unique([warehouse_id, model_id, part_id])
+  @@index([warehouse_id, model_id, part_id])
+  @@index([model_id])
+  @@index([model_id, part_id, warehouse_id])
+  @@schema("factory")
+}
+
+model wip_inventory {
+  wip_id BigInt @id @default(autoincrement())
+  order_id BigInt
+  line_id BigInt
+  part_id BigInt
+  dozens_in_wip Decimal @db.Decimal(12, 3) @default(0)
+  version BigInt @default(0)
+  last_updated DateTime @db.Timestamptz(6) @default(now())
+  production_orders production_orders @relation("wip_inventory__order_id__production_orders", fields: [order_id], references: [order_id])
+  production_lines production_lines @relation("wip_inventory__line_id__production_lines", fields: [line_id], references: [line_id])
+  model_parts model_parts @relation("wip_inventory__part_id__model_parts", fields: [part_id], references: [part_id])
+  @@unique([order_id, part_id])
+  @@index([order_id, part_id])
+  @@index([line_id])
+  @@schema("factory")
+}
+
+model inventory_transactions {
+  txn_id BigInt @default(autoincrement())
+  txn_reference String @db.VarChar(50)
+  txn_type TxnTypeEnum
+  model_id BigInt
+  part_id BigInt?
+  color_id BigInt?
+  size_id BigInt?
+  from_location_type String? @db.VarChar(20)
+  from_location_id BigInt?
+  to_location_type String? @db.VarChar(20)
+  to_location_id BigInt?
+  dozens_qty Decimal @db.Decimal(12, 3)
+  executed_by BigInt
+  executed_at DateTime @db.Timestamptz(6) @default(now())
+  notes String?
+  models models @relation("inventory_transactions__model_id__models", fields: [model_id], references: [model_id])
+  model_parts model_parts? @relation("inventory_transactions__part_id__model_parts", fields: [part_id], references: [part_id])
+  colors colors? @relation("inventory_transactions__color_id__colors", fields: [color_id], references: [color_id])
+  sizes sizes? @relation("inventory_transactions__size_id__sizes", fields: [size_id], references: [size_id])
+  users users @relation("inventory_transactions__executed_by__users", fields: [executed_by], references: [user_id])
+  @@id([txn_id, executed_at])
+  @@index([model_id, executed_at])
+  @@index([txn_type, executed_at])
+  @@index([txn_reference])
+  @@index([executed_by, executed_at])
+  @@schema("factory")
+}
+
+model physical_bags {
+  bag_id BigInt @id @default(autoincrement())
+  bag_code String @db.VarChar(30) @unique
+  container_id BigInt
+  audit_item_id BigInt?
+  customer_id BigInt
+  model_id BigInt
+  part_id BigInt
+  received_dozens Decimal @db.Decimal(12, 3)
+  current_dozens Decimal @db.Decimal(12, 3)
+  current_warehouse_id BigInt?
+  current_order_id BigInt?
+  status BagStatusEnum @default(RECEIVED)
+  received_date DateTime @db.Date
+  created_by BigInt
+  created_at DateTime @db.Timestamptz(6) @default(now())
+  updated_at DateTime @db.Timestamptz(6) @default(now())
+  containers containers @relation("physical_bags__container_id__containers", fields: [container_id], references: [container_id])
+  receiving_audit_items receiving_audit_items? @relation("physical_bags__audit_item_id__receiving_audit_items", fields: [audit_item_id], references: [audit_item_id])
+  customers customers @relation("physical_bags__customer_id__customers", fields: [customer_id], references: [customer_id])
+  models models @relation("physical_bags__model_id__models", fields: [model_id], references: [model_id])
+  model_parts model_parts @relation("physical_bags__part_id__model_parts", fields: [part_id], references: [part_id])
+  warehouses warehouses? @relation("physical_bags__current_warehouse_id__warehouses", fields: [current_warehouse_id], references: [warehouse_id])
+  production_orders production_orders? @relation("physical_bags__current_order_id__production_orders", fields: [current_order_id], references: [order_id])
+  users users @relation("physical_bags__created_by__users", fields: [created_by], references: [user_id])
+  physical_bag_movements physical_bag_movements[] @relation("physical_bag_movements__bag_id__physical_bags")
+  physical_bag_reservations physical_bag_reservations[] @relation("physical_bag_reservations__bag_id__physical_bags")
+  physical_bag_contents physical_bag_contents[] @relation("physical_bag_contents__bag_id__physical_bags")
+  physical_bag_content_adjustments physical_bag_content_adjustments[] @relation("physical_bag_content_adjustments__bag_id__physical_bags")
+  inventory_investigations inventory_investigations[] @relation("inventory_investigations__bag_id__physical_bags")
+  @@index([container_id])
+  @@index([model_id, part_id])
+  @@index([status])
+  @@index([current_warehouse_id])
+  @@schema("factory")
+}
+
+model physical_bag_movements {
+  movement_id BigInt @id @default(autoincrement())
+  bag_id BigInt
+  from_status BagStatusEnum?
+  to_status BagStatusEnum
+  from_warehouse_id BigInt?
+  to_warehouse_id BigInt?
+  from_order_id BigInt?
+  to_order_id BigInt?
+  dozens_moved Decimal? @db.Decimal(12, 3)
+  movement_reason String @db.VarChar(50)
+  performed_by BigInt
+  performed_at DateTime @db.Timestamptz(6) @default(now())
+  notes String?
+  physical_bags physical_bags @relation("physical_bag_movements__bag_id__physical_bags", fields: [bag_id], references: [bag_id])
+  warehouses warehouses? @relation("physical_bag_movements__from_warehouse_id__warehouses", fields: [from_warehouse_id], references: [warehouse_id])
+  warehouses_to_warehouse_id warehouses? @relation("physical_bag_movements__to_warehouse_id__warehouses", fields: [to_warehouse_id], references: [warehouse_id])
+  production_orders production_orders? @relation("physical_bag_movements__from_order_id__production_orders", fields: [from_order_id], references: [order_id])
+  production_orders_to_order_id production_orders? @relation("physical_bag_movements__to_order_id__production_orders", fields: [to_order_id], references: [order_id])
+  users users @relation("physical_bag_movements__performed_by__users", fields: [performed_by], references: [user_id])
+  @@index([bag_id, performed_at])
+  @@schema("factory")
+}
+
+model physical_bag_reservations {
+  reservation_id BigInt @id @default(autoincrement())
+  bag_id BigInt
+  order_id BigInt
+  reserved_dozens Decimal @db.Decimal(12, 3)
+  reserved_by BigInt
+  reserved_at DateTime @db.Timestamptz(6) @default(now())
+  released_at DateTime? @db.Timestamptz(6)
+  status String @db.VarChar(20) @default("ACTIVE")
+  physical_bags physical_bags @relation("physical_bag_reservations__bag_id__physical_bags", fields: [bag_id], references: [bag_id])
+  production_orders production_orders @relation("physical_bag_reservations__order_id__production_orders", fields: [order_id], references: [order_id])
+  users users @relation("physical_bag_reservations__reserved_by__users", fields: [reserved_by], references: [user_id])
+  @@unique([bag_id, order_id])
+  @@schema("factory")
+}
+
+model physical_bag_contents {
+  content_id BigInt @id @default(autoincrement())
+  bag_id BigInt
+  color_id BigInt
+  size_id BigInt
+  piece_count Int
+  dozens_qty Decimal? @db.Decimal(12, 3) @default(dbgenerated())
+  physical_bags physical_bags @relation("physical_bag_contents__bag_id__physical_bags", fields: [bag_id], references: [bag_id])
+  colors colors @relation("physical_bag_contents__color_id__colors", fields: [color_id], references: [color_id])
+  sizes sizes @relation("physical_bag_contents__size_id__sizes", fields: [size_id], references: [size_id])
+  physical_bag_content_adjustments physical_bag_content_adjustments[] @relation("physical_bag_content_adjustments__content_id__physical_bag_contents")
+  @@unique([bag_id, color_id, size_id])
+  @@schema("factory")
+}
+
+model physical_bag_content_adjustments {
+  adjustment_id BigInt @id @default(autoincrement())
+  bag_id BigInt
+  content_id BigInt
+  color_id BigInt
+  size_id BigInt
+  old_piece_count Int
+  new_piece_count Int
+  adjustment_reason String
+  adjusted_by BigInt
+  adjusted_at DateTime @db.Timestamptz(6) @default(now())
+  physical_bags physical_bags @relation("physical_bag_content_adjustments__bag_id__physical_bags", fields: [bag_id], references: [bag_id])
+  physical_bag_contents physical_bag_contents @relation("physical_bag_content_adjustments__content_id__physical_bag_contents", fields: [content_id], references: [content_id])
+  colors colors @relation("physical_bag_content_adjustments__color_id__colors", fields: [color_id], references: [color_id])
+  sizes sizes @relation("physical_bag_content_adjustments__size_id__sizes", fields: [size_id], references: [size_id])
+  users users @relation("physical_bag_content_adjustments__adjusted_by__users", fields: [adjusted_by], references: [user_id])
+  @@schema("factory")
+}
+
+model quality_output_boxes {
+  box_id BigInt @id @default(autoincrement())
+  order_id BigInt
+  model_id BigInt
+  color_id BigInt
+  size_id BigInt
+  dozens_available Decimal @db.Decimal(12, 3) @default(0)
+  version BigInt @default(0)
+  last_updated DateTime @db.Timestamptz(6) @default(now())
+  production_orders production_orders @relation("quality_output_boxes__order_id__production_orders", fields: [order_id], references: [order_id])
+  models models @relation("quality_output_boxes__model_id__models", fields: [model_id], references: [model_id])
+  colors colors @relation("quality_output_boxes__color_id__colors", fields: [color_id], references: [color_id])
+  sizes sizes @relation("quality_output_boxes__size_id__sizes", fields: [size_id], references: [size_id])
+  dozen_assembly_lines dozen_assembly_lines[] @relation("dozen_assembly_lines__quality_box_id__quality_output_boxes")
+  @@unique([order_id, color_id, size_id])
+  @@index([order_id])
+  @@index([order_id, color_id, size_id])
+  @@schema("factory")
+}
+
+model packing_orders {
+  packing_order_id BigInt @id @default(autoincrement())
+  packing_order_no String @db.VarChar(30)
+  production_order_id BigInt @unique
+  pattern_id BigInt
+  target_dozens Decimal @db.Decimal(12, 3)
+  assembled_dozens Decimal @db.Decimal(12, 3) @default(0)
+  verified_dozens Decimal? @db.Decimal(12, 3)
+  status PackingOrderStatusEnum @default(DRAFT)
+  created_by BigInt
+  created_at DateTime @db.Timestamptz(6) @default(now())
+  started_by BigInt?
+  started_at DateTime? @db.Timestamptz(6)
+  verified_by BigInt?
+  verified_at DateTime? @db.Timestamptz(6)
+  posted_by BigInt?
+  posted_at DateTime? @db.Timestamptz(6)
+  notes String?
+  production_orders production_orders @relation("packing_orders__production_order_id__production_orders", fields: [production_order_id], references: [order_id])
+  packing_patterns packing_patterns @relation("packing_orders__pattern_id__packing_patterns", fields: [pattern_id], references: [pattern_id])
+  users users @relation("packing_orders__created_by__users", fields: [created_by], references: [user_id])
+  users_started_by users? @relation("packing_orders__started_by__users", fields: [started_by], references: [user_id])
+  users_verified_by users? @relation("packing_orders__verified_by__users", fields: [verified_by], references: [user_id])
+  users_posted_by users? @relation("packing_orders__posted_by__users", fields: [posted_by], references: [user_id])
+  dozen_assemblies dozen_assemblies[] @relation("dozen_assemblies__packing_order_id__packing_orders")
+  packing_verifications packing_verifications[] @relation("packing_verifications__packing_order_id__packing_orders")
+  @@index([production_order_id])
+  @@index([status])
+  @@schema("factory")
+}
+
+model dozen_assemblies {
+  assembly_id BigInt @id @default(autoincrement())
+  packing_order_id BigInt
+  assembly_sequence Int
+  dozens_assembled Decimal @db.Decimal(12, 3)
+  assembled_by BigInt
+  assembled_at DateTime @db.Timestamptz(6) @default(now())
+  notes String?
+  packing_orders packing_orders @relation("dozen_assemblies__packing_order_id__packing_orders", fields: [packing_order_id], references: [packing_order_id])
+  users users @relation("dozen_assemblies__assembled_by__users", fields: [assembled_by], references: [user_id])
+  dozen_assembly_lines dozen_assembly_lines[] @relation("dozen_assembly_lines__assembly_id__dozen_assemblies")
+  @@unique([packing_order_id, assembly_sequence])
+  @@index([packing_order_id])
+  @@schema("factory")
+}
+
+model dozen_assembly_lines {
+  assembly_line_id BigInt @id @default(autoincrement())
+  assembly_id BigInt
+  quality_box_id BigInt
+  color_id BigInt
+  size_id BigInt
+  pattern_line_id BigInt
+  pieces_consumed Int
+  dozens_consumed Decimal? @db.Decimal(12, 3) @default(dbgenerated())
+  dozen_assemblies dozen_assemblies @relation("dozen_assembly_lines__assembly_id__dozen_assemblies", fields: [assembly_id], references: [assembly_id])
+  quality_output_boxes quality_output_boxes @relation("dozen_assembly_lines__quality_box_id__quality_output_boxes", fields: [quality_box_id], references: [box_id])
+  colors colors @relation("dozen_assembly_lines__color_id__colors", fields: [color_id], references: [color_id])
+  sizes sizes @relation("dozen_assembly_lines__size_id__sizes", fields: [size_id], references: [size_id])
+  packing_pattern_lines packing_pattern_lines @relation("dozen_assembly_lines__pattern_line_id__packing_pattern_lines", fields: [pattern_line_id], references: [pattern_line_id])
+  @@unique([assembly_id, color_id, size_id])
+  @@index([assembly_id])
+  @@index([quality_box_id])
+  @@schema("factory")
+}
+
+model packing_verifications {
+  verification_id BigInt @id @default(autoincrement())
+  packing_order_id BigInt @unique
+  system_dozens Decimal @db.Decimal(12, 3)
+  physical_count_dozens Decimal @db.Decimal(12, 3)
+  variance_dozens Decimal? @db.Decimal(12, 3) @default(dbgenerated())
+  variance_accepted Boolean @default(false)
+  variance_notes String?
+  verified_by BigInt
+  verified_at DateTime @db.Timestamptz(6) @default(now())
+  packing_orders packing_orders @relation("packing_verifications__packing_order_id__packing_orders", fields: [packing_order_id], references: [packing_order_id])
+  users users @relation("packing_verifications__verified_by__users", fields: [verified_by], references: [user_id])
+  @@schema("factory")
+}
+
+model finished_goods_bags {
+  fg_bag_id BigInt @id @default(autoincrement())
+  session_id BigInt?
+  model_id BigInt
+  customer_id BigInt
+  warehouse_id BigInt
+  dozens_qty Decimal @db.Decimal(12, 3)
+  created_at DateTime @db.Timestamptz(6) @default(now())
+  cmo_line_id BigInt?
+  models models @relation("finished_goods_bags__model_id__models", fields: [model_id], references: [model_id])
+  customers customers @relation("finished_goods_bags__customer_id__customers", fields: [customer_id], references: [customer_id])
+  warehouses warehouses @relation("finished_goods_bags__warehouse_id__warehouses", fields: [warehouse_id], references: [warehouse_id])
+  customer_manufacturing_order_lines customer_manufacturing_order_lines? @relation("finished_goods_bags__cmo_line_id__customer_manufacturing_order_lines", fields: [cmo_line_id], references: [cmo_line_id])
+  shipping_line_fg_bags shipping_line_fg_bags[] @relation("shipping_line_fg_bags__fg_bag_id__finished_goods_bags")
+  @@index([model_id, created_at])
+  @@index([customer_id])
+  @@index([cmo_line_id])
+  @@schema("factory")
+}
+
+model employees {
+  employee_id BigInt @id @default(autoincrement())
+  employee_code String @db.VarChar(20) @unique
+  full_name String @db.VarChar(200)
+  national_id String? @db.VarChar(30)
+  employee_type EmployeeTypeEnum
+  department_id BigInt?
+  primary_stage_id BigInt?
+  primary_line_id BigInt?
+  hire_date DateTime @db.Date
+  termination_date DateTime? @db.Date
+  is_active Boolean @default(true)
+  user_id BigInt?
+  created_at DateTime @db.Timestamptz(6) @default(now())
+  updated_at DateTime @db.Timestamptz(6) @default(now())
+  departments departments? @relation("employees__department_id__departments", fields: [department_id], references: [department_id])
+  production_stages production_stages? @relation("employees__primary_stage_id__production_stages", fields: [primary_stage_id], references: [stage_id])
+  production_lines production_lines? @relation("employees__primary_line_id__production_lines", fields: [primary_line_id], references: [line_id])
+  users users? @relation("employees__user_id__users", fields: [user_id], references: [user_id])
+  employee_attendance employee_attendance[] @relation("employee_attendance__employee_id__employees")
+  employee_stage_assignments employee_stage_assignments[] @relation("employee_stage_assignments__employee_id__employees")
+  employee_daily_output employee_daily_output[] @relation("employee_daily_output__employee_id__employees")
+  employee_kpi_daily employee_kpi_daily[] @relation("employee_kpi_daily__employee_id__employees")
+  supplementary_request_negligence supplementary_request_negligence[] @relation("supplementary_request_negligence__responsible_employee_id__employees")
+  drivers drivers[] @relation("drivers__employee_id__employees")
+  inventory_investigations inventory_investigations[] @relation("inventory_investigations__responsible_employee_id__employees")
+  @@index([primary_stage_id])
+  @@index([primary_line_id])
+  @@schema("factory")
+}
+
+model employee_attendance {
+  attendance_id BigInt @id @default(autoincrement())
+  employee_id BigInt
+  attendance_date DateTime @db.Date
+  shift_type ShiftTypeEnum
+  status AttendanceStatusEnum
+  check_in_time DateTime? @db.Time(6)
+  check_out_time DateTime? @db.Time(6)
+  hours_present Decimal? @db.Decimal(4, 2) @default(dbgenerated())
+  notes String?
+  recorded_by BigInt
+  recorded_at DateTime @db.Timestamptz(6) @default(now())
+  employees employees @relation("employee_attendance__employee_id__employees", fields: [employee_id], references: [employee_id])
+  users users @relation("employee_attendance__recorded_by__users", fields: [recorded_by], references: [user_id])
+  @@unique([employee_id, attendance_date, shift_type])
+  @@index([employee_id, attendance_date])
+  @@schema("factory")
+}
+
+model employee_stage_assignments {
+  assignment_id BigInt @id @default(autoincrement())
+  employee_id BigInt
+  order_id BigInt
+  stage_id BigInt
+  line_id BigInt
+  assignment_date DateTime @db.Date
+  shift_type ShiftTypeEnum
+  assigned_by BigInt
+  employees employees @relation("employee_stage_assignments__employee_id__employees", fields: [employee_id], references: [employee_id])
+  production_orders production_orders @relation("employee_stage_assignments__order_id__production_orders", fields: [order_id], references: [order_id])
+  production_stages production_stages @relation("employee_stage_assignments__stage_id__production_stages", fields: [stage_id], references: [stage_id])
+  production_lines production_lines @relation("employee_stage_assignments__line_id__production_lines", fields: [line_id], references: [line_id])
+  users users @relation("employee_stage_assignments__assigned_by__users", fields: [assigned_by], references: [user_id])
+  employee_daily_output employee_daily_output[] @relation("employee_daily_output__assignment_id__employee_stage_assignments")
+  @@unique([employee_id, assignment_date, shift_type])
+  @@index([order_id, stage_id])
+  @@schema("factory")
+}
+
+model employee_daily_output {
+  output_id BigInt @id @default(autoincrement())
+  employee_id BigInt
+  assignment_id BigInt
+  order_id BigInt
+  stage_id BigInt
+  output_date DateTime @db.Date
+  shift_type ShiftTypeEnum
+  gross_pieces Int @default(0)
+  scrap_pieces Int @default(0)
+  net_pieces Int? @default(dbgenerated())
+  target_pieces Int?
+  recorded_by BigInt
+  recorded_at DateTime @db.Timestamptz(6) @default(now())
+  employees employees @relation("employee_daily_output__employee_id__employees", fields: [employee_id], references: [employee_id])
+  employee_stage_assignments employee_stage_assignments @relation("employee_daily_output__assignment_id__employee_stage_assignments", fields: [assignment_id], references: [assignment_id])
+  production_orders production_orders @relation("employee_daily_output__order_id__production_orders", fields: [order_id], references: [order_id])
+  production_stages production_stages @relation("employee_daily_output__stage_id__production_stages", fields: [stage_id], references: [stage_id])
+  users users @relation("employee_daily_output__recorded_by__users", fields: [recorded_by], references: [user_id])
+  @@unique([employee_id, order_id, stage_id, output_date, shift_type])
+  @@index([employee_id, output_date])
+  @@index([order_id, stage_id, output_date])
+  @@schema("factory")
+}
+
+model stage_standard_minutes {
+  smv_id BigInt @id @default(autoincrement())
+  model_id BigInt
+  stage_id BigInt
+  smv_minutes Decimal @db.Decimal(6, 3)
+  effective_from DateTime @db.Date
+  effective_to DateTime? @db.Date
+  set_by BigInt
+  created_at DateTime @db.Timestamptz(6) @default(now())
+  models models @relation("stage_standard_minutes__model_id__models", fields: [model_id], references: [model_id])
+  production_stages production_stages @relation("stage_standard_minutes__stage_id__production_stages", fields: [stage_id], references: [stage_id])
+  users users @relation("stage_standard_minutes__set_by__users", fields: [set_by], references: [user_id])
+  @@unique([model_id, stage_id, effective_from])
+  @@index([model_id, stage_id, effective_from])
+  @@schema("factory")
+}
+
+model employee_kpi_daily {
+  kpi_id BigInt @id @default(autoincrement())
+  employee_id BigInt
+  kpi_date DateTime @db.Date
+  order_id BigInt?
+  stage_id BigInt?
+  hours_present Decimal @db.Decimal(4, 2) @default(0)
+  gross_pieces Int @default(0)
+  scrap_pieces Int @default(0)
+  net_pieces Int @default(0)
+  target_pieces Int @default(0)
+  smv_minutes Decimal? @db.Decimal(6, 3)
+  efficiency_pct Decimal? @db.Decimal(6, 2)
+  productivity_pct Decimal? @db.Decimal(6, 2)
+  scrap_pct Decimal? @db.Decimal(6, 2)
+  attendance_flag Boolean @default(false)
+  computed_at DateTime @db.Timestamptz(6) @default(now())
+  employees employees @relation("employee_kpi_daily__employee_id__employees", fields: [employee_id], references: [employee_id])
+  production_orders production_orders? @relation("employee_kpi_daily__order_id__production_orders", fields: [order_id], references: [order_id])
+  production_stages production_stages? @relation("employee_kpi_daily__stage_id__production_stages", fields: [stage_id], references: [stage_id])
+  @@unique([employee_id, kpi_date, order_id, stage_id])
+  @@index([kpi_date])
+  @@schema("factory")
+}
+
+model line_kpi_summary {
+  summary_id BigInt @id @default(autoincrement())
+  line_id BigInt
+  period_type String @db.VarChar(10)
+  period_start DateTime @db.Date
+  period_end DateTime @db.Date
+  order_id BigInt?
+  total_workers Int?
+  total_gross_pieces Int?
+  total_scrap_pieces Int?
+  total_net_pieces Int?
+  total_target_pieces Int?
+  avg_efficiency_pct Decimal? @db.Decimal(6, 2)
+  avg_scrap_pct Decimal? @db.Decimal(6, 2)
+  line_performance_pct Decimal? @db.Decimal(6, 2)
+  computed_at DateTime @db.Timestamptz(6) @default(now())
+  production_lines production_lines @relation("line_kpi_summary__line_id__production_lines", fields: [line_id], references: [line_id])
+  production_orders production_orders? @relation("line_kpi_summary__order_id__production_orders", fields: [order_id], references: [order_id])
+  @@unique([line_id, period_type, period_start, order_id])
+  @@schema("factory")
+}
+
+model machines {
+  machine_id BigInt @id @default(autoincrement())
+  machine_code String @db.VarChar(30) @unique
+  machine_name String @db.VarChar(100)
+  machine_type MachineTypeEnum
+  serial_number String? @db.VarChar(100) @unique
+  manufacturer String? @db.VarChar(100)
+  model_number String? @db.VarChar(100)
+  purchase_date DateTime? @db.Date
+  warranty_expiry DateTime? @db.Date
+  assigned_stage_id BigInt?
+  assigned_line_id BigInt?
+  status MachineStatusEnum @default(INACTIVE)
+  is_active Boolean @default(true)
+  created_by BigInt
+  created_at DateTime @db.Timestamptz(6) @default(now())
+  updated_at DateTime @db.Timestamptz(6) @default(now())
+  production_stages production_stages? @relation("machines__assigned_stage_id__production_stages", fields: [assigned_stage_id], references: [stage_id])
+  production_lines production_lines? @relation("machines__assigned_line_id__production_lines", fields: [assigned_line_id], references: [line_id])
+  users users @relation("machines__created_by__users", fields: [created_by], references: [user_id])
+  machine_assignments machine_assignments[] @relation("machine_assignments__machine_id__machines")
+  machine_status_log machine_status_log[] @relation("machine_status_log__machine_id__machines")
+  machine_maintenance_schedule machine_maintenance_schedule[] @relation("machine_maintenance_schedule__machine_id__machines")
+  machine_downtime_events machine_downtime_events[] @relation("machine_downtime_events__machine_id__machines")
+  machine_oee_snapshots machine_oee_snapshots[] @relation("machine_oee_snapshots__machine_id__machines")
+  @@index([machine_type])
+  @@index([status])
+  @@index([assigned_line_id])
+  @@schema("factory")
+}
+
+model machine_assignments {
+  assignment_id BigInt @id @default(autoincrement())
+  machine_id BigInt
+  stage_id BigInt
+  line_id BigInt
+  assigned_from DateTime @db.Date
+  assigned_to DateTime? @db.Date
+  assigned_by BigInt
+  notes String?
+  machines machines @relation("machine_assignments__machine_id__machines", fields: [machine_id], references: [machine_id])
+  production_stages production_stages @relation("machine_assignments__stage_id__production_stages", fields: [stage_id], references: [stage_id])
+  production_lines production_lines @relation("machine_assignments__line_id__production_lines", fields: [line_id], references: [line_id])
+  users users @relation("machine_assignments__assigned_by__users", fields: [assigned_by], references: [user_id])
+  @@index([machine_id, assigned_from])
+  @@schema("factory")
+}
+
+model machine_status_log {
+  log_id BigInt @id @default(autoincrement())
+  machine_id BigInt
+  from_status MachineStatusEnum?
+  to_status MachineStatusEnum
+  changed_by BigInt
+  changed_at DateTime @db.Timestamptz(6) @default(now())
+  reason String?
+  machines machines @relation("machine_status_log__machine_id__machines", fields: [machine_id], references: [machine_id])
+  users users @relation("machine_status_log__changed_by__users", fields: [changed_by], references: [user_id])
+  @@schema("factory")
+}
+
+model machine_maintenance_schedule {
+  schedule_id BigInt @id @default(autoincrement())
+  machine_id BigInt
+  maintenance_type String @db.VarChar(50)
+  scheduled_date DateTime @db.Date
+  completed_date DateTime? @db.Date
+  technician_name String? @db.VarChar(200)
+  cost Decimal? @db.Decimal(12, 2)
+  notes String?
+  created_by BigInt
+  created_at DateTime @db.Timestamptz(6) @default(now())
+  machines machines @relation("machine_maintenance_schedule__machine_id__machines", fields: [machine_id], references: [machine_id])
+  users users @relation("machine_maintenance_schedule__created_by__users", fields: [created_by], references: [user_id])
+  @@schema("factory")
+}
+
+model machine_downtime_events {
+  downtime_id BigInt @id @default(autoincrement())
+  machine_id BigInt
+  order_id BigInt?
+  downtime_reason DowntimeReasonEnum
+  started_at DateTime @db.Timestamptz(6)
+  ended_at DateTime? @db.Timestamptz(6)
+  duration_minutes Decimal? @db.Decimal(8, 2) @default(dbgenerated())
+  reported_by BigInt
+  resolved_by BigInt?
+  root_cause String?
+  corrective_action String?
+  notes String?
+  machines machines @relation("machine_downtime_events__machine_id__machines", fields: [machine_id], references: [machine_id])
+  production_orders production_orders? @relation("machine_downtime_events__order_id__production_orders", fields: [order_id], references: [order_id])
+  users users @relation("machine_downtime_events__reported_by__users", fields: [reported_by], references: [user_id])
+  users_resolved_by users? @relation("machine_downtime_events__resolved_by__users", fields: [resolved_by], references: [user_id])
+  @@index([machine_id, started_at])
+  @@index([machine_id])
+  @@index([downtime_reason, started_at])
+  @@schema("factory")
+}
+
+model machine_oee_snapshots {
+  snapshot_id BigInt @id @default(autoincrement())
+  machine_id BigInt
+  line_id BigInt
+  snapshot_date DateTime @db.Date
+  shift_type ShiftTypeEnum
+  order_id BigInt?
+  planned_time_min Decimal @db.Decimal(8, 2)
+  downtime_min Decimal @db.Decimal(8, 2) @default(0)
+  operating_time_min Decimal? @db.Decimal(8, 2) @default(dbgenerated())
+  actual_pieces Int @default(0)
+  theoretical_max Int?
+  good_pieces Int @default(0)
+  availability_pct Decimal? @db.Decimal(6, 2)
+  performance_pct Decimal? @db.Decimal(6, 2)
+  quality_pct Decimal? @db.Decimal(6, 2)
+  oee_pct Decimal? @db.Decimal(6, 2)
+  computed_at DateTime @db.Timestamptz(6) @default(now())
+  machines machines @relation("machine_oee_snapshots__machine_id__machines", fields: [machine_id], references: [machine_id])
+  production_lines production_lines @relation("machine_oee_snapshots__line_id__production_lines", fields: [line_id], references: [line_id])
+  production_orders production_orders? @relation("machine_oee_snapshots__order_id__production_orders", fields: [order_id], references: [order_id])
+  @@unique([machine_id, snapshot_date, shift_type])
+  @@index([snapshot_date, line_id])
+  @@schema("factory")
+}
+
+model workflow_templates {
+  template_id BigInt @id @default(autoincrement())
+  template_code String @db.VarChar(50) @unique
+  template_name String @db.VarChar(200)
+  entity_type String @db.VarChar(50)
+  is_active Boolean @default(true)
+  created_at DateTime @db.Timestamptz(6) @default(now())
+  workflow_template_steps workflow_template_steps[] @relation("workflow_template_steps__template_id__workflow_templates")
+  workflow_instances workflow_instances[] @relation("workflow_instances__template_id__workflow_templates")
+  approval_permissions approval_permissions[] @relation("approval_permissions__workflow_template_id__workflow_templates")
+  @@schema("factory")
+}
+
+model workflow_template_steps {
+  step_id BigInt @id @default(autoincrement())
+  template_id BigInt
+  step_number Int
+  step_name String @db.VarChar(100)
+  required_role_id BigInt
+  sla_hours Int @default(24)
+  rejection_goes_to Int?
+  escalation_role_id BigInt?
+  workflow_templates workflow_templates @relation("workflow_template_steps__template_id__workflow_templates", fields: [template_id], references: [template_id])
+  roles roles @relation("workflow_template_steps__required_role_id__roles", fields: [required_role_id], references: [role_id])
+  roles_escalation_role_id roles? @relation("workflow_template_steps__escalation_role_id__roles", fields: [escalation_role_id], references: [role_id])
+  @@unique([template_id, step_number])
+  @@schema("factory")
+}
+
+model workflow_instances {
+  instance_id BigInt @id @default(autoincrement())
+  template_id BigInt
+  entity_type String @db.VarChar(50)
+  entity_id BigInt
+  current_step_number Int @default(1)
+  status WorkflowStatusEnum @default(DRAFT)
+  submitted_by BigInt
+  submitted_at DateTime? @db.Timestamptz(6)
+  completed_at DateTime? @db.Timestamptz(6)
+  notes String?
+  created_at DateTime @db.Timestamptz(6) @default(now())
+  workflow_templates workflow_templates @relation("workflow_instances__template_id__workflow_templates", fields: [template_id], references: [template_id])
+  users users @relation("workflow_instances__submitted_by__users", fields: [submitted_by], references: [user_id])
+  workflow_step_actions workflow_step_actions[] @relation("workflow_step_actions__instance_id__workflow_instances")
+  @@unique([entity_type, entity_id])
+  @@index([entity_type, entity_id])
+  @@index([status])
+  @@schema("factory")
+}
+
+model workflow_step_actions {
+  action_id BigInt @id @default(autoincrement())
+  instance_id BigInt
+  step_number Int
+  action StepActionEnum
+  action_by BigInt
+  action_at DateTime @db.Timestamptz(6) @default(now())
+  comments String?
+  entity_snapshot Json? @db.JsonB
+  workflow_instances workflow_instances @relation("workflow_step_actions__instance_id__workflow_instances", fields: [instance_id], references: [instance_id])
+  users users @relation("workflow_step_actions__action_by__users", fields: [action_by], references: [user_id])
+  @@index([instance_id, action_at])
+  @@index([action_by, action_at])
+  @@schema("factory")
+}
+
+model supplementary_material_requests {
+  request_id BigInt @id @default(autoincrement())
+  request_number String @db.VarChar(30) @unique
+  order_id BigInt
+  reason_type SupplementaryReasonEnum
+  status SupplementaryStatusEnum @default(DRAFT)
+  justification String
+  requested_by BigInt
+  requested_at DateTime @db.Timestamptz(6) @default(now())
+  transferred_by BigInt?
+  transferred_at DateTime? @db.Timestamptz(6)
+  notes String?
+  production_orders production_orders @relation("supplementary_material_requests__order_id__production_orders", fields: [order_id], references: [order_id])
+  users users @relation("supplementary_material_requests__requested_by__users", fields: [requested_by], references: [user_id])
+  users_transferred_by users? @relation("supplementary_material_requests__transferred_by__users", fields: [transferred_by], references: [user_id])
+  supplementary_request_lines supplementary_request_lines[] @relation("supplementary_request_lines__request_id__supplementary_material_requests")
+  supplementary_request_negligence supplementary_request_negligence[] @relation("supplementary_request_negligence__request_id__supplementary_material_requests")
+  @@index([order_id, requested_at])
+  @@index([status])
+  @@index([reason_type, requested_at])
+  @@schema("factory")
+}
+
+model supplementary_request_lines {
+  line_id BigInt @id @default(autoincrement())
+  request_id BigInt
+  order_part_id BigInt
+  part_id BigInt
+  source_warehouse_id BigInt
+  requested_dozens Decimal @db.Decimal(12, 3)
+  approved_dozens Decimal? @db.Decimal(12, 3)
+  transferred_dozens Decimal? @db.Decimal(12, 3)
+  line_notes String?
+  supplementary_material_requests supplementary_material_requests @relation("supplementary_request_lines__request_id__supplementary_material_requests", fields: [request_id], references: [request_id])
+  production_order_parts production_order_parts @relation("supplementary_request_lines__order_part_id__production_order_parts", fields: [order_part_id], references: [order_part_id])
+  model_parts model_parts @relation("supplementary_request_lines__part_id__model_parts", fields: [part_id], references: [part_id])
+  warehouses warehouses @relation("supplementary_request_lines__source_warehouse_id__warehouses", fields: [source_warehouse_id], references: [warehouse_id])
+  @@unique([request_id, part_id])
+  @@index([request_id])
+  @@index([part_id, request_id])
+  @@schema("factory")
+}
+
+model supplementary_request_negligence {
+  negligence_id BigInt @id @default(autoincrement())
+  request_id BigInt @unique
+  responsible_employee_id BigInt
+  negligence_type String @db.VarChar(50)
+  stage_id BigInt
+  incident_description String
+  warning_issued Boolean @default(false)
+  warning_reference String? @db.VarChar(100)
+  reported_by BigInt
+  reported_at DateTime @db.Timestamptz(6) @default(now())
+  root_cause_category RootCauseCategoryEnum?
+  corrective_action String?
+  preventive_action String?
+  closure_status AccountabilityClosureEnum @default(OPEN)
+  closed_by BigInt?
+  closed_at DateTime? @db.Timestamptz(6)
+  supplementary_material_requests supplementary_material_requests @relation("supplementary_request_negligence__request_id__supplementary_material_requests", fields: [request_id], references: [request_id])
+  employees employees @relation("supplementary_request_negligence__responsible_employee_id__employees", fields: [responsible_employee_id], references: [employee_id])
+  production_stages production_stages @relation("supplementary_request_negligence__stage_id__production_stages", fields: [stage_id], references: [stage_id])
+  users users @relation("supplementary_request_negligence__reported_by__users", fields: [reported_by], references: [user_id])
+  users_closed_by users? @relation("supplementary_request_negligence__closed_by__users", fields: [closed_by], references: [user_id])
+  @@index([responsible_employee_id, reported_at])
+  @@index([stage_id, reported_at])
+  @@index([root_cause_category])
+  @@index([closure_status])
+  @@schema("factory")
+}
+
+model customer_manufacturing_orders {
+  cmo_id BigInt @id @default(autoincrement())
+  cmo_number String @db.VarChar(20) @unique
+  customer_id BigInt
+  customer_reference String? @db.VarChar(100)
+  priority CmoPriorityEnum @default(NORMAL)
+  requested_delivery_date DateTime @db.Date
+  status CmoStatusEnum @default(DRAFT)
+  notes String?
+  created_by BigInt
+  created_at DateTime @db.Timestamptz(6) @default(now())
+  updated_by BigInt?
+  updated_at DateTime @db.Timestamptz(6) @default(now())
+  closed_at DateTime? @db.Timestamptz(6)
+  customers customers @relation("customer_manufacturing_orders__customer_id__customers", fields: [customer_id], references: [customer_id])
+  users users @relation("customer_manufacturing_orders__created_by__users", fields: [created_by], references: [user_id])
+  users_updated_by users? @relation("customer_manufacturing_orders__updated_by__users", fields: [updated_by], references: [user_id])
+  customer_manufacturing_order_lines customer_manufacturing_order_lines[] @relation("customer_manufacturing_order_lines__cmo_id__customer_manufacturing_orders")
+  @@index([customer_id])
+  @@index([status])
+  @@index([requested_delivery_date])
+  @@schema("factory")
+}
+
+model customer_manufacturing_order_lines {
+  cmo_line_id BigInt @id @default(autoincrement())
+  cmo_id BigInt
+  model_id BigInt
+  color_id BigInt
+  size_id BigInt
+  ordered_dozens Decimal @db.Decimal(12, 3)
+  released_dozens Decimal @db.Decimal(12, 3) @default(0)
+  produced_dozens Decimal @db.Decimal(12, 3) @default(0)
+  packed_dozens Decimal @db.Decimal(12, 3) @default(0)
+  delivered_dozens Decimal @db.Decimal(12, 3) @default(0)
+  remaining_dozens Decimal? @db.Decimal(12, 3) @default(dbgenerated())
+  line_status CmoLineStatusEnum @default(PENDING)
+  version BigInt @default(0)
+  customer_manufacturing_orders customer_manufacturing_orders @relation("customer_manufacturing_order_lines__cmo_id__customer_manufacturing_orders", fields: [cmo_id], references: [cmo_id])
+  models models @relation("customer_manufacturing_order_lines__model_id__models", fields: [model_id], references: [model_id])
+  colors colors @relation("customer_manufacturing_order_lines__color_id__colors", fields: [color_id], references: [color_id])
+  sizes sizes @relation("customer_manufacturing_order_lines__size_id__sizes", fields: [size_id], references: [size_id])
+  production_orders production_orders[] @relation("production_orders__cmo_line_id__customer_manufacturing_order_lines")
+  finished_goods_bags finished_goods_bags[] @relation("finished_goods_bags__cmo_line_id__customer_manufacturing_order_lines")
+  shipping_order_lines shipping_order_lines[] @relation("shipping_order_lines__cmo_line_id__customer_manufacturing_order_lines")
+  @@unique([cmo_id, model_id, color_id, size_id])
+  @@index([cmo_id])
+  @@index([model_id])
+  @@index([remaining_dozens])
+  @@schema("factory")
+}
+
+model vehicles {
+  vehicle_id BigInt @id @default(autoincrement())
+  plate_number String @db.VarChar(20) @unique
+  vehicle_type String? @db.VarChar(50)
+  capacity_dozens Decimal? @db.Decimal(12, 3)
+  is_active Boolean @default(true)
+  shipping_orders shipping_orders[] @relation("shipping_orders__vehicle_id__vehicles")
+  @@schema("factory")
+}
+
+model drivers {
+  driver_id BigInt @id @default(autoincrement())
+  employee_id BigInt?
+  full_name String @db.VarChar(200)
+  phone_number String? @db.VarChar(30)
+  license_number String? @db.VarChar(50)
+  is_active Boolean @default(true)
+  employees employees? @relation("drivers__employee_id__employees", fields: [employee_id], references: [employee_id])
+  shipping_orders shipping_orders[] @relation("shipping_orders__driver_id__drivers")
+  @@schema("factory")
+}
+
+model shipping_orders {
+  shipping_order_id BigInt @id @default(autoincrement())
+  shipping_order_number String @db.VarChar(20) @unique
+  customer_id BigInt
+  status ShippingOrderStatusEnum @default(DRAFT)
+  planned_dispatch_date DateTime @db.Date
+  vehicle_id BigInt?
+  driver_id BigInt?
+  dispatched_at DateTime? @db.Timestamptz(6)
+  dispatched_by BigInt?
+  notes String?
+  created_by BigInt
+  created_at DateTime @db.Timestamptz(6) @default(now())
+  updated_at DateTime @db.Timestamptz(6) @default(now())
+  customers customers @relation("shipping_orders__customer_id__customers", fields: [customer_id], references: [customer_id])
+  vehicles vehicles? @relation("shipping_orders__vehicle_id__vehicles", fields: [vehicle_id], references: [vehicle_id])
+  drivers drivers? @relation("shipping_orders__driver_id__drivers", fields: [driver_id], references: [driver_id])
+  users users? @relation("shipping_orders__dispatched_by__users", fields: [dispatched_by], references: [user_id])
+  users_created_by users @relation("shipping_orders__created_by__users", fields: [created_by], references: [user_id])
+  shipping_order_lines shipping_order_lines[] @relation("shipping_order_lines__shipping_order_id__shipping_orders")
+  vehicle_loadings vehicle_loadings[] @relation("vehicle_loadings__shipping_order_id__shipping_orders")
+  delivery_notes delivery_notes[] @relation("delivery_notes__shipping_order_id__shipping_orders")
+  proof_of_delivery proof_of_delivery[] @relation("proof_of_delivery__shipping_order_id__shipping_orders")
+  @@index([customer_id])
+  @@index([status])
+  @@index([planned_dispatch_date])
+  @@schema("factory")
+}
+
+model shipping_order_lines {
+  shipping_line_id BigInt @id @default(autoincrement())
+  shipping_order_id BigInt
+  cmo_line_id BigInt
+  shipped_dozens Decimal @db.Decimal(12, 3)
+  shipping_orders shipping_orders @relation("shipping_order_lines__shipping_order_id__shipping_orders", fields: [shipping_order_id], references: [shipping_order_id])
+  customer_manufacturing_order_lines customer_manufacturing_order_lines @relation("shipping_order_lines__cmo_line_id__customer_manufacturing_order_lines", fields: [cmo_line_id], references: [cmo_line_id])
+  shipping_line_fg_bags shipping_line_fg_bags[] @relation("shipping_line_fg_bags__shipping_line_id__shipping_order_lines")
+  @@unique([shipping_order_id, cmo_line_id])
+  @@index([shipping_order_id])
+  @@index([cmo_line_id])
+  @@schema("factory")
+}
+
+model shipping_line_fg_bags {
+  id BigInt @id @default(autoincrement())
+  shipping_line_id BigInt
+  fg_bag_id BigInt
+  dozens_consumed Decimal @db.Decimal(12, 3)
+  shipping_order_lines shipping_order_lines @relation("shipping_line_fg_bags__shipping_line_id__shipping_order_lines", fields: [shipping_line_id], references: [shipping_line_id])
+  finished_goods_bags finished_goods_bags @relation("shipping_line_fg_bags__fg_bag_id__finished_goods_bags", fields: [fg_bag_id], references: [fg_bag_id])
+  @@unique([shipping_line_id, fg_bag_id])
+  @@index([shipping_line_id])
+  @@index([fg_bag_id])
+  @@schema("factory")
+}
+
+model vehicle_loadings {
+  loading_id BigInt @id @default(autoincrement())
+  shipping_order_id BigInt @unique
+  loading_started_at DateTime? @db.Timestamptz(6)
+  loading_completed_at DateTime? @db.Timestamptz(6)
+  total_dozens_loaded Decimal @db.Decimal(12, 3) @default(0)
+  loaded_by BigInt
+  notes String?
+  shipping_orders shipping_orders @relation("vehicle_loadings__shipping_order_id__shipping_orders", fields: [shipping_order_id], references: [shipping_order_id])
+  users users @relation("vehicle_loadings__loaded_by__users", fields: [loaded_by], references: [user_id])
+  @@schema("factory")
+}
+
+model delivery_notes {
+  delivery_note_id BigInt @id @default(autoincrement())
+  delivery_note_number String @db.VarChar(20) @unique
+  shipping_order_id BigInt @unique
+  issued_at DateTime @db.Timestamptz(6) @default(now())
+  issued_by BigInt
+  customer_acknowledged Boolean @default(false)
+  customer_acknowledged_at DateTime? @db.Timestamptz(6)
+  customer_acknowledged_name String? @db.VarChar(200)
+  shipping_orders shipping_orders @relation("delivery_notes__shipping_order_id__shipping_orders", fields: [shipping_order_id], references: [shipping_order_id])
+  users users @relation("delivery_notes__issued_by__users", fields: [issued_by], references: [user_id])
+  @@schema("factory")
+}
+
+model proof_of_delivery {
+  pod_id BigInt @id @default(autoincrement())
+  shipping_order_id BigInt @unique
+  signature_image_path String? @db.VarChar(500)
+  photo_reference_path String? @db.VarChar(500)
+  received_by_name String? @db.VarChar(200)
+  recorded_at DateTime @db.Timestamptz(6) @default(now())
+  recorded_by BigInt
+  notes String?
+  shipping_orders shipping_orders @relation("proof_of_delivery__shipping_order_id__shipping_orders", fields: [shipping_order_id], references: [shipping_order_id])
+  users users @relation("proof_of_delivery__recorded_by__users", fields: [recorded_by], references: [user_id])
+  @@schema("factory")
+}
+
+model inventory_investigations {
+  investigation_id BigInt @id @default(autoincrement())
+  investigation_number String @db.VarChar(20) @unique
+  investigation_type InvestigationTypeEnum
+  warehouse_id BigInt?
+  container_id BigInt?
+  bag_id BigInt?
+  model_id BigInt?
+  part_id BigInt?
+  description String
+  root_cause_category RootCauseCategoryEnum?
+  responsible_department_id BigInt?
+  responsible_employee_id BigInt?
+  corrective_action String?
+  preventive_action String?
+  closure_status AccountabilityClosureEnum @default(OPEN)
+  reported_by BigInt
+  reported_at DateTime @db.Timestamptz(6) @default(now())
+  closed_by BigInt?
+  closed_at DateTime? @db.Timestamptz(6)
+  warehouses warehouses? @relation("inventory_investigations__warehouse_id__warehouses", fields: [warehouse_id], references: [warehouse_id])
+  containers containers? @relation("inventory_investigations__container_id__containers", fields: [container_id], references: [container_id])
+  physical_bags physical_bags? @relation("inventory_investigations__bag_id__physical_bags", fields: [bag_id], references: [bag_id])
+  models models? @relation("inventory_investigations__model_id__models", fields: [model_id], references: [model_id])
+  model_parts model_parts? @relation("inventory_investigations__part_id__model_parts", fields: [part_id], references: [part_id])
+  departments departments? @relation("inventory_investigations__responsible_department_id__departments", fields: [responsible_department_id], references: [department_id])
+  employees employees? @relation("inventory_investigations__responsible_employee_id__employees", fields: [responsible_employee_id], references: [employee_id])
+  users users @relation("inventory_investigations__reported_by__users", fields: [reported_by], references: [user_id])
+  users_closed_by users? @relation("inventory_investigations__closed_by__users", fields: [closed_by], references: [user_id])
+  inventory_investigation_actions inventory_investigation_actions[] @relation("inventory_investigation_actions__investigation_id__inventory_investigations")
+  @@index([closure_status])
+  @@index([responsible_employee_id])
+  @@index([warehouse_id])
+  @@schema("factory")
+}
+
+model inventory_investigation_actions {
+  action_id BigInt @id @default(autoincrement())
+  investigation_id BigInt
+  action_note String
+  performed_by BigInt
+  performed_at DateTime @db.Timestamptz(6) @default(now())
+  inventory_investigations inventory_investigations @relation("inventory_investigation_actions__investigation_id__inventory_investigations", fields: [investigation_id], references: [investigation_id])
+  users users @relation("inventory_investigation_actions__performed_by__users", fields: [performed_by], references: [user_id])
+  @@index([investigation_id, performed_at])
+  @@schema("factory")
+}
+
+model user_password_history {
+  password_history_id BigInt @id @default(autoincrement())
+  user_id BigInt
+  password_hash String @db.VarChar(500)
+  changed_by BigInt
+  change_reason String @db.VarChar(30)
+  changed_at DateTime @db.Timestamptz(6) @default(now())
+  users users @relation("user_password_history__user_id__users", fields: [user_id], references: [user_id])
+  users_changed_by users @relation("user_password_history__changed_by__users", fields: [changed_by], references: [user_id])
+  @@index([user_id, changed_at])
+  @@schema("factory")
+}
+
+model password_reset_tokens {
+  token_id BigInt @id @default(autoincrement())
+  user_id BigInt
+  token_hash String @db.VarChar(500) @unique
+  issued_by BigInt?
+  issued_at DateTime @db.Timestamptz(6) @default(now())
+  expires_at DateTime @db.Timestamptz(6)
+  used_at DateTime? @db.Timestamptz(6)
+  status String @db.VarChar(20) @default("PENDING")
+  users users @relation("password_reset_tokens__user_id__users", fields: [user_id], references: [user_id])
+  users_issued_by users? @relation("password_reset_tokens__issued_by__users", fields: [issued_by], references: [user_id])
+  @@index([user_id, status])
+  @@schema("factory")
+}
+
+model role_groups {
+  role_group_id BigInt @id @default(autoincrement())
+  group_code String @db.VarChar(30) @unique
+  group_name String @db.VarChar(100)
+  description String?
+  created_at DateTime @db.Timestamptz(6) @default(now())
+  @@schema("factory")
+}
+
+model screens {
+  screen_id BigInt @id @default(autoincrement())
+  screen_code String @db.VarChar(60) @unique
+  screen_name String @db.VarChar(150)
+  module_name String @db.VarChar(60)
+  parent_screen_id BigInt?
+  menu_order Int @default(0)
+  is_active Boolean @default(true)
+  screens_parent screens? @relation("screens__parent_screen_id__screens", fields: [parent_screen_id], references: [screen_id])
+  screens_children screens[] @relation("screens__parent_screen_id__screens")
+  screen_permissions screen_permissions[] @relation("screen_permissions__screen_id__screens")
+  @@schema("factory")
+}
+
+model screen_permissions {
+  screen_permission_id BigInt @id @default(autoincrement())
+  role_id BigInt
+  screen_id BigInt
+  permission_type PermissionTypeEnum
+  is_granted Boolean @default(true)
+  granted_by BigInt
+  granted_at DateTime @db.Timestamptz(6) @default(now())
+  roles roles @relation("screen_permissions__role_id__roles", fields: [role_id], references: [role_id])
+  screens screens @relation("screen_permissions__screen_id__screens", fields: [screen_id], references: [screen_id])
+  users users @relation("screen_permissions__granted_by__users", fields: [granted_by], references: [user_id])
+  @@unique([role_id, screen_id, permission_type])
+  @@schema("factory")
+}
+
+model approval_permissions {
+  approval_permission_id BigInt @id @default(autoincrement())
+  workflow_template_id BigInt
+  role_id BigInt
+  is_delegate Boolean @default(true)
+  valid_from DateTime @db.Timestamptz(6) @default(now())
+  valid_to DateTime? @db.Timestamptz(6)
+  granted_by BigInt
+  workflow_templates workflow_templates @relation("approval_permissions__workflow_template_id__workflow_templates", fields: [workflow_template_id], references: [template_id])
+  roles roles @relation("approval_permissions__role_id__roles", fields: [role_id], references: [role_id])
+  users users @relation("approval_permissions__granted_by__users", fields: [granted_by], references: [user_id])
+  @@schema("factory")
+}
+
+model user_sessions {
+  session_id BigInt @id @default(autoincrement())
+  user_id BigInt
+  device_id String @db.VarChar(200)
+  device_platform String @db.VarChar(20)
+  ip_address Unsupported("inet")?
+  started_at DateTime @db.Timestamptz(6) @default(now())
+  last_activity_at DateTime @db.Timestamptz(6) @default(now())
+  expires_at DateTime @db.Timestamptz(6)
+  ended_at DateTime? @db.Timestamptz(6)
+  end_reason String? @db.VarChar(30)
+  revoked_by BigInt?
+  status String @db.VarChar(20) @default("ACTIVE")
+  users users @relation("user_sessions__user_id__users", fields: [user_id], references: [user_id])
+  users_revoked_by users? @relation("user_sessions__revoked_by__users", fields: [revoked_by], references: [user_id])
+  @@index([user_id, status])
+  @@index([device_id])
+  @@schema("factory")
+}
+
+model session_policy {
+  session_policy_id BigInt @id @default(autoincrement())
+  role_id BigInt @unique
+  max_concurrent_sessions Int @default(1)
+  idle_timeout_minutes Int @default(60)
+  absolute_timeout_minutes Int @default(720)
+  updated_by BigInt
+  updated_at DateTime @db.Timestamptz(6) @default(now())
+  roles roles @relation("session_policy__role_id__roles", fields: [role_id], references: [role_id])
+  users users @relation("session_policy__updated_by__users", fields: [updated_by], references: [user_id])
+  @@schema("factory")
+}
+
+model system_config {
+  config_id BigInt @id @default(autoincrement())
+  config_key String @db.VarChar(100) @unique
+  config_value String
+  value_type String @db.VarChar(20)
+  category String @db.VarChar(50)
+  description String?
+  is_editable Boolean @default(true)
+  updated_by BigInt
+  updated_at DateTime @db.Timestamptz(6) @default(now())
+  users users @relation("system_config__updated_by__users", fields: [updated_by], references: [user_id])
+  @@schema("factory")
+}
+
+model fiscal_years {
+  fiscal_year_id BigInt @id @default(autoincrement())
+  year_label String @db.VarChar(10) @unique
+  start_date DateTime @db.Date
+  end_date DateTime @db.Date
+  status String @db.VarChar(20) @default("OPEN")
+  closed_by BigInt?
+  closed_at DateTime? @db.Timestamptz(6)
+  users users? @relation("fiscal_years__closed_by__users", fields: [closed_by], references: [user_id])
+  @@schema("factory")
+}
+
+model working_shifts {
+  shift_id BigInt @id @default(autoincrement())
+  shift_code String @db.VarChar(20) @unique
+  shift_name String @db.VarChar(50)
+  start_time DateTime @db.Time(6)
+  end_time DateTime @db.Time(6)
+  is_active Boolean @default(true)
+  @@schema("factory")
+}
+
+model number_sequences {
+  sequence_id BigInt @id @default(autoincrement())
+  sequence_code String @db.VarChar(50) @unique
+  applies_to_table String @db.VarChar(100)
+  pattern_template String @db.VarChar(100)
+  reset_frequency String @db.VarChar(20)
+  current_value BigInt @default(0)
+  is_db_managed Boolean @default(true)
+  last_reset_at DateTime? @db.Timestamptz(6)
+  last_reset_by BigInt?
+  users users? @relation("number_sequences__last_reset_by__users", fields: [last_reset_by], references: [user_id])
+  @@schema("factory")
+}
+
+model master_data_change_requests {
+  change_request_id BigInt @id @default(autoincrement())
+  target_table String @db.VarChar(100)
+  target_id BigInt
+  change_type String @db.VarChar(20)
+  proposed_payload Json @db.JsonB
+  requested_by BigInt
+  requested_at DateTime @db.Timestamptz(6) @default(now())
+  status String @db.VarChar(20) @default("PENDING")
+  reviewed_by BigInt?
+  reviewed_at DateTime? @db.Timestamptz(6)
+  users users @relation("master_data_change_requests__requested_by__users", fields: [requested_by], references: [user_id])
+  users_reviewed_by users? @relation("master_data_change_requests__reviewed_by__users", fields: [reviewed_by], references: [user_id])
+  @@schema("factory")
+}
+
+model notifications {
+  notification_id BigInt @id @default(autoincrement())
+  recipient_user_id BigInt
+  notification_type String @db.VarChar(50)
+  title String @db.VarChar(200)
+  body String?
+  related_entity_type String? @db.VarChar(50)
+  related_entity_id String? @db.VarChar(50)
+  channel String @db.VarChar(20) @default("IN_APP")
+  is_read Boolean @default(false)
+  read_at DateTime? @db.Timestamptz(6)
+  created_at DateTime @db.Timestamptz(6) @default(now())
+  users users @relation("notifications__recipient_user_id__users", fields: [recipient_user_id], references: [user_id])
+  @@index([recipient_user_id, is_read, created_at])
+  @@schema("factory")
+}
+
+model notification_preferences {
+  preference_id BigInt @id @default(autoincrement())
+  user_id BigInt
+  notification_type String @db.VarChar(50)
+  channel String @db.VarChar(20)
+  is_enabled Boolean @default(true)
+  users users @relation("notification_preferences__user_id__users", fields: [user_id], references: [user_id])
+  @@unique([user_id, notification_type, channel])
+  @@schema("factory")
+}
+
+model system_health_snapshots {
+  snapshot_id BigInt @id @default(autoincrement())
+  component String @db.VarChar(50)
+  status String @db.VarChar(20)
+  metric_payload Json? @db.JsonB
+  captured_at DateTime @db.Timestamptz(6) @default(now())
+  @@index([component, captured_at])
+  @@schema("factory")
+}
+
+model job_definitions {
+  job_id BigInt @id @default(autoincrement())
+  job_code String @db.VarChar(50) @unique
+  job_name String @db.VarChar(150)
+  schedule_cron String @db.VarChar(50)
+  job_type String @db.VarChar(30)
+  is_enabled Boolean @default(true)
+  updated_by BigInt?
+  updated_at DateTime? @db.Timestamptz(6)
+  users users? @relation("job_definitions__updated_by__users", fields: [updated_by], references: [user_id])
+  job_execution_log job_execution_log[] @relation("job_execution_log__job_id__job_definitions")
+  @@schema("factory")
+}
+
+model job_execution_log {
+  execution_id BigInt @id @default(autoincrement())
+  job_id BigInt
+  started_at DateTime @db.Timestamptz(6) @default(now())
+  completed_at DateTime? @db.Timestamptz(6)
+  status String @db.VarChar(20) @default("RUNNING")
+  rows_affected Int?
+  error_message String?
+  triggered_by BigInt?
+  job_definitions job_definitions @relation("job_execution_log__job_id__job_definitions", fields: [job_id], references: [job_id])
+  users users? @relation("job_execution_log__triggered_by__users", fields: [triggered_by], references: [user_id])
+  @@index([job_id, started_at])
+  @@index([status, started_at])
+  @@schema("factory")
+}
+
+model db_backup_log {
+  backup_id BigInt @id @default(autoincrement())
+  backup_type String @db.VarChar(20)
+  started_at DateTime @db.Timestamptz(6) @default(now())
+  completed_at DateTime? @db.Timestamptz(6)
+  status String @db.VarChar(20) @default("RUNNING")
+  size_bytes BigInt?
+  storage_location String? @db.VarChar(500)
+  triggered_by BigInt?
+  users users? @relation("db_backup_log__triggered_by__users", fields: [triggered_by], references: [user_id])
+  db_restore_log db_restore_log[] @relation("db_restore_log__backup_id__db_backup_log")
+  @@schema("factory")
+}
+
+model db_restore_log {
+  restore_id BigInt @id @default(autoincrement())
+  backup_id BigInt
+  started_at DateTime @db.Timestamptz(6) @default(now())
+  completed_at DateTime? @db.Timestamptz(6)
+  status String @db.VarChar(20) @default("RUNNING")
+  reason String
+  authorized_by BigInt
+  performed_by BigInt
+  db_backup_log db_backup_log @relation("db_restore_log__backup_id__db_backup_log", fields: [backup_id], references: [backup_id])
+  users users @relation("db_restore_log__authorized_by__users", fields: [authorized_by], references: [user_id])
+  users_performed_by users @relation("db_restore_log__performed_by__users", fields: [performed_by], references: [user_id])
+  @@schema("factory")
+}
+
+model db_maintenance_log {
+  maintenance_id BigInt @id @default(autoincrement())
+  maintenance_type String @db.VarChar(30)
+  target_object String? @db.VarChar(150)
+  started_at DateTime @db.Timestamptz(6) @default(now())
+  completed_at DateTime? @db.Timestamptz(6)
+  status String @db.VarChar(20) @default("RUNNING")
+  notes String?
+  triggered_by BigInt?
+  users users? @relation("db_maintenance_log__triggered_by__users", fields: [triggered_by], references: [user_id])
+  @@schema("factory")
 }
