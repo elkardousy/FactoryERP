@@ -1,6 +1,12 @@
-import { ApiError } from '../interfaces/api-error.interface';
+import { ApiError } from './api-error.interface';
 
-export class ErrorResponse implements ApiError {
+
+
+
+export class ErrorResponse implements ApiError 
+
+
+{
 readonly success: false = false;  constructor(
     public readonly statusCode: number,
     public readonly error: string,

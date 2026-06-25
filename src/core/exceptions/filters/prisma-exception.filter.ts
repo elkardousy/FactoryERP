@@ -9,8 +9,7 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { Request, Response } from 'express';
-import { ErrorResponse } from '../responses/error-response';
-
+import { ErrorResponse } from '../../responses/error-response';
 @Catch(Prisma.PrismaClientKnownRequestError)
 export class PrismaExceptionFilter implements ExceptionFilter {
   catch(
