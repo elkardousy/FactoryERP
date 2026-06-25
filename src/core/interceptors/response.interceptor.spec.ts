@@ -1,9 +1,15 @@
 import { of } from 'rxjs';
 import type { ExecutionContext, CallHandler } from '@nestjs/common';
-import { ResponseInterceptor, serializeBigInts } from './response.interceptor';
+import { ResponseInterceptor } from './response.interceptor';
+import { serializeBigInts } from '../utils/bigint-serializer';
 
-function makeContext(url = '/v1/auth/login', statusCode = 200): ExecutionContext {
+function makeContext(
+  url      = '/v1/auth/login',
+  statusCode = 200,
+  type: string = 'http',
+): ExecutionContext {
   return {
+    getType:      () => type,
     switchToHttp: () => ({
       getRequest:  () => ({ url }),
       getResponse: () => ({ statusCode }),
@@ -80,6 +86,17 @@ describe('ResponseInterceptor', () => {
 
     interceptor.intercept(context, handler).subscribe((result) => {
       expect(result).toBeUndefined();
+      done();
+    });
+  });
+
+  it('passes data through unchanged for non-HTTP contexts (WebSocket, microservices)', (done) => {
+    const data    = { sessionId: BigInt(1) };
+    const context = makeContext('/irrelevant', 200, 'rpc');
+    const handler = makeHandler(data);
+
+    interceptor.intercept(context, handler).subscribe((result) => {
+      expect(result).toBe(data);
       done();
     });
   });

@@ -3,7 +3,7 @@ import { UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './jwt.strategy';
 import { AuthService } from '../services/auth.service';
-import type { JwtSignPayload } from '../use-cases/login/contracts/jwt-sign-payload.interface';
+import type { JwtSignPayload } from '../contracts/jwt-sign-payload.interface';
 
 const SIGN_PAYLOAD: JwtSignPayload = {
   sub:       '1',

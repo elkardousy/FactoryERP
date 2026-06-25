@@ -5,7 +5,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 
 import { AuthService } from '../services/auth.service';
 import type { JwtPayload } from '../use-cases/login/contracts/jwt-payload.interface';
-import type { JwtSignPayload } from '../use-cases/login/contracts/jwt-sign-payload.interface';
+import type { JwtSignPayload } from '../contracts/jwt-sign-payload.interface';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {

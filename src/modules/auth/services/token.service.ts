@@ -5,7 +5,7 @@ import ms from 'ms';
 
 import { JwtService } from './jwt.service';
 import type { JwtPayload } from '../use-cases/login/contracts/jwt-payload.interface';
-import type { JwtSignPayload } from '../use-cases/login/contracts/jwt-sign-payload.interface';
+import type { JwtSignPayload } from '../contracts/jwt-sign-payload.interface';
 import type { TokenPair } from '../use-cases/login/contracts/token-pair.interface';
 
 @Injectable()
