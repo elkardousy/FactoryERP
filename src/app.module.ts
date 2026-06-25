@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import configuration from './core/config/configuration';
 import { validationSchema } from './core/config/env.validation';
 import { PrismaModule } from './core/database/prisma/prisma.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -13,6 +14,7 @@ import { PrismaModule } from './core/database/prisma/prisma.module';
       load: configuration,
       validationSchema,
     }),
+    PrismaModule,
   ],
 })
 export class AppModule {}

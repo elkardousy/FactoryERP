@@ -13,4 +13,10 @@ export class PrismaService
   async onModuleDestroy(): Promise<void> {
     await this.$disconnect();
   }
+
+  async enableShutdownHooks(app: any): Promise<void> {
+    process.on('beforeExit', async () => {
+      await app.close();
+    });
+  }
 }
