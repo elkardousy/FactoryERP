@@ -6,6 +6,8 @@ import { Logger } from 'nestjs-pino';
 import { AllExceptionsFilter } from './core/exceptions/filters/all-exceptions.filter';
 import { PrismaExceptionFilter } from './core/exceptions/filters/prisma-exception.filter';
 import { GlobalValidationPipe } from './core/pipes/validation.pipe';
+import { VersioningType } from '@nestjs/common';
+import { setupSwagger } from './core/config/swagger.config';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     bufferLogs: true,
@@ -26,7 +28,12 @@ async function bootstrap() {
 
   console.log('APP_NAME:', config.get('app.name'));
   console.log('PORT:', config.get('app.port'));
+  app.enableVersioning({
+  type: VersioningType.URI,
+  defaultVersion: '1',
+});
 
+  setupSwagger(app);
   await app.listen(config.get<number>('app.port') ?? 3000);
 }
 
