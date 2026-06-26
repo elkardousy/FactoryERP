@@ -1,10 +1,7 @@
-import {
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 
 import { UsersRepository } from '../../repositories/users.repository';
-import { AuditRepository } from '../../repositories/audit.repository';
+import { AuditService } from '../../../../core/audit/audit.service';
 import { SessionService, SessionContext } from '../../services/session.service';
 import { TokenService } from '../../services/token.service';
 
@@ -19,7 +16,7 @@ export class RefreshUseCase {
     private readonly usersRepository: UsersRepository,
     private readonly tokenService: TokenService,
     private readonly sessionService: SessionService,
-    private readonly auditRepository: AuditRepository,
+    private readonly auditService: AuditService,
   ) {}
 
   async execute(dto: RefreshDto, ctx: SessionContext): Promise<LoginResult> {
@@ -30,7 +27,7 @@ export class RefreshUseCase {
     }
 
     const sessionIdStr = dto.refreshToken.slice(0, separatorIndex);
-    const rawToken     = dto.refreshToken.slice(separatorIndex + 1);
+    const rawToken = dto.refreshToken.slice(separatorIndex + 1);
 
     const sessionId = BigInt(sessionIdStr);
 
@@ -64,9 +61,9 @@ export class RefreshUseCase {
 
     // 5. Generate new token pair
     const payload: JwtPayload = {
-      sub:       user.user_id,
-      username:  user.username,
-      roleId:    user.role_id,
+      sub: user.user_id,
+      username: user.username,
+      roleId: user.role_id,
       sessionId: session.session_id,
     };
 
@@ -83,33 +80,29 @@ export class RefreshUseCase {
       tokenPair.refreshExpiresAt,
     );
 
-    // 7. Audit (best-effort)
-    try {
-      await this.auditRepository.create({
-        eventType:      'AUTH_TOKEN_REFRESH',
-        entityType:     'user_sessions',
-        entityId:       String(session.session_id),
-        userId:         user.user_id,
-        payload:        { sessionId: String(session.session_id) },
-        clientPlatform: ctx.devicePlatform,
-      });
-    } catch {
-      // Audit failure must never block token refresh
-    }
+    // 7. Audit (best-effort — AuditService.log wraps in try/catch)
+    void this.auditService.log({
+      eventType: 'AUTH_TOKEN_REFRESH',
+      entityType: 'user_sessions',
+      entityId: String(session.session_id),
+      userId: user.user_id,
+      payload: { sessionId: String(session.session_id) },
+      clientPlatform: ctx.devicePlatform,
+    });
 
     return {
       user: {
-        userId:   user.user_id,
+        userId: user.user_id,
         username: user.username,
         fullName: user.full_name,
-        roleId:   user.role_id,
+        roleId: user.role_id,
       },
       tokens: {
         ...tokenPair,
         // Encode session id into the composite refresh token for the client
         refreshToken: `${session.session_id}:${tokenPair.refreshToken}`,
       },
-      sessionId:          session.session_id,
+      sessionId: session.session_id,
       mustChangePassword: user.must_change_password,
     };
   }

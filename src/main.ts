@@ -30,7 +30,7 @@ async function bootstrap() {
   app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });
 
   const prismaService = app.get(PrismaService);
-  await prismaService.enableShutdownHooks(app);
+  prismaService.enableShutdownHooks(app);
 
   setupSwagger(app);
 
@@ -38,4 +38,4 @@ async function bootstrap() {
   await app.listen(config.get<number>('app.port') ?? 3000);
 }
 
-bootstrap();
+void bootstrap();

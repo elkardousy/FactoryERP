@@ -4,9 +4,7 @@ import {
   ValidationError,
 } from '@nestjs/common';
 
-function flattenValidationErrors(
-  errors: ValidationError[],
-): string[] {
+function flattenValidationErrors(errors: ValidationError[]): string[] {
   const result: string[] = [];
 
   const walk = (items: ValidationError[]) => {

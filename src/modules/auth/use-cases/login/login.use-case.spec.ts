@@ -4,33 +4,33 @@ import { LoginUseCase } from './login.use-case';
 import { AuthService } from '../../services/auth.service';
 import { TokenService } from '../../services/token.service';
 import { SessionService } from '../../services/session.service';
-import { AuditRepository } from '../../repositories/audit.repository';
+import { AuditService } from '../../../../core/audit/audit.service';
 
 const MOCK_USER = {
-  user_id:             BigInt(1),
-  username:            'alice',
-  full_name:           'Alice Smith',
-  role_id:             BigInt(2),
+  user_id: BigInt(1),
+  username: 'alice',
+  full_name: 'Alice Smith',
+  role_id: BigInt(2),
   must_change_password: false,
-  locked_at:           null,
+  locked_at: null,
 };
 
 const MOCK_TOKEN_PAIR = {
-  accessToken:      'access.token',
-  refreshToken:     'raw-uuid-token',
-  accessExpiresAt:  new Date(Date.now() + 15 * 60 * 1000),
+  accessToken: 'access.token',
+  refreshToken: 'raw-uuid-token',
+  accessExpiresAt: new Date(Date.now() + 15 * 60 * 1000),
   refreshExpiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
 };
 
 const MOCK_SESSION = { session_id: BigInt(42) };
-const CTX          = { deviceId: 'dev-001', devicePlatform: 'web' };
+const CTX = { deviceId: 'dev-001', devicePlatform: 'web' };
 
 describe('LoginUseCase', () => {
-  let useCase:          LoginUseCase;
-  let authService:      jest.Mocked<AuthService>;
-  let tokenService:     jest.Mocked<TokenService>;
-  let sessionService:   jest.Mocked<SessionService>;
-  let auditRepository:  jest.Mocked<AuditRepository>;
+  let useCase: LoginUseCase;
+  let authService: jest.Mocked<AuthService>;
+  let tokenService: jest.Mocked<TokenService>;
+  let sessionService: jest.Mocked<SessionService>;
+  let auditService: jest.Mocked<AuditService>;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
@@ -45,9 +45,11 @@ describe('LoginUseCase', () => {
         {
           provide: TokenService,
           useValue: {
-            generateTokenPair:   jest.fn().mockResolvedValue(MOCK_TOKEN_PAIR),
-            hashRefreshToken:    jest.fn().mockResolvedValue('hashed-token'),
-            generateAccessToken: jest.fn().mockResolvedValue('final.access.token'),
+            generateTokenPair: jest.fn().mockResolvedValue(MOCK_TOKEN_PAIR),
+            hashRefreshToken: jest.fn().mockResolvedValue('hashed-token'),
+            generateAccessToken: jest
+              .fn()
+              .mockResolvedValue('final.access.token'),
           },
         },
         {
@@ -57,19 +59,19 @@ describe('LoginUseCase', () => {
           },
         },
         {
-          provide: AuditRepository,
+          provide: AuditService,
           useValue: {
-            create: jest.fn().mockResolvedValue(undefined),
+            log: jest.fn().mockResolvedValue(undefined),
           },
         },
       ],
     }).compile();
 
-    useCase         = module.get(LoginUseCase);
-    authService     = module.get(AuthService);
-    tokenService    = module.get(TokenService);
-    sessionService  = module.get(SessionService);
-    auditRepository = module.get(AuditRepository);
+    useCase = module.get(LoginUseCase);
+    authService = module.get(AuthService);
+    tokenService = module.get(TokenService);
+    sessionService = module.get(SessionService);
+    auditService = module.get(AuditService);
   });
 
   it('returns a LoginResult with composite refresh token on success', async () => {
@@ -115,11 +117,15 @@ describe('LoginUseCase', () => {
     ).rejects.toBeInstanceOf(UnauthorizedException);
   });
 
-  it('does not throw when audit write fails', async () => {
-    auditRepository.create.mockRejectedValue(new Error('DB timeout'));
+  it('calls auditService.log fire-and-forget on successful login', async () => {
+    await useCase.execute({ username: 'alice', password: 'pass' }, CTX);
 
-    await expect(
-      useCase.execute({ username: 'alice', password: 'pass' }, CTX),
-    ).resolves.toBeDefined();
+    expect(auditService.log).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventType: 'AUTH_LOGIN',
+        entityType: 'users',
+        entityId: String(BigInt(1)),
+      }),
+    );
   });
 });

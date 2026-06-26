@@ -13,9 +13,9 @@ export class UsersRepository extends BaseRepository {
   async findActiveById(userId: bigint): Promise<users | null> {
     return this.db.users.findFirst({
       where: {
-        user_id:   userId,
+        user_id: userId,
         is_active: true,
-        status:    UserStatusEnum.ACTIVE,
+        status: UserStatusEnum.ACTIVE,
       },
       include: { roles: true },
     });

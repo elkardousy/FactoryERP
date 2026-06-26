@@ -1,9 +1,7 @@
 import { PrismaService } from '../../prisma/prisma.service';
 
 export abstract class BaseRepository {
-  protected constructor(
-    protected readonly prisma: PrismaService,
-  ) {}
+  protected constructor(protected readonly prisma: PrismaService) {}
 
   protected get db(): PrismaService {
     return this.prisma;

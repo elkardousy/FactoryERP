@@ -3,6 +3,7 @@ import {
   Catch,
   ConflictException,
   ExceptionFilter,
+  HttpException,
   HttpStatus,
   NotFoundException,
   BadRequestException,
@@ -21,7 +22,7 @@ export class PrismaExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
 
-    let error: Error;
+    let error: HttpException;
 
     switch (exception.code) {
       case 'P2002':
@@ -41,24 +42,28 @@ export class PrismaExceptionFilter implements ExceptionFilter {
         break;
 
       default:
-        response.status(HttpStatus.INTERNAL_SERVER_ERROR).json(
-          new ErrorResponse(
-            HttpStatus.INTERNAL_SERVER_ERROR,
-            'DatabaseError',
-            exception.message,
-            request.url,
-          ),
-        );
+        response
+          .status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .json(
+            new ErrorResponse(
+              HttpStatus.INTERNAL_SERVER_ERROR,
+              'DatabaseError',
+              exception.message,
+              request.url,
+            ),
+          );
         return;
     }
 
-    response.status((error as any).getStatus()).json(
-      new ErrorResponse(
-        (error as any).getStatus(),
-        error.name,
-        (error as any).message,
-        request.url,
-      ),
-    );
+    response
+      .status(error.getStatus())
+      .json(
+        new ErrorResponse(
+          error.getStatus(),
+          error.name,
+          error.message,
+          request.url,
+        ),
+      );
   }
 }

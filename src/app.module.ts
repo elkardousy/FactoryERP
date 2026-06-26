@@ -3,7 +3,20 @@ import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
+import { AuditModule } from './core/audit/audit.module';
+import { DocumentNumberingModule } from './core/document-numbering/document-numbering.module';
+import { CustomersModule } from './modules/customers/customers.module';
+import { GarmentModelsModule } from './modules/garment-models/garment-models.module';
+import { MeasurementsModule } from './modules/measurements/measurements.module';
+import { ProductionSetupModule } from './modules/production-setup/production-setup.module';
+import { SuppliersModule } from './modules/suppliers/suppliers.module';
+import { WarehousesModule } from './modules/warehouses/warehouses.module';
+import { OrganizationModule } from './modules/organization/organization.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { AuthorizationModule } from './modules/authorization/authorization.module';
+import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
+import { RolesGuard } from './modules/authorization/guards/roles.guard';
+import { ScreenPermissionGuard } from './modules/authorization/guards/screen-permission.guard';
 import configuration from './core/config/configuration';
 import { validationSchema } from './core/config/env.validation';
 import { PrismaModule } from './core/database/prisma/prisma.module';
@@ -22,13 +35,25 @@ import { ResponseInterceptor } from './core/interceptors/response.interceptor';
     }),
     PrismaModule,
     LoggerModule,
+    AuditModule,
+    DocumentNumberingModule,
+    OrganizationModule,
+    MeasurementsModule,
+    WarehousesModule,
+    ProductionSetupModule,
+    CustomersModule,
+    SuppliersModule,
+    GarmentModelsModule,
     AuthModule,
-    ThrottlerModule.forRoot([
-      { name: 'default', ttl: 60_000, limit: 60 },
-    ]),
+    AuthorizationModule,
+    ThrottlerModule.forRoot([{ name: 'default', ttl: 60_000, limit: 60 }]),
   ],
   providers: [
-    { provide: APP_GUARD,       useClass: ThrottlerGuard },
+    // Guard order: rate-limit → authenticate → role-check → screen-check
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_GUARD, useClass: RolesGuard },
+    { provide: APP_GUARD, useClass: ScreenPermissionGuard },
     { provide: APP_INTERCEPTOR, useClass: ResponseInterceptor },
   ],
 })

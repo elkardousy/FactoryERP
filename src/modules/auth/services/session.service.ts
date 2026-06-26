@@ -14,9 +14,7 @@ export interface SessionContext {
 
 @Injectable()
 export class SessionService {
-  constructor(
-    private readonly sessionsRepository: UserSessionsRepository,
-  ) {}
+  constructor(private readonly sessionsRepository: UserSessionsRepository) {}
 
   async createSession(
     userId: bigint,
@@ -26,10 +24,10 @@ export class SessionService {
   ): Promise<UserSession> {
     const input: CreateSessionInput = {
       userId,
-      deviceId:          ctx.deviceId,
-      devicePlatform:    ctx.devicePlatform,
+      deviceId: ctx.deviceId,
+      devicePlatform: ctx.devicePlatform,
       refreshTokenHash,
-      expiresAt:         tokenPair.refreshExpiresAt,
+      expiresAt: tokenPair.refreshExpiresAt,
     };
 
     return this.sessionsRepository.create(input);
@@ -39,6 +37,7 @@ export class SessionService {
     return this.sessionsRepository.findById(sessionId);
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   async validateSession(session: UserSession): Promise<void> {
     if (session.status !== 'ACTIVE') {
       throw new UnauthorizedException('Session has been revoked.');
@@ -60,7 +59,7 @@ export class SessionService {
   ): Promise<UserSession> {
     return this.sessionsRepository.update(sessionId, {
       refreshTokenHash: newRefreshTokenHash,
-      expiresAt:        newExpiresAt,
+      expiresAt: newExpiresAt,
     });
   }
 

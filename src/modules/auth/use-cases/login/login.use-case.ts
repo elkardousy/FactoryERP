@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { AuthService } from '../../services/auth.service';
 import { TokenService } from '../../services/token.service';
 import { SessionService, SessionContext } from '../../services/session.service';
-import { AuditRepository } from '../../repositories/audit.repository';
+import { AuditService } from '../../../../core/audit/audit.service';
 
 import { LoginDto } from './dto/login.dto';
 import type { JwtPayload } from './contracts/jwt-payload.interface';
@@ -15,7 +15,7 @@ export class LoginUseCase {
     private readonly authService: AuthService,
     private readonly tokenService: TokenService,
     private readonly sessionService: SessionService,
-    private readonly auditRepository: AuditRepository,
+    private readonly auditService: AuditService,
   ) {}
 
   async execute(dto: LoginDto, ctx: SessionContext): Promise<LoginResult> {
@@ -29,9 +29,9 @@ export class LoginUseCase {
     // Session id is not known yet; we use a placeholder and back-fill after
     // session creation — so we create the session first, then sign the token.
     const tokenPair = await this.tokenService.generateTokenPair({
-      sub:       user.user_id,
-      username:  user.username,
-      roleId:    user.role_id,
+      sub: user.user_id,
+      username: user.username,
+      roleId: user.role_id,
       sessionId: BigInt(0), // will be replaced below
     } satisfies JwtPayload);
 
@@ -50,47 +50,44 @@ export class LoginUseCase {
 
     // 5. Re-sign access token now that session_id is known
     const payload: JwtPayload = {
-      sub:       user.user_id,
-      username:  user.username,
-      roleId:    user.role_id,
+      sub: user.user_id,
+      username: user.username,
+      roleId: user.role_id,
       sessionId: session.session_id,
     };
 
-    const finalAccessToken = await this.tokenService.generateAccessToken(payload);
+    const finalAccessToken =
+      await this.tokenService.generateAccessToken(payload);
 
-    // 6. Write audit event (best-effort — do not let audit failure block login)
-    try {
-      await this.auditRepository.create({
-        eventType:      'AUTH_LOGIN',
-        entityType:     'users',
-        entityId:       String(user.user_id),
-        userId:         user.user_id,
-        payload:        {
-          username:   user.username,
-          sessionId:  String(session.session_id),
-          deviceId:   ctx.deviceId,
-          platform:   ctx.devicePlatform,
-        },
-        clientPlatform: ctx.devicePlatform,
-      });
-    } catch {
-      // Audit failure must never break the login flow
-    }
+    // 6. Write audit event (best-effort — AuditService.log wraps in try/catch)
+    void this.auditService.log({
+      eventType: 'AUTH_LOGIN',
+      entityType: 'users',
+      entityId: String(user.user_id),
+      userId: user.user_id,
+      payload: {
+        username: user.username,
+        sessionId: String(session.session_id),
+        deviceId: ctx.deviceId,
+        platform: ctx.devicePlatform,
+      },
+      clientPlatform: ctx.devicePlatform,
+    });
 
     return {
       user: {
-        userId:   user.user_id,
+        userId: user.user_id,
         username: user.username,
         fullName: user.full_name,
-        roleId:   user.role_id,
+        roleId: user.role_id,
       },
       tokens: {
         ...tokenPair,
-        accessToken:  finalAccessToken,
+        accessToken: finalAccessToken,
         // Encode session id into the composite refresh token for the client
         refreshToken: `${session.session_id}:${tokenPair.refreshToken}`,
       },
-      sessionId:          session.session_id,
+      sessionId: session.session_id,
       mustChangePassword: user.must_change_password,
     };
   }

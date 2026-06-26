@@ -24,10 +24,7 @@ export class AuthService {
    * Validates credentials and enforces account-level security policies.
    * Returns the full user record on success.
    */
-  async validateUser(
-    username: string,
-    password: string,
-  ): Promise<users> {
+  async validateUser(username: string, password: string): Promise<users> {
     const user = await this.usersRepository.findActiveUser(username);
 
     if (!user) {

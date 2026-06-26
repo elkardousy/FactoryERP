@@ -28,20 +28,17 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const message =
       typeof exceptionResponse === 'string'
         ? exceptionResponse
-        : (exceptionResponse as any).message ?? exceptionResponse;
+        : (((exceptionResponse as Record<string, unknown>).message as
+            | string
+            | string[]) ?? 'An error occurred');
 
     const error =
       exception instanceof HttpException
         ? exception.name
         : 'InternalServerError';
 
-    response.status(status).json(
-      new ErrorResponse(
-        status,
-        error,
-        message,
-        request.url,
-      ),
-    );
+    response
+      .status(status)
+      .json(new ErrorResponse(status, error, message, request.url));
   }
 }

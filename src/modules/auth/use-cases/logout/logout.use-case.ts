@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
-import { AuditRepository } from '../../repositories/audit.repository';
+import { AuditService } from '../../../../core/audit/audit.service';
 import { SessionService } from '../../services/session.service';
 
 import type { JwtPayload } from '../login/contracts/jwt-payload.interface';
@@ -9,7 +9,7 @@ import type { JwtPayload } from '../login/contracts/jwt-payload.interface';
 export class LogoutUseCase {
   constructor(
     private readonly sessionService: SessionService,
-    private readonly auditRepository: AuditRepository,
+    private readonly auditService: AuditService,
   ) {}
 
   async execute(currentUser: JwtPayload): Promise<void> {
@@ -19,19 +19,15 @@ export class LogoutUseCase {
       'LOGOUT',
     );
 
-    try {
-      await this.auditRepository.create({
-        eventType:  'AUTH_LOGOUT',
-        entityType: 'user_sessions',
-        entityId:   String(currentUser.sessionId),
-        userId:     currentUser.sub,
-        payload:    {
-          sessionId: String(currentUser.sessionId),
-          username:  currentUser.username,
-        },
-      });
-    } catch {
-      // Audit failure must never block logout
-    }
+    void this.auditService.log({
+      eventType: 'AUTH_LOGOUT',
+      entityType: 'user_sessions',
+      entityId: String(currentUser.sessionId),
+      userId: currentUser.sub,
+      payload: {
+        sessionId: String(currentUser.sessionId),
+        username: currentUser.username,
+      },
+    });
   }
 }

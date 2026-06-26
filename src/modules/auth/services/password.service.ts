@@ -3,10 +3,7 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class PasswordService {
-  async verify(
-    plain: string,
-    hash: string,
-  ): Promise<boolean> {
+  async verify(plain: string, hash: string): Promise<boolean> {
     return bcrypt.compare(plain, hash);
   }
 

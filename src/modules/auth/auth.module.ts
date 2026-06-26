@@ -10,7 +10,6 @@ import { PrismaModule } from '../../core/database/prisma/prisma.module';
 import { AuthController } from './controllers/auth.controller';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
-import { AuditRepository } from './repositories/audit.repository';
 import { UserSessionsRepository } from './repositories/user-sessions.repository';
 import { UsersRepository } from './repositories/users.repository';
 
@@ -46,7 +45,6 @@ import { LogoutUseCase } from './use-cases/logout';
 
   providers: [
     // Repositories
-    AuditRepository,
     UserSessionsRepository,
     UsersRepository,
 
@@ -67,11 +65,6 @@ import { LogoutUseCase } from './use-cases/logout';
     LogoutUseCase,
   ],
 
-  exports: [
-    AuthService,
-    JwtAuthGuard,
-    JwtService,
-    UsersRepository,
-  ],
+  exports: [AuthService, JwtAuthGuard, JwtService, UsersRepository],
 })
 export class AuthModule {}

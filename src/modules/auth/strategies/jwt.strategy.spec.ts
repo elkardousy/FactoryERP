@@ -6,21 +6,21 @@ import { AuthService } from '../services/auth.service';
 import type { JwtSignPayload } from '../contracts/jwt-sign-payload.interface';
 
 const SIGN_PAYLOAD: JwtSignPayload = {
-  sub:       '1',
-  username:  'alice',
-  roleId:    '2',
+  sub: '1',
+  username: 'alice',
+  roleId: '2',
   sessionId: '10',
 };
 
 const ACTIVE_USER = {
-  user_id:   BigInt(1),
-  username:  'alice',
+  user_id: BigInt(1),
+  username: 'alice',
   locked_at: null,
   is_active: true,
 };
 
 describe('JwtStrategy', () => {
-  let strategy:    JwtStrategy;
+  let strategy: JwtStrategy;
   let authService: jest.Mocked<AuthService>;
 
   beforeEach(async () => {
@@ -42,7 +42,7 @@ describe('JwtStrategy', () => {
       ],
     }).compile();
 
-    strategy    = module.get(JwtStrategy);
+    strategy = module.get(JwtStrategy);
     authService = module.get(AuthService);
   });
 
@@ -61,7 +61,7 @@ describe('JwtStrategy', () => {
     });
 
     it('throws UnauthorizedException when user is not found', async () => {
-      authService.findActiveById.mockResolvedValue(null as never);
+      authService.findActiveById.mockResolvedValue(null);
       await expect(strategy.validate(SIGN_PAYLOAD)).rejects.toBeInstanceOf(
         UnauthorizedException,
       );

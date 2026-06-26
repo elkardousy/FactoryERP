@@ -1,4 +1,9 @@
-import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
+import {
+  CallHandler,
+  ExecutionContext,
+  Injectable,
+  NestInterceptor,
+} from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -17,8 +22,8 @@ export class ResponseInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     if (context.getType() !== 'http') return next.handle();
 
-    const http     = context.switchToHttp();
-    const request  = http.getRequest<Request>();
+    const http = context.switchToHttp();
+    const request = http.getRequest<Request>();
     const response = http.getResponse<Response>();
 
     return next.handle().pipe(
@@ -26,10 +31,10 @@ export class ResponseInterceptor implements NestInterceptor {
         if (data === undefined) return undefined;
 
         return {
-          data:       serializeBigInts(data),
+          data: serializeBigInts(data),
           statusCode: response.statusCode,
-          timestamp:  new Date().toISOString(),
-          path:       request.url,
+          timestamp: new Date().toISOString(),
+          path: request.url,
         };
       }),
     );

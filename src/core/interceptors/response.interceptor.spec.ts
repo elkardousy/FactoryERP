@@ -4,14 +4,14 @@ import { ResponseInterceptor } from './response.interceptor';
 import { serializeBigInts } from '../utils/bigint-serializer';
 
 function makeContext(
-  url      = '/v1/auth/login',
+  url = '/v1/auth/login',
   statusCode = 200,
   type: string = 'http',
 ): ExecutionContext {
   return {
-    getType:      () => type,
+    getType: () => type,
     switchToHttp: () => ({
-      getRequest:  () => ({ url }),
+      getRequest: () => ({ url }),
       getResponse: () => ({ statusCode }),
     }),
   } as unknown as ExecutionContext;
@@ -27,19 +27,32 @@ describe('serializeBigInts', () => {
   });
 
   it('converts nested BigInt values', () => {
-    const input  = { user: { userId: BigInt(1), name: 'alice' }, sessionId: BigInt(99) };
+    const input = {
+      user: { userId: BigInt(1), name: 'alice' },
+      sessionId: BigInt(99),
+    };
     const output = serializeBigInts(input);
-    expect(output).toEqual({ user: { userId: '1', name: 'alice' }, sessionId: '99' });
+    expect(output).toEqual({
+      user: { userId: '1', name: 'alice' },
+      sessionId: '99',
+    });
   });
 
   it('converts BigInt values inside arrays', () => {
-    expect(serializeBigInts({ ids: [BigInt(1), BigInt(2)] })).toEqual({ ids: ['1', '2'] });
+    expect(serializeBigInts({ ids: [BigInt(1), BigInt(2)] })).toEqual({
+      ids: ['1', '2'],
+    });
   });
 
   it('passes non-BigInt primitives through unchanged', () => {
-    expect(serializeBigInts({ n: 42, s: 'hello', b: true, nil: null })).toEqual({
-      n: 42, s: 'hello', b: true, nil: null,
-    });
+    expect(serializeBigInts({ n: 42, s: 'hello', b: true, nil: null })).toEqual(
+      {
+        n: 42,
+        s: 'hello',
+        b: true,
+        nil: null,
+      },
+    );
   });
 });
 
@@ -51,15 +64,15 @@ describe('ResponseInterceptor', () => {
   });
 
   it('wraps a success response in an envelope with data, statusCode, timestamp, and path', (done) => {
-    const data    = { userId: '1', username: 'alice' };
+    const data = { userId: '1', username: 'alice' };
     const context = makeContext('/v1/auth/login', 200);
     const handler = makeHandler(data);
 
     interceptor.intercept(context, handler).subscribe((result) => {
       expect(result).toMatchObject({
-        data:       data,
+        data: data,
         statusCode: 200,
-        path:       '/v1/auth/login',
+        path: '/v1/auth/login',
       });
       expect(typeof (result as { timestamp: string }).timestamp).toBe('string');
       done();
@@ -67,13 +80,15 @@ describe('ResponseInterceptor', () => {
   });
 
   it('serializes BigInt values inside the response data', (done) => {
-    const data    = { userId: BigInt(1), sessionId: BigInt(42) };
+    const data = { userId: BigInt(1), sessionId: BigInt(42) };
     const context = makeContext('/v1/auth/login', 200);
     const handler = makeHandler(data);
 
     interceptor.intercept(context, handler).subscribe((result) => {
-      expect((result as { data: { userId: string; sessionId: string } }).data).toEqual({
-        userId:    '1',
+      expect(
+        (result as { data: { userId: string; sessionId: string } }).data,
+      ).toEqual({
+        userId: '1',
         sessionId: '42',
       });
       done();
@@ -91,7 +106,7 @@ describe('ResponseInterceptor', () => {
   });
 
   it('passes data through unchanged for non-HTTP contexts (WebSocket, microservices)', (done) => {
-    const data    = { sessionId: BigInt(1) };
+    const data = { sessionId: BigInt(1) };
     const context = makeContext('/irrelevant', 200, 'rpc');
     const handler = makeHandler(data);
 

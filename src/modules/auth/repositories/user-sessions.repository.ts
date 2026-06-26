@@ -28,12 +28,12 @@ export class UserSessionsRepository extends BaseRepository {
   async create(input: CreateSessionInput): Promise<UserSession> {
     return this.db.user_sessions.create({
       data: {
-        user_id:            input.userId,
-        device_id:          input.deviceId,
-        device_platform:    input.devicePlatform,
+        user_id: input.userId,
+        device_id: input.deviceId,
+        device_platform: input.devicePlatform,
         refresh_token_hash: input.refreshTokenHash,
-        expires_at:         input.expiresAt,
-        status:             'ACTIVE',
+        expires_at: input.expiresAt,
+        status: 'ACTIVE',
       },
     });
   }
@@ -48,20 +48,23 @@ export class UserSessionsRepository extends BaseRepository {
     return this.db.user_sessions.findMany({
       where: {
         user_id: userId,
-        status:  'ACTIVE',
+        status: 'ACTIVE',
         ended_at: null,
       },
       orderBy: { started_at: 'desc' },
     });
   }
 
-  async update(sessionId: bigint, input: UpdateSessionInput): Promise<UserSession> {
+  async update(
+    sessionId: bigint,
+    input: UpdateSessionInput,
+  ): Promise<UserSession> {
     return this.db.user_sessions.update({
       where: { session_id: sessionId },
       data: {
         refresh_token_hash: input.refreshTokenHash,
-        expires_at:         input.expiresAt,
-        last_activity_at:   new Date(),
+        expires_at: input.expiresAt,
+        last_activity_at: new Date(),
       },
     });
   }
@@ -81,8 +84,8 @@ export class UserSessionsRepository extends BaseRepository {
     await this.db.user_sessions.update({
       where: { session_id: sessionId },
       data: {
-        status:     'REVOKED',
-        ended_at:   new Date(),
+        status: 'REVOKED',
+        ended_at: new Date(),
         end_reason: reason,
         revoked_by: revokedBy,
       },
@@ -97,11 +100,11 @@ export class UserSessionsRepository extends BaseRepository {
     await this.db.user_sessions.updateMany({
       where: {
         user_id: userId,
-        status:  'ACTIVE',
+        status: 'ACTIVE',
       },
       data: {
-        status:     'REVOKED',
-        ended_at:   new Date(),
+        status: 'REVOKED',
+        ended_at: new Date(),
         end_reason: reason,
         revoked_by: revokedBy,
       },

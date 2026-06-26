@@ -17,30 +17,36 @@ export class TokenService {
 
   async generateAccessToken(payload: JwtPayload): Promise<string> {
     const signPayload: JwtSignPayload = {
-      sub:       payload.sub.toString(),
-      username:  payload.username,
-      roleId:    payload.roleId.toString(),
+      sub: payload.sub.toString(),
+      username: payload.username,
+      roleId: payload.roleId.toString(),
       sessionId: payload.sessionId.toString(),
     };
     return this.jwt.generateAccessToken(signPayload);
   }
 
-  async generateRefreshToken(): Promise<string> {
+  generateRefreshToken(): string {
     return crypto.randomUUID();
   }
 
   async generateTokenPair(payload: JwtPayload): Promise<TokenPair> {
-    const accessToken  = await this.generateAccessToken(payload);
-    const refreshToken = await this.generateRefreshToken();
+    const accessToken = await this.generateAccessToken(payload);
+    const refreshToken = this.generateRefreshToken();
 
-    const accessExpiresIn  = this.config.getOrThrow<string>('jwt.expiresIn');
-    const refreshExpiresIn = this.config.getOrThrow<string>('jwt.refreshExpiresIn');
+    const accessExpiresIn = this.config.getOrThrow<string>('jwt.expiresIn');
+    const refreshExpiresIn = this.config.getOrThrow<string>(
+      'jwt.refreshExpiresIn',
+    );
 
     return {
       accessToken,
       refreshToken,
-      accessExpiresAt:  new Date(Date.now() + (ms(accessExpiresIn as ms.StringValue) ?? 0)),
-      refreshExpiresAt: new Date(Date.now() + (ms(refreshExpiresIn as ms.StringValue) ?? 0)),
+      accessExpiresAt: new Date(
+        Date.now() + (ms(accessExpiresIn as ms.StringValue) ?? 0),
+      ),
+      refreshExpiresAt: new Date(
+        Date.now() + (ms(refreshExpiresIn as ms.StringValue) ?? 0),
+      ),
     };
   }
 

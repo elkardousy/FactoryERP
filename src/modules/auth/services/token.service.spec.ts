@@ -5,9 +5,9 @@ import { TokenService } from './token.service';
 import { JwtService } from './jwt.service';
 
 const PAYLOAD = {
-  sub:       BigInt(1),
-  username:  'alice',
-  roleId:    BigInt(2),
+  sub: BigInt(1),
+  username: 'alice',
+  roleId: BigInt(2),
   sessionId: BigInt(10),
 };
 
@@ -22,16 +22,18 @@ describe('TokenService', () => {
         {
           provide: JwtService,
           useValue: {
-            generateAccessToken: jest.fn().mockResolvedValue('signed.jwt.token'),
-            verify:              jest.fn(),
-            decode:              jest.fn(),
+            generateAccessToken: jest
+              .fn()
+              .mockResolvedValue('signed.jwt.token'),
+            verify: jest.fn(),
+            decode: jest.fn(),
           },
         },
         {
           provide: ConfigService,
           useValue: {
             getOrThrow: jest.fn((key: string) => {
-              if (key === 'jwt.expiresIn')        return '15m';
+              if (key === 'jwt.expiresIn') return '15m';
               if (key === 'jwt.refreshExpiresIn') return '7d';
               throw new Error(`Unknown config key: ${key}`);
             }),
@@ -40,23 +42,21 @@ describe('TokenService', () => {
       ],
     }).compile();
 
-    service    = module.get(TokenService);
+    service = module.get(TokenService);
     jwtService = module.get(JwtService);
   });
 
   describe('generateRefreshToken', () => {
-    it('returns a UUID-shaped string', async () => {
-      const token = await service.generateRefreshToken();
+    it('returns a UUID-shaped string', () => {
+      const token = service.generateRefreshToken();
       expect(token).toMatch(
         /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
       );
     });
 
-    it('generates a unique token each call', async () => {
-      const [a, b] = await Promise.all([
-        service.generateRefreshToken(),
-        service.generateRefreshToken(),
-      ]);
+    it('generates a unique token each call', () => {
+      const a = service.generateRefreshToken();
+      const b = service.generateRefreshToken();
       expect(a).not.toBe(b);
     });
   });
@@ -78,9 +78,9 @@ describe('TokenService', () => {
     it('serializes BigInt claims to strings before signing', async () => {
       await service.generateTokenPair(PAYLOAD);
       expect(jwtService.generateAccessToken).toHaveBeenCalledWith({
-        sub:       '1',
-        username:  'alice',
-        roleId:    '2',
+        sub: '1',
+        username: 'alice',
+        roleId: '2',
         sessionId: '10',
       });
     });
@@ -88,14 +88,16 @@ describe('TokenService', () => {
 
   describe('hashRefreshToken / compareRefreshToken', () => {
     it('round-trips: compare returns true for matching token', async () => {
-      const hash   = await service.hashRefreshToken('my-raw-token');
+      const hash = await service.hashRefreshToken('my-raw-token');
       const result = await service.compareRefreshToken('my-raw-token', hash);
       expect(result).toBe(true);
     });
 
     it('returns false when token does not match hash', async () => {
       const hash = await bcrypt.hash('correct-token', 10);
-      await expect(service.compareRefreshToken('wrong-token', hash)).resolves.toBe(false);
+      await expect(
+        service.compareRefreshToken('wrong-token', hash),
+      ).resolves.toBe(false);
     });
   });
 });

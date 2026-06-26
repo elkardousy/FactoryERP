@@ -1,13 +1,8 @@
 import { ApiError } from './api-error.interface';
 
-
-
-
-export class ErrorResponse implements ApiError 
-
-
-{
-readonly success: false = false;  constructor(
+export class ErrorResponse implements ApiError {
+  readonly success = false as const;
+  constructor(
     public readonly statusCode: number,
     public readonly error: string,
     public readonly message: string | string[],
