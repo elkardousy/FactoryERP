@@ -30,6 +30,7 @@ All ADRs are stored in [`docs/architecture/adr/`](adr/).
 | [ADR-023](adr/ADR-023-Security-Principles.md) | Defense-in-Depth Security Architecture | Accepted | 2026-06-26 |
 | [ADR-024](adr/ADR-024-Future-Scalability.md) | Scalability Provisions | Accepted | 2026-06-26 |
 | [ADR-025](adr/ADR-025-ERP-Architecture-Vision.md) | ERP Architecture Vision and Domain Roadmap | Accepted | 2026-06-26 |
+| [ADR-026](adr/ADR-026-Inventory-Architecture.md) | Inventory Architecture — Transactions, Locking, and Domain Model | Accepted | 2026-06-27 |
 
 ---
 
@@ -79,6 +80,7 @@ All ADRs are stored in [`docs/architecture/adr/`](adr/).
 - ADR-017 — Document numbering
 - ADR-019 — Business Foundation modules
 - ADR-020 — Soft-delete pattern
+- ADR-026 — Inventory architecture (transactions, locking, domain model)
 
 ### Future Direction
 - ADR-024 — Scalability provisions

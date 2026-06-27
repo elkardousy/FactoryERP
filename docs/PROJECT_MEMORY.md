@@ -12,13 +12,13 @@
 | **Project Name** | FactoryERP — Garment Manufacturing ERP |
 | **Package Name** | `backend` |
 | **Package Version** | 0.0.1 (internal; functional milestone: v0.3.0-business-foundation) |
-| **Current Phase** | Business Foundation — Complete |
-| **Current Sprint** | Sprint 10.5 (Stabilization + Architecture Documentation) |
-| **Current Milestone** | Business Foundation Acceptance |
+| **Current Phase** | Phase 3 — Transaction & Execution Engine (Sprint 0 Complete) |
+| **Current Sprint** | Phase 3 Sprint 0 — Inventory Architecture Readiness Review |
+| **Current Milestone** | Inventory Architecture Readiness Review Accepted |
 | **Current Git Branch** | `main` |
 | **Latest Git Tag** | `v0.3.0-business-foundation` |
-| **Recommended Next Tag** | `v0.4.0-cmo-foundation` |
-| **Generation Date** | 2026-06-26 |
+| **Recommended Next Tag** | `v0.5.0-inventory-engine` |
+| **Generation Date** | 2026-06-27 |
 
 ---
 
@@ -30,7 +30,7 @@ FactoryERP is a TypeScript/NestJS monolith implementing a garment manufacturing 
 
 **ERP maturity:** The master data layer (Business Foundation) is complete — 9 domain modules covering organization, infrastructure, relationships, product catalog, and measurements. The transactional ERP layers (Customer Manufacturing Orders, inventory, production) are defined in the Prisma schema but not yet implemented in application code.
 
-**Implementation phase:** Entering the Customer Manufacturing Order (CMO) phase. The Business Foundation provides all prerequisite master data for CMO operations.
+**Implementation phase:** Phase 3 Sprint 0 complete. Inventory Architecture Readiness Review accepted. Sprint 11 (Inventory Engine Core) is the next implementation sprint. Six required schema changes (R1–R7) must be completed as Gate Conditions before Sprint 11 implementation begins.
 
 **Repository health:** Excellent. Lint: 0 errors. Build: clean. Tests: 20 suites / 142 tests passing. 26 ADRs documenting all significant architectural decisions. Full architecture documentation suite complete.
 
@@ -88,7 +88,7 @@ FactoryERP is a TypeScript/NestJS monolith implementing a garment manufacturing 
 
 ### ADR Status
 
-26 ADRs, all status **Accepted**. See [docs/architecture/ADR_INDEX.md](architecture/ADR_INDEX.md).
+27 ADRs, all status **Accepted**. See [docs/architecture/ADR_INDEX.md](architecture/ADR_INDEX.md).
 
 ### Testing Status
 
@@ -200,6 +200,34 @@ Pattern: Repository → Use Cases → Controller. Soft-delete with reactivation 
 
 ---
 
+### 10 — AI Engineering Operating System (AI-EOS) v1.0.0
+
+**Date:** 2026-06-27
+**Version:** AI-EOS v1.0.0 (commit `51cfd6c`)
+
+57 files across `.ai/` — playbooks, quality gates, sprint prompts, session protocols, decision templates, and governance documents. Provides end-to-end AI-assisted development framework for all future sprints.
+
+---
+
+### 11 — Phase 3 Sprint 0: Inventory Architecture Readiness Review
+
+**Date:** 2026-06-27
+
+9-phase architecture readiness review for the Inventory Engine. Decision: **READY WITH REQUIRED CHANGES**.
+
+Documents produced:
+- `docs/reviews/PHASE3_READINESS_REVIEW.md` — master readiness review, scores, risks, final decision
+- `docs/architecture/INVENTORY_ARCHITECTURE.md` — module identity, repositories, use cases, controllers
+- `docs/architecture/INVENTORY_DOMAIN_MODEL.md` — aggregates, value objects, lifecycle diagrams, business rules
+- `docs/architecture/TRANSACTION_BOUNDARIES.md` — T1–T8 atomic transaction specifications
+- `docs/architecture/CONCURRENCY_STRATEGY.md` — optimistic/pessimistic locking, retry policy, deadlock prevention
+- `docs/architecture/INVENTORY_EVENT_FLOW.md` — 12 events, EVT-001 through EVT-012, ownership matrix
+- `docs/architecture/PERFORMANCE_TARGETS.md` — workload estimation, index analysis, response time targets
+- `docs/architecture/SPRINT11_CONTRACT.md` — ratified Sprint 11 scope, gate conditions G-1 through G-11
+- `docs/architecture/adr/ADR-026-Inventory-Architecture.md` — 8 architectural decisions accepted
+
+---
+
 ## Current Repository Metrics
 
 | Metric | Count |
@@ -212,8 +240,8 @@ Pattern: Repository → Use Cases → Controller. Soft-delete with reactivation 
 | Services | 12 (4 core + 8 module) |
 | Use Cases | 62 |
 | DTO files | 18 |
-| ADRs | 26 |
-| Architecture documents | 9 (summary, principles, timeline, tech decisions, dep rules, repo rules, coding standards, index, this file) |
+| ADRs | 27 |
+| Architecture documents | 18 (9 original + INVENTORY_ARCHITECTURE, INVENTORY_DOMAIN_MODEL, TRANSACTION_BOUNDARIES, CONCURRENCY_STRATEGY, INVENTORY_EVENT_FLOW, PERFORMANCE_TARGETS, SPRINT11_CONTRACT, PHASE3_READINESS_REVIEW, this file) |
 | Prisma schema models | 98 |
 | Test suites | 20 |
 | Automated tests | 142 |
@@ -297,7 +325,7 @@ These do not need to be imported in feature modules — `@Global()` makes their 
 
 ## Recent Architectural Decisions
 
-All 26 ADRs were written in Sprint 10.5 to document decisions made throughout the project. Key decisions introduced since the authorization phase:
+ADRs written in Sprint 10.5 (ADR-000–ADR-025) and Phase 3 Sprint 0 (ADR-026). Key decisions:
 
 | ADR | Decision |
 |-----|---------|
@@ -310,6 +338,7 @@ All 26 ADRs were written in Sprint 10.5 to document decisions made throughout th
 | ADR-023 | Defense-in-depth security: Helmet + ThrottlerGuard + bcrypt 12 rounds + session revocation |
 | ADR-024 | Scalability provisions: BigInt PKs, composite keys, schema isolation, interface-based cache |
 | ADR-025 | Full ERP domain model: CMO → Procurement → Inventory → Production roadmap |
+| ADR-026 | Inventory architecture: physical/logical bag separation, optimistic/pessimistic locking, transaction boundaries T1–T8, mandatory inventory transaction ledger, composite PK for partitioning, ReservationStatusEnum/LocationTypeEnum required |
 
 ---
 
@@ -321,7 +350,7 @@ All 26 ADRs were written in Sprint 10.5 to document decisions made throughout th
 
 The Prisma schema is complete but `prisma/migrations/` does not exist. No integration test or end-to-end test is possible until `npx prisma migrate dev --name initial-schema` is run against a live PostgreSQL instance with the `factory` schema. All current test coverage is unit tests with mocked repositories — no query has ever been executed against a real database.
 
-**Impact:** Cannot verify query correctness, FK constraint behavior, or schema validity until migrations are generated.
+**Impact:** Cannot verify query correctness, FK constraint behavior, or schema validity until migrations are generated. Gate G-1 for Sprint 11.
 
 ### High Risks
 
@@ -329,23 +358,51 @@ The Prisma schema is complete but `prisma/migrations/` does not exist. No integr
 
 `src/modules/auth/repositories/audit.repository.ts` is a duplicate audit repository in the auth module, predating the global `AuditModule`. Auth use-cases should use `AuditService` from `AuditModule` instead. This is inconsistent with the fire-and-forget audit pattern and the global module design.
 
-**Impact:** Auth audit events bypass the standard audit pipeline. Low immediate impact; high architectural debt.
+**Impact:** Auth audit events bypass the standard audit pipeline. Low immediate impact; high architectural debt. Resolve during Sprint 11.
+
+**RISK-H2: `physical_bag_reservations` missing indexes (identified Phase 3 Sprint 0)**
+
+No indexes on `(bag_id, status)`, `(order_id, status)`, or `(status)`. Every reservation conflict check performs a full table scan.
+
+**Impact:** Degrades under load. Gate G-5 for Sprint 11.
+
+**RISK-H3: `physical_bag_reservations.status` is a free string (identified Phase 3 Sprint 0)**
+
+`status String @db.VarChar(20) @default("ACTIVE")` — no enum, no compile-time type safety.
+
+**Impact:** Silent data bugs from typos; inconsistent status values. Gate G-4 for Sprint 11.
+
+**RISK-H4: Supplementary release deadlock possible (identified Phase 3 Sprint 0)**
+
+Two concurrent supplementary releases could deadlock on `(inventory_bags, wip_inventory)` if lock acquisition order is not enforced.
+
+**Impact:** Deadlock under concurrent supplementary release requests. Mitigation: documented lock ordering rule in `CONCURRENCY_STRATEGY.md` — must be enforced in Sprint 13.
 
 ### Medium Risks
 
-**RISK-M1: Incomplete schema fields**
+**RISK-M1: Incomplete schema fields (pre-existing TD-2)**
 
-The following schema additions are pending:
-- `@updatedAt` on: `departments`, `working_shifts`, `warehouses`, `production_lines`
-- `deactivated_at DateTime?` and `deactivated_by BigInt?` on all soft-delete entities
+Missing `@updatedAt` on `physical_bags.updated_at` and other entities. Missing `deactivated_at`/`deactivated_by` on soft-delete entities.
 
-**Impact:** Missing audit trail fields for deactivation events. Not blocking but should be resolved before production.
+**Impact:** Missing audit trail fields. Gate G-7 for Sprint 11.
 
 **RISK-M2: No integration tests**
 
 All 142 tests are unit tests with mocked repositories. No tests verify that the Prisma queries are correct, that FK constraints are respected, or that migrations apply cleanly.
 
 **Impact:** Bugs in repository query logic will not be detected until manual testing or production.
+
+**RISK-M3: LocationTypeEnum not defined (identified Phase 3 Sprint 0)**
+
+`inventory_transactions.from_location_type` and `to_location_type` are free strings, not enums.
+
+**Impact:** Case-sensitivity bugs; invalid location type values allowed. Must be resolved as first commit in Sprint 11.
+
+**RISK-M4: No CHECK constraint on `dozens_on_hand >= 0`**
+
+Application-level guard is the only protection against negative stock.
+
+**Impact:** DB-level safety net absent. Application guard is correct for Sprint 11; add DB CHECK constraint in Sprint 13.
 
 ### Low Risks
 
@@ -397,101 +454,84 @@ Not all list use-cases apply a default `is_active: true` filter. The `findAllWit
 
 ## Immediate Next Sprint
 
-### Sprint 11 — Database Foundation + CMO Phase Bootstrap
+### Sprint 11 — Inventory Engine Core
 
-**Objectives:**
+**Sprint type:** Implementation Sprint
+**Target version:** `v0.5.0-inventory-engine`
+**Contract:** `docs/architecture/SPRINT11_CONTRACT.md`
+**Decision:** READY WITH REQUIRED CHANGES (Phase 3 Sprint 0 — 2026-06-27)
 
-1. Apply the Prisma schema to a real PostgreSQL database
-2. Resolve all High and Medium technical debt items
-3. Implement the Customer Manufacturing Order (CMO) module
-
-**Step 1: Database Setup (Prerequisite)**
+**Pre-work (Gate Conditions G-1 through G-11 — must complete before any use case code):**
 
 ```bash
-# Ensure PostgreSQL is running with the factory schema available
-# Set DATABASE_URL in .env
+# G-1, G-2: Apply initial migration
 npx prisma migrate dev --name initial-schema
-npx prisma generate
+
+# G-3, G-4, G-5, G-6, G-7: Apply schema hardening
+# (Add ReservationStatusEnum, missing indexes, @updatedAt, current_order_id index)
+npx prisma migrate dev --name inventory-schema-hardening
+
+# G-8: ADR-026 is written (complete)
+# G-9: npm run lint → 0 errors
+# G-10: npm run build → clean
+# G-11: npm run test → 142 passing, 0 failing
 ```
 
-This generates `prisma/migrations/` and verifies the 98-model schema is valid.
+**What Sprint 11 builds (bottom-up order):**
 
-**Step 2: Resolve Technical Debt (Before CMO)**
+1. 4 Repositories: `InventoryBagsRepository`, `InventoryTransactionsRepository`, `StockReservationsRepository`, `PhysicalBagsRepository`
+2. 5 Read use cases: GetStockLevel, GetPhysicalBag, ListPhysicalBags, ListInventoryBags, ListInventoryTransactions
+3. 4 Write use cases: ReceivePhysicalBag (T1), CreateStockReservation (T2), ReleaseStockReservation (T4), AdjustInventory (T7)
+4. 3 Controllers: PhysicalBagsController, InventoryController, StockReservationsController
+5. InventoryModule registered in AppModule
+6. ≥ 45 new unit tests (total ≥ 187)
 
-- [ ] TD-1: Remove `AuditRepository` from `AuthModule`; migrate auth use-cases to `AuditService`
-- [ ] TD-2: Add `@updatedAt`, `deactivated_at DateTime?`, `deactivated_by BigInt?` to relevant models; run `prisma migrate dev`
-- [ ] TD-3: Add `@ApiProperty()` to `PaginationDto` and `IdParamDto`
-- [ ] TD-4: Standardize `findAllWithPagination` with default `is_active: true` across all repositories
-- [ ] TD-5: Remove `customer_id` from `UpdateModelDto`
+**Required schema changes (must be done before implementation):**
 
-**Step 3: CMO Module**
-
-New module: `src/modules/customer-orders/`
-
-Entities (already in Prisma schema):
-- `customer_manufacturing_orders` — top-level order record
-- `cmo_line_items` — specific model+color+size+quantity combinations
-- `packing_patterns` and `packing_pattern_lines` — customer-specified packaging
-
-Use cases to implement:
-- `CreateCmoUseCase` — validate customer active, validate models, create CMO + line items in transaction
-- `GetCmoUseCase`
-- `ListCmosUseCase` — paginated, filterable by customer/status
-- `UpdateCmoUseCase`
-- `CancelCmoUseCase` — soft-cancel with audit
-- `ManageCmoLineItemsUseCase`
-
-**Dependencies:** Customers module, GarmentModels module (customer binding validation).
-
-**Acceptance Criteria:**
-- Database migrations applied successfully
-- All TD items resolved
-- All existing tests still passing
-- CMO module: 20+ tests covering all use cases
-- Lint: 0 errors
-- Build: clean
-
-**Expected Deliverables:**
-- `prisma/migrations/` directory with initial migration
-- CMO module with full CRUD
-- Updated test count ≥ 180 tests
+| Change | Severity | Gate |
+|--------|----------|------|
+| R1: Run `prisma migrate dev --name initial-schema` | Critical | G-1, G-2 |
+| R2: Add `ReservationStatusEnum`; migrate `physical_bag_reservations.status` | Critical | G-4 |
+| R3: Add 3 indexes to `physical_bag_reservations` | Critical | G-5 |
+| R4: Add `@updatedAt` to `physical_bags.updated_at` | High | G-7 |
+| R5: Add `current_order_id` index to `physical_bags` | High | G-6 |
+| R7: Add `LocationTypeEnum`; migrate `inventory_transactions` location fields | High | First Sprint 11 commit |
 
 ---
 
 ## Long-Term Roadmap
 
-### Phase 3 — CMO and Procurement (Sprint 11–13)
+### Phase 3 — Transaction & Execution Engine (Sprint 11–16)
 
-- Customer Manufacturing Orders (CMOs)
-- Purchase Orders from suppliers
-- Receiving audit items (quality inspection on receipt)
-- Physical bags (barcode-tracked material units)
+Sprint order corrected per Phase 3 Sprint 0 review:
 
-### Phase 4 — Inventory Management (Sprint 14–16)
+| Sprint | Module | Version Target |
+|--------|--------|---------------|
+| Sprint 11 | **Inventory Engine Core** (physical bags, stock reservations, inventory transactions) | v0.5.0-inventory-engine |
+| Sprint 12 | **CMO Module** (customer manufacturing orders, line items, packing patterns) | v0.6.0-cmo |
+| Sprint 13 | **Production Engine** (production orders, stage tracking, WIP, material release) | v0.7.0-production |
+| Sprint 14 | **Quality Module** (quality output, inspection, approval) | v0.8.0-quality |
+| Sprint 15 | **Purchasing Module** (containers, purchase orders, receiving audit) | v0.9.0-purchasing |
+| Sprint 16 | **Shipping Module** (shipment orders, dispatch, delivery confirmation) | v1.0.0-shipping |
 
-- Inventory bags (logical inventory records)
-- Inventory transactions (receive, reserve, release, consume, return)
-- Stock reservations linked to production orders
-- Inventory reporting and stock level queries
+### Phase 4 — Workflow & Automation (Sprint 17–19)
 
-### Phase 5 — Production (Sprint 17–20)
+- Workflow Engine (NestJS EventEmitter2, approval templates, instances, steps)
+- Supplementary material requests with approval flow
+- Defect recording and investigation module
+- Inventory reporting and stock dashboards
 
-- Production orders (linked to CMO line items)
-- Production stage tracking (time-based stage logging)
-- Workflow engine (approval templates, instances, steps)
-- Supplementary material requests
-- Defect recording
-
-### Phase 6 — Operations Hardening (Sprint 21–22)
+### Phase 5 — Operations Hardening (Sprint 20–22)
 
 - E2E test suite
 - Docker + docker-compose
 - CI/CD pipeline
 - Performance testing
 - Security penetration testing
-- Redis integration for session cache and permission cache
+- Redis integration: session cache, permission cache, stock read cache
+- Read replica configuration
 
-### Phase 7 — Version 1.0 Release
+### Phase 6 — Version 1.0 Release
 
 - All ERP domains implemented and tested
 - Production deployment configuration complete
