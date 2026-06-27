@@ -330,6 +330,14 @@ enum UserStatusEnum {
   @@schema("factory")
 }
 
+enum ReservationStatusEnum {
+  ACTIVE
+  RELEASED
+  CANCELLED
+  @@map("reservation_status_enum")
+  @@schema("factory")
+}
+
 model customers {
   customer_id BigInt @id @default(autoincrement())
   customer_code String @db.VarChar(20) @unique
@@ -1066,7 +1074,7 @@ model physical_bags {
   received_date DateTime @db.Date
   created_by BigInt
   created_at DateTime @db.Timestamptz(6) @default(now())
-  updated_at DateTime @db.Timestamptz(6) @default(now())
+  updated_at DateTime @updatedAt @db.Timestamptz(6) @default(now())
   containers containers @relation("physical_bags__container_id__containers", fields: [container_id], references: [container_id])
   receiving_audit_items receiving_audit_items? @relation("physical_bags__audit_item_id__receiving_audit_items", fields: [audit_item_id], references: [audit_item_id])
   customers customers @relation("physical_bags__customer_id__customers", fields: [customer_id], references: [customer_id])
@@ -1084,6 +1092,7 @@ model physical_bags {
   @@index([model_id, part_id])
   @@index([status])
   @@index([current_warehouse_id])
+  @@index([current_order_id])
   @@schema("factory")
 }
 
@@ -1119,11 +1128,14 @@ model physical_bag_reservations {
   reserved_by BigInt
   reserved_at DateTime @db.Timestamptz(6) @default(now())
   released_at DateTime? @db.Timestamptz(6)
-  status String @db.VarChar(20) @default("ACTIVE")
+  status ReservationStatusEnum @default(ACTIVE)
   physical_bags physical_bags @relation("physical_bag_reservations__bag_id__physical_bags", fields: [bag_id], references: [bag_id])
   production_orders production_orders @relation("physical_bag_reservations__order_id__production_orders", fields: [order_id], references: [order_id])
   users users @relation("physical_bag_reservations__reserved_by__users", fields: [reserved_by], references: [user_id])
   @@unique([bag_id, order_id])
+  @@index([bag_id, status])
+  @@index([order_id, status])
+  @@index([status])
   @@schema("factory")
 }
 
