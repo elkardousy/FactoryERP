@@ -85,30 +85,67 @@ Include:
 
 ## Schema Migration Rules
 
-### Development
+### CRITICAL — `prisma db pull` is PROHIBITED
 
+**Never run `prisma db pull` without explicit authorization from the lead developer.**
+
+`prisma db pull` introspects the live database and **overwrites** `prisma/schema.prisma`. Because this project's database was originally created by SQL Phase 0–20 scripts (before Prisma was introduced), the live database schema diverges from the committed Prisma schema in ways Prisma cannot reconstruct:
+- Custom enum types become raw `String` fields
+- `@updatedAt` directives are removed
+- Relation names change, breaking TypeScript compilation
+- Index directives added for application-layer semantics are dropped
+
+The committed `prisma/schema.prisma` is the **source of truth**. The live database adapts to it — not the other way around.
+
+**If `prisma db pull` is accidentally run, recover immediately:**
 ```bash
-npx prisma migrate dev --name describe-the-change
+git checkout HEAD -- prisma/schema.prisma
+DATABASE_URL="postgresql://elkardousy:250686@localhost:5432/factory_erp" npx prisma generate
+npm run build    # must exit 0 before proceeding
 ```
 
-This creates a migration file in `prisma/migrations/` and applies it to the development database.
+### Prisma CLI requires explicit DATABASE_URL
+
+`prisma.config.ts` causes Prisma to skip automatic `.env` loading. Always prefix Prisma CLI commands:
+
+```bash
+DATABASE_URL="postgresql://elkardousy:250686@localhost:5432/factory_erp" npx prisma <command>
+```
+
+### Migration execution workflow
+
+The application user (`elkardousy`) lacks `ALTER TABLE` / `CREATE TYPE` privileges — those tables are owned by `postgres`. All migrations must be executed by the `postgres` superuser, then marked applied in Prisma:
+
+```bash
+# 1. Write migration SQL to prisma/migrations/<timestamp>_<name>/migration.sql
+# 2. Execute as postgres:
+PGPASSWORD="<postgres-pw>" "C:\Program Files\PostgreSQL\18\bin\psql.exe" \
+  -U postgres -h localhost -p 5432 -d factory_erp \
+  -f "prisma/migrations/<timestamp>_<name>/migration.sql"
+# 3. Mark applied in Prisma:
+DATABASE_URL="postgresql://elkardousy:250686@localhost:5432/factory_erp" \
+  npx prisma migrate resolve --applied "<timestamp>_<name>"
+# 4. Regenerate client:
+DATABASE_URL="postgresql://elkardousy:250686@localhost:5432/factory_erp" npx prisma generate
+```
+
+### Recovering from a failed migration
+
+```bash
+# Mark the failed migration as rolled back so Prisma allows new runs:
+DATABASE_URL="postgresql://elkardousy:250686@localhost:5432/factory_erp" \
+  npx prisma migrate resolve --rolled-back "<migration-name>"
+# Fix the SQL, re-execute as postgres, then mark applied as above.
+```
 
 ### Never Manually Edit Migration Files
 
 Once a migration file is committed, it is immutable. If a mistake is in a migration that has not reached production, revert it with a new migration — do not edit the existing file.
 
-### Production Deployments
-
-```bash
-npx prisma migrate deploy
-```
-
-This applies pending migrations without the interactive prompts of `migrate dev`. Run this in deployment pipelines.
-
 ### After Schema Changes
 
 ```bash
-npx prisma generate
+DATABASE_URL="postgresql://elkardousy:250686@localhost:5432/factory_erp" npx prisma generate
 ```
 
 Regenerates the Prisma client after any `schema.prisma` change. This must be run before `npm run build`.

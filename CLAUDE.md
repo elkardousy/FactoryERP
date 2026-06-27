@@ -23,11 +23,12 @@ npm run test -- --testPathPattern=auth   # run tests matching a path pattern
 npm run lint             # eslint with auto-fix
 npm run format           # prettier --write
 
-# Prisma
-npx prisma generate      # regenerate client after schema changes
-npx prisma validate      # validate schema.prisma
-npx prisma migrate dev   # create and apply a new migration (dev only)
-npx prisma studio        # open Prisma Studio
+# Prisma — always prefix with DATABASE_URL= (prisma.config.ts skips .env loading)
+DATABASE_URL="postgresql://elkardousy:250686@localhost:5432/factory_erp" npx prisma generate
+DATABASE_URL="postgresql://elkardousy:250686@localhost:5432/factory_erp" npx prisma validate
+DATABASE_URL="postgresql://elkardousy:250686@localhost:5432/factory_erp" npx prisma migrate status
+DATABASE_URL="postgresql://elkardousy:250686@localhost:5432/factory_erp" npx prisma studio
+# WARNING: prisma db pull is PROHIBITED — see "Never run prisma db pull" section below
 ```
 
 ## Architecture
@@ -94,6 +95,39 @@ Env vars are validated by Joi at startup (`src/core/config/env.validation.ts`). 
 - All primary keys are `BigInt` — be aware this does not serialize to JSON numbers natively.
 - `PrismaModule` is `@Global()`, so no module needs to import it again after `AppModule`.
 - `BaseRepository` exposes `this.db` (alias for `this.prisma`) and `executeInTransaction<T>()`. The transaction callback receives a cast `tx as PrismaService` — treat it as a `Prisma.TransactionClient` inside the callback, not a full `PrismaService`.
+
+### CRITICAL — Never run `prisma db pull`
+
+**`prisma db pull` is PROHIBITED without explicit authorization.** It overwrites `prisma/schema.prisma` from the live database and:
+- Removes `ReservationStatusEnum` and other custom enums (they become raw strings)
+- Strips all `@updatedAt` directives
+- Renames relations (breaking TypeScript compilation — 6+ type errors)
+- Removes custom indexes added via schema directives
+- Destroys the committed schema that is the source of truth
+
+The database was created by SQL Phase 0–20 scripts before Prisma was introduced. The committed `schema.prisma` is the authoritative source, not the live DB introspection. If you accidentally run `prisma db pull`, immediately restore with:
+
+```bash
+git checkout HEAD -- prisma/schema.prisma
+npx prisma generate
+npm run build
+```
+
+### Prisma migration workflow
+
+All migrations must be run as the `postgres` superuser (not `elkardousy`), because `elkardousy` lacks `ALTER TABLE` / `CREATE TYPE` privileges on the `factory` schema objects owned by `postgres`. Workflow:
+
+```bash
+# 1. Write migration SQL to prisma/migrations/<timestamp>_<name>/migration.sql
+# 2. Execute it as superuser:
+PGPASSWORD="<postgres-pw>" psql -U postgres -h localhost -p 5432 -d factory_erp -f prisma/migrations/<dir>/migration.sql
+# 3. Mark it applied in Prisma:
+DATABASE_URL="postgresql://elkardousy:250686@localhost:5432/factory_erp" npx prisma migrate resolve --applied "<migration-name>"
+# 4. Regenerate client:
+DATABASE_URL="postgresql://elkardousy:250686@localhost:5432/factory_erp" npx prisma generate
+```
+
+Always pass `DATABASE_URL` explicitly because `prisma.config.ts` causes Prisma to skip `.env` loading.
 
 ### Logging
 
