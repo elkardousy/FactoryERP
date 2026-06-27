@@ -16,6 +16,20 @@ export interface InventoryTransactionFilter {
   to_date?: Date;
 }
 
+export interface CreateTransactionData {
+  txn_reference: string;
+  txn_type: TxnTypeEnum;
+  model_id: bigint;
+  part_id?: bigint | null;
+  from_location_type?: string | null;
+  from_location_id?: bigint | null;
+  to_location_type?: string | null;
+  to_location_id?: bigint | null;
+  dozens_qty: number;
+  executed_by: bigint;
+  notes?: string | null;
+}
+
 @Injectable()
 export class InventoryTransactionsRepository extends BaseRepository {
   constructor(prisma: PrismaService) {
@@ -57,5 +71,58 @@ export class InventoryTransactionsRepository extends BaseRepository {
       where: { txn_reference: txnReference },
       orderBy: { executed_at: 'asc' },
     });
+  }
+
+  async create(data: CreateTransactionData): Promise<inventory_transactions> {
+    return this.db.inventory_transactions.create({ data });
+  }
+
+  async createInTx(
+    tx: PrismaService,
+    data: CreateTransactionData,
+  ): Promise<inventory_transactions> {
+    return tx.inventory_transactions.create({ data });
+  }
+
+  async findById(txnId: bigint): Promise<inventory_transactions | null> {
+    return this.db.inventory_transactions.findFirst({ where: { txn_id: txnId } });
+  }
+
+  async findByWarehouseId(
+    warehouseId: bigint,
+    page: number,
+    limit: number,
+    from_date?: Date,
+    to_date?: Date,
+  ): Promise<PaginatedResult<inventory_transactions>> {
+    const dateFilter =
+      from_date || to_date
+        ? {
+            executed_at: {
+              ...(from_date && { gte: from_date }),
+              ...(to_date && { lte: to_date }),
+            },
+          }
+        : {};
+
+    const where = {
+      OR: [
+        { from_location_type: 'WAREHOUSE', from_location_id: warehouseId },
+        { to_location_type: 'WAREHOUSE', to_location_id: warehouseId },
+      ],
+      ...dateFilter,
+    };
+
+    const [items, total] = await this.db.$transaction([
+      this.db.inventory_transactions.findMany({
+        where,
+        skip: (page - 1) * limit,
+        take: limit,
+        orderBy: { executed_at: 'desc' },
+      }),
+      this.db.inventory_transactions.count({ where }),
+    ]);
+
+    return { items, meta: buildPaginationMeta(page, limit, total) };
   }
 }

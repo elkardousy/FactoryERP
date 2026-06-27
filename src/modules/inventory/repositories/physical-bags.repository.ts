@@ -6,7 +6,7 @@ import {
   buildPaginationMeta,
   PaginatedResult,
 } from '../../../common/interfaces/paginated-result.interface';
-import type { physical_bags } from '@prisma/client';
+import type { physical_bags, physical_bag_movements } from '@prisma/client';
 
 export interface PhysicalBagFilter {
   search?: string;
@@ -53,6 +53,26 @@ export class PhysicalBagsRepository extends BaseRepository {
         orderBy: { created_at: 'desc' },
       }),
       this.db.physical_bags.count({ where }),
+    ]);
+
+    return { items, meta: buildPaginationMeta(page, limit, total) };
+  }
+
+  async findMovementHistory(
+    bagId: bigint,
+    page: number,
+    limit: number,
+  ): Promise<PaginatedResult<physical_bag_movements>> {
+    const where = { bag_id: bagId };
+
+    const [items, total] = await this.db.$transaction([
+      this.db.physical_bag_movements.findMany({
+        where,
+        skip: (page - 1) * limit,
+        take: limit,
+        orderBy: { performed_at: 'desc' },
+      }),
+      this.db.physical_bag_movements.count({ where }),
     ]);
 
     return { items, meta: buildPaginationMeta(page, limit, total) };
