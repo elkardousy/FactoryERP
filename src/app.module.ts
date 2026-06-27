@@ -14,6 +14,7 @@ import { WarehousesModule } from './modules/warehouses/warehouses.module';
 import { OrganizationModule } from './modules/organization/organization.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { AuthorizationModule } from './modules/authorization/authorization.module';
+import { InventoryModule } from './modules/inventory/inventory.module';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 import { RolesGuard } from './modules/authorization/guards/roles.guard';
 import { ScreenPermissionGuard } from './modules/authorization/guards/screen-permission.guard';
@@ -46,6 +47,7 @@ import { ResponseInterceptor } from './core/interceptors/response.interceptor';
     GarmentModelsModule,
     AuthModule,
     AuthorizationModule,
+    InventoryModule,
     ThrottlerModule.forRoot([{ name: 'default', ttl: 60_000, limit: 60 }]),
   ],
   providers: [
