@@ -66,7 +66,9 @@ export class InventoryTransactionsRepository extends BaseRepository {
     return { items, meta: buildPaginationMeta(page, limit, total) };
   }
 
-  async findByReference(txnReference: string): Promise<inventory_transactions[]> {
+  async findByReference(
+    txnReference: string,
+  ): Promise<inventory_transactions[]> {
     return this.db.inventory_transactions.findMany({
       where: { txn_reference: txnReference },
       orderBy: { executed_at: 'asc' },
@@ -85,7 +87,9 @@ export class InventoryTransactionsRepository extends BaseRepository {
   }
 
   async findById(txnId: bigint): Promise<inventory_transactions | null> {
-    return this.db.inventory_transactions.findFirst({ where: { txn_id: txnId } });
+    return this.db.inventory_transactions.findFirst({
+      where: { txn_id: txnId },
+    });
   }
 
   async findByWarehouseId(

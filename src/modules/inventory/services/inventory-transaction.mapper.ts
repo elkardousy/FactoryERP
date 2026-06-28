@@ -12,9 +12,13 @@ export class InventoryTransactionMapper {
     dto.model_id = txn.model_id.toString();
     dto.part_id = txn.part_id ? txn.part_id.toString() : null;
     dto.from_location_type = txn.from_location_type ?? null;
-    dto.from_location_id = txn.from_location_id ? txn.from_location_id.toString() : null;
+    dto.from_location_id = txn.from_location_id
+      ? txn.from_location_id.toString()
+      : null;
     dto.to_location_type = txn.to_location_type ?? null;
-    dto.to_location_id = txn.to_location_id ? txn.to_location_id.toString() : null;
+    dto.to_location_id = txn.to_location_id
+      ? txn.to_location_id.toString()
+      : null;
     dto.dozens_qty = txn.dozens_qty.toString();
     dto.executed_by = txn.executed_by.toString();
     dto.executed_at = txn.executed_at.toISOString();

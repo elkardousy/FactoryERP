@@ -40,7 +40,9 @@ export class InventoryTransactionFactory {
     };
   }
 
-  fromTransfer(cmd: TransferInventoryCommand): [CreateTransactionData, CreateTransactionData] {
+  fromTransfer(
+    cmd: TransferInventoryCommand,
+  ): [CreateTransactionData, CreateTransactionData] {
     const base = {
       txn_reference: cmd.txn_reference,
       model_id: cmd.model_id,

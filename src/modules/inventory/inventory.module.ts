@@ -11,6 +11,10 @@ import { InventoryTransactionFactory } from './services/inventory-transaction.fa
 import { InventoryTransactionMapper } from './services/inventory-transaction.mapper';
 import { InventoryTransactionValidator } from './services/inventory-transaction.validator';
 import { InventoryTransactionService } from './services/inventory-transaction.service';
+import { ReservationFactory } from './services/reservation.factory';
+import { ReservationMapper } from './services/reservation.mapper';
+import { ReservationValidator } from './services/reservation.validator';
+import { ReservationService } from './services/reservation.service';
 
 import { CreateInventoryTransactionUseCase } from './use-cases/create-inventory-transaction/create-inventory-transaction.use-case';
 import { ReceiveInventoryUseCase } from './use-cases/create-inventory-transaction/receive-inventory.use-case';
@@ -20,6 +24,14 @@ import { AdjustInventoryUseCase } from './use-cases/create-inventory-transaction
 import { ListInventoryTransactionsUseCase } from './use-cases/list-inventory-transactions/list-inventory-transactions.use-case';
 import { GetInventoryTransactionUseCase } from './use-cases/get-inventory-transaction/get-inventory-transaction.use-case';
 import { GetBagTransactionHistoryUseCase } from './use-cases/get-bag-transaction-history/get-bag-transaction-history.use-case';
+import { CreateReservationUseCase } from './use-cases/create-reservation/create-reservation.use-case';
+import { ReleaseReservationUseCase } from './use-cases/create-reservation/release-reservation.use-case';
+import { CancelReservationUseCase } from './use-cases/create-reservation/cancel-reservation.use-case';
+import { ExpireReservationUseCase } from './use-cases/create-reservation/expire-reservation.use-case';
+import { GetReservationUseCase } from './use-cases/get-reservation/get-reservation.use-case';
+import { ListReservationsUseCase } from './use-cases/list-reservations/list-reservations.use-case';
+import { ListReservationsByBagUseCase } from './use-cases/list-reservations/list-reservations-by-bag.use-case';
+import { ListReservationsByOrderUseCase } from './use-cases/list-reservations/list-reservations-by-order.use-case';
 
 @Module({
   controllers: [InventoryController],
@@ -30,13 +42,18 @@ import { GetBagTransactionHistoryUseCase } from './use-cases/get-bag-transaction
     InventoryBagsRepository,
     InventoryTransactionsRepository,
     InventoryValidationRepository,
-    // Services
+    // Transaction services
     InventoryService,
     InventoryTransactionFactory,
     InventoryTransactionMapper,
     InventoryTransactionValidator,
     InventoryTransactionService,
-    // Use cases
+    // Reservation services
+    ReservationFactory,
+    ReservationMapper,
+    ReservationValidator,
+    ReservationService,
+    // Transaction use cases
     CreateInventoryTransactionUseCase,
     ReceiveInventoryUseCase,
     IssueInventoryUseCase,
@@ -45,6 +62,15 @@ import { GetBagTransactionHistoryUseCase } from './use-cases/get-bag-transaction
     ListInventoryTransactionsUseCase,
     GetInventoryTransactionUseCase,
     GetBagTransactionHistoryUseCase,
+    // Reservation use cases
+    CreateReservationUseCase,
+    ReleaseReservationUseCase,
+    CancelReservationUseCase,
+    ExpireReservationUseCase,
+    GetReservationUseCase,
+    ListReservationsUseCase,
+    ListReservationsByBagUseCase,
+    ListReservationsByOrderUseCase,
   ],
   exports: [
     PhysicalBagsRepository,
@@ -52,6 +78,7 @@ import { GetBagTransactionHistoryUseCase } from './use-cases/get-bag-transaction
     InventoryBagsRepository,
     InventoryTransactionsRepository,
     InventoryTransactionService,
+    ReservationService,
   ],
 })
 export class InventoryModule {}

@@ -8,7 +8,10 @@ import { InventoryTransactionMapper } from './inventory-transaction.mapper';
 import { InventoryTransactionValidator } from './inventory-transaction.validator';
 import { TransactionResponseDto } from '../dto/transaction-response.dto';
 import { TransactionHistoryDto } from '../dto/transaction-history.dto';
-import type { TransactionResult, TransferResult } from '../contracts/transaction-result.interface';
+import type {
+  TransactionResult,
+  TransferResult,
+} from '../contracts/transaction-result.interface';
 import type { ReceiveInventoryCommand } from '../use-cases/create-inventory-transaction/commands/receive-inventory.command';
 import type { IssueInventoryCommand } from '../use-cases/create-inventory-transaction/commands/issue-inventory.command';
 import type { TransferInventoryCommand } from '../use-cases/create-inventory-transaction/commands/transfer-inventory.command';
@@ -34,7 +37,9 @@ export class InventoryTransactionService {
     await this.validator.validateReceive(cmd);
     const data = this.factory.fromReceive(cmd);
     const txn = await this.txnRepo.create(data);
-    this.logger.info(`Inventory received: ref=${cmd.txn_reference}, model=${cmd.model_id}`);
+    this.logger.info(
+      `Inventory received: ref=${cmd.txn_reference}, model=${cmd.model_id}`,
+    );
     return { success: true, transaction: this.mapper.toResponse(txn) };
   }
 
@@ -42,7 +47,9 @@ export class InventoryTransactionService {
     await this.validator.validateIssue(cmd);
     const data = this.factory.fromIssue(cmd);
     const txn = await this.txnRepo.create(data);
-    this.logger.info(`Inventory issued: ref=${cmd.txn_reference}, model=${cmd.model_id}`);
+    this.logger.info(
+      `Inventory issued: ref=${cmd.txn_reference}, model=${cmd.model_id}`,
+    );
     return { success: true, transaction: this.mapper.toResponse(txn) };
   }
 
@@ -50,11 +57,13 @@ export class InventoryTransactionService {
     await this.validator.validateTransfer(cmd);
     const [outboundData, inboundData] = this.factory.fromTransfer(cmd);
 
-    const [outboundTxn, inboundTxn] = await this.txnRepo.executeInTransaction(async (tx) => {
-      const out = await this.txnRepo.createInTx(tx, outboundData);
-      const inb = await this.txnRepo.createInTx(tx, inboundData);
-      return [out, inb] as const;
-    });
+    const [outboundTxn, inboundTxn] = await this.txnRepo.executeInTransaction(
+      async (tx) => {
+        const out = await this.txnRepo.createInTx(tx, outboundData);
+        const inb = await this.txnRepo.createInTx(tx, inboundData);
+        return [out, inb] as const;
+      },
+    );
 
     this.logger.info(
       `Inventory transferred: ref=${cmd.txn_reference}, from=${cmd.from_warehouse_id} to=${cmd.to_warehouse_id}`,
@@ -70,7 +79,9 @@ export class InventoryTransactionService {
     await this.validator.validateAdjust(cmd);
     const data = this.factory.fromAdjust(cmd);
     const txn = await this.txnRepo.create(data);
-    this.logger.info(`Inventory adjusted: ref=${cmd.txn_reference}, model=${cmd.model_id}`);
+    this.logger.info(
+      `Inventory adjusted: ref=${cmd.txn_reference}, model=${cmd.model_id}`,
+    );
     return { success: true, transaction: this.mapper.toResponse(txn) };
   }
 
@@ -88,12 +99,16 @@ export class InventoryTransactionService {
       query.page,
       query.limit,
     );
-    return { items: this.mapper.toResponseList(result.items), meta: result.meta };
+    return {
+      items: this.mapper.toResponseList(result.items),
+      meta: result.meta,
+    };
   }
 
   async getById(query: GetTransactionQuery): Promise<TransactionResponseDto> {
     const txn = await this.txnRepo.findById(query.txn_id);
-    if (!txn) throw new NotFoundException(`Transaction ${query.txn_id} not found`);
+    if (!txn)
+      throw new NotFoundException(`Transaction ${query.txn_id} not found`);
     return this.mapper.toResponse(txn);
   }
 
@@ -103,8 +118,15 @@ export class InventoryTransactionService {
     const bag = await this.bagsRepo.findById(query.bag_id);
     if (!bag) throw new NotFoundException(`Bag ${query.bag_id} not found`);
 
-    const result = await this.bagsRepo.findMovementHistory(query.bag_id, query.page, query.limit);
-    return { items: result.items.map((m) => this.mapMovement(m)), meta: result.meta };
+    const result = await this.bagsRepo.findMovementHistory(
+      query.bag_id,
+      query.page,
+      query.limit,
+    );
+    return {
+      items: result.items.map((m) => this.mapMovement(m)),
+      meta: result.meta,
+    };
   }
 
   async listByWarehouse(
@@ -117,7 +139,10 @@ export class InventoryTransactionService {
       query.from_date,
       query.to_date,
     );
-    return { items: this.mapper.toResponseList(result.items), meta: result.meta };
+    return {
+      items: this.mapper.toResponseList(result.items),
+      meta: result.meta,
+    };
   }
 
   private mapMovement(m: physical_bag_movements): TransactionHistoryDto {
@@ -126,8 +151,12 @@ export class InventoryTransactionService {
     dto.bag_id = m.bag_id.toString();
     dto.from_status = m.from_status ?? null;
     dto.to_status = m.to_status;
-    dto.from_warehouse_id = m.from_warehouse_id ? m.from_warehouse_id.toString() : null;
-    dto.to_warehouse_id = m.to_warehouse_id ? m.to_warehouse_id.toString() : null;
+    dto.from_warehouse_id = m.from_warehouse_id
+      ? m.from_warehouse_id.toString()
+      : null;
+    dto.to_warehouse_id = m.to_warehouse_id
+      ? m.to_warehouse_id.toString()
+      : null;
     dto.from_order_id = m.from_order_id ? m.from_order_id.toString() : null;
     dto.to_order_id = m.to_order_id ? m.to_order_id.toString() : null;
     dto.dozens_moved = m.dozens_moved ? m.dozens_moved.toString() : null;

@@ -57,7 +57,14 @@ const MOCK_RELEASE_RESPONSE: TransactionResponseDto = {
   to_location_id: '2',
 };
 
-const MOCK_PAGINATION = { page: 1, limit: 20, total: 1, totalPages: 1, hasNext: false, hasPrev: false };
+const MOCK_PAGINATION = {
+  page: 1,
+  limit: 20,
+  total: 1,
+  totalPages: 1,
+  hasNext: false,
+  hasPrev: false,
+};
 
 const MOCK_DB_TXN = {
   txn_id: BigInt(1),
@@ -96,22 +103,32 @@ function buildTestModule(overrides: Record<string, any> = {}) {
     create: jest.fn().mockResolvedValue(MOCK_DB_TXN),
     createInTx: jest.fn().mockResolvedValue(MOCK_DB_TXN),
     findById: jest.fn().mockResolvedValue(MOCK_DB_TXN),
-    findAllWithPagination: jest.fn().mockResolvedValue({ items: [MOCK_DB_TXN], meta: MOCK_PAGINATION }),
-    findByWarehouseId: jest.fn().mockResolvedValue({ items: [MOCK_DB_TXN], meta: MOCK_PAGINATION }),
-    executeInTransaction: jest.fn().mockImplementation((cb: any) => cb({})),
+    findAllWithPagination: jest
+      .fn()
+      .mockResolvedValue({ items: [MOCK_DB_TXN], meta: MOCK_PAGINATION }),
+    findByWarehouseId: jest
+      .fn()
+      .mockResolvedValue({ items: [MOCK_DB_TXN], meta: MOCK_PAGINATION }),
+    executeInTransaction: jest
+      .fn()
+      .mockImplementation((cb: (tx: unknown) => Promise<unknown>) => cb({})),
     ...overrides.txnRepo,
   };
 
   const bagsRepo: jest.Mocked<Partial<PhysicalBagsRepository>> = {
     findById: jest.fn().mockResolvedValue({ bag_id: BigInt(5) }),
-    findMovementHistory: jest.fn().mockResolvedValue({ items: [], meta: MOCK_PAGINATION }),
+    findMovementHistory: jest
+      .fn()
+      .mockResolvedValue({ items: [], meta: MOCK_PAGINATION }),
     ...overrides.bagsRepo,
   };
 
   const factory: jest.Mocked<Partial<InventoryTransactionFactory>> = {
     fromReceive: jest.fn().mockReturnValue(MOCK_CREATE_DATA),
     fromIssue: jest.fn().mockReturnValue(MOCK_CREATE_DATA),
-    fromTransfer: jest.fn().mockReturnValue([MOCK_CREATE_DATA, MOCK_CREATE_DATA]),
+    fromTransfer: jest
+      .fn()
+      .mockReturnValue([MOCK_CREATE_DATA, MOCK_CREATE_DATA]),
     fromAdjust: jest.fn().mockReturnValue(MOCK_CREATE_DATA),
     ...overrides.factory,
   };
@@ -163,17 +180,51 @@ describe('InventoryTransactionService', () => {
   let factory: jest.Mocked<InventoryTransactionFactory>;
   let validator: jest.Mocked<InventoryTransactionValidator>;
 
-  const RECEIVE_CMD = new ReceiveInventoryCommand('TXN-001', BigInt(10), null, BigInt(1), 5, BigInt(99), null);
-  const ISSUE_CMD = new IssueInventoryCommand('TXN-001', BigInt(10), null, BigInt(1), BigInt(20), 5, BigInt(99), null);
-  const TRANSFER_CMD = new TransferInventoryCommand('TXN-001', BigInt(10), null, BigInt(1), BigInt(2), 5, BigInt(99), null);
-  const ADJUST_CMD = new AdjustInventoryCommand('TXN-001', BigInt(10), null, BigInt(1), -2, BigInt(99), null);
+  const RECEIVE_CMD = new ReceiveInventoryCommand(
+    'TXN-001',
+    BigInt(10),
+    null,
+    BigInt(1),
+    5,
+    BigInt(99),
+    null,
+  );
+  const ISSUE_CMD = new IssueInventoryCommand(
+    'TXN-001',
+    BigInt(10),
+    null,
+    BigInt(1),
+    BigInt(20),
+    5,
+    BigInt(99),
+    null,
+  );
+  const TRANSFER_CMD = new TransferInventoryCommand(
+    'TXN-001',
+    BigInt(10),
+    null,
+    BigInt(1),
+    BigInt(2),
+    5,
+    BigInt(99),
+    null,
+  );
+  const ADJUST_CMD = new AdjustInventoryCommand(
+    'TXN-001',
+    BigInt(10),
+    null,
+    BigInt(1),
+    -2,
+    BigInt(99),
+    null,
+  );
 
   beforeEach(async () => {
     const module = await buildTestModule();
     service = module.get(InventoryTransactionService);
-    txnRepo = module.get(InventoryTransactionsRepository) as jest.Mocked<InventoryTransactionsRepository>;
-    factory = module.get(InventoryTransactionFactory) as jest.Mocked<InventoryTransactionFactory>;
-    validator = module.get(InventoryTransactionValidator) as jest.Mocked<InventoryTransactionValidator>;
+    txnRepo = module.get(InventoryTransactionsRepository);
+    factory = module.get(InventoryTransactionFactory);
+    validator = module.get(InventoryTransactionValidator);
   });
 
   describe('receive', () => {
@@ -187,8 +238,12 @@ describe('InventoryTransactionService', () => {
     });
 
     it('propagates validation error', async () => {
-      validator.validateReceive.mockRejectedValueOnce(new NotFoundException('Model not found'));
-      await expect(service.receive(RECEIVE_CMD)).rejects.toBeInstanceOf(NotFoundException);
+      validator.validateReceive.mockRejectedValueOnce(
+        new NotFoundException('Model not found'),
+      );
+      await expect(service.receive(RECEIVE_CMD)).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
     });
   });
 
@@ -215,7 +270,9 @@ describe('InventoryTransactionService', () => {
       validator.validateTransfer.mockRejectedValueOnce(
         new BadRequestException('Source and destination warehouse must differ'),
       );
-      await expect(service.transfer(TRANSFER_CMD)).rejects.toBeInstanceOf(BadRequestException);
+      await expect(service.transfer(TRANSFER_CMD)).rejects.toBeInstanceOf(
+        BadRequestException,
+      );
     });
   });
 
@@ -237,7 +294,9 @@ describe('InventoryTransactionService', () => {
 
     it('throws NotFoundException when not found', async () => {
       txnRepo.findById = jest.fn().mockResolvedValue(null);
-      await expect(service.getById(new GetTransactionQuery(BigInt(999)))).rejects.toBeInstanceOf(NotFoundException);
+      await expect(
+        service.getById(new GetTransactionQuery(BigInt(999))),
+      ).rejects.toBeInstanceOf(NotFoundException);
     });
   });
 
@@ -254,7 +313,9 @@ describe('InventoryTransactionService', () => {
   describe('getBagHistory', () => {
     it('throws NotFoundException when bag not found', async () => {
       (txnRepo as any).bagsRepo = undefined;
-      const module = await buildTestModule({ bagsRepo: { findById: jest.fn().mockResolvedValue(null) } });
+      const module = await buildTestModule({
+        bagsRepo: { findById: jest.fn().mockResolvedValue(null) },
+      });
       const svc = module.get(InventoryTransactionService);
       await expect(
         svc.getBagHistory(new GetTransactionsByBagQuery(BigInt(999), 1, 20)),
@@ -280,11 +341,16 @@ describe('InventoryTransactionService', () => {
       const module = await buildTestModule({
         bagsRepo: {
           findById: jest.fn().mockResolvedValue({ bag_id: BigInt(5) }),
-          findMovementHistory: jest.fn().mockResolvedValue({ items: [MOCK_MOVEMENT], meta: MOCK_PAGINATION }),
+          findMovementHistory: jest.fn().mockResolvedValue({
+            items: [MOCK_MOVEMENT],
+            meta: MOCK_PAGINATION,
+          }),
         },
       });
       const svc = module.get(InventoryTransactionService);
-      const result = await svc.getBagHistory(new GetTransactionsByBagQuery(BigInt(5), 1, 20));
+      const result = await svc.getBagHistory(
+        new GetTransactionsByBagQuery(BigInt(5), 1, 20),
+      );
       expect(result.items).toHaveLength(1);
       expect(result.items[0].movement_id).toBe('1');
     });
@@ -296,9 +362,19 @@ describe('ReceiveInventoryUseCase', () => {
     const module = await buildTestModule();
     const useCase = module.get(ReceiveInventoryUseCase);
     const service = module.get(InventoryTransactionService);
-    jest.spyOn(service, 'receive').mockResolvedValue({ success: true, transaction: MOCK_TXN_RESPONSE });
+    jest
+      .spyOn(service, 'receive')
+      .mockResolvedValue({ success: true, transaction: MOCK_TXN_RESPONSE });
 
-    const cmd = new ReceiveInventoryCommand('TXN-001', BigInt(10), null, BigInt(1), 5, BigInt(99), null);
+    const cmd = new ReceiveInventoryCommand(
+      'TXN-001',
+      BigInt(10),
+      null,
+      BigInt(1),
+      5,
+      BigInt(99),
+      null,
+    );
     const result = await useCase.execute(cmd);
     expect(result.success).toBe(true);
     expect(service.receive).toHaveBeenCalledWith(cmd);
@@ -310,9 +386,20 @@ describe('IssueInventoryUseCase', () => {
     const module = await buildTestModule();
     const useCase = module.get(IssueInventoryUseCase);
     const service = module.get(InventoryTransactionService);
-    jest.spyOn(service, 'issue').mockResolvedValue({ success: true, transaction: MOCK_TXN_RESPONSE });
+    jest
+      .spyOn(service, 'issue')
+      .mockResolvedValue({ success: true, transaction: MOCK_TXN_RESPONSE });
 
-    const cmd = new IssueInventoryCommand('TXN-001', BigInt(10), null, BigInt(1), BigInt(20), 5, BigInt(99), null);
+    const cmd = new IssueInventoryCommand(
+      'TXN-001',
+      BigInt(10),
+      null,
+      BigInt(1),
+      BigInt(20),
+      5,
+      BigInt(99),
+      null,
+    );
     const result = await useCase.execute(cmd);
     expect(result.success).toBe(true);
     expect(service.issue).toHaveBeenCalledWith(cmd);
@@ -324,10 +411,23 @@ describe('TransferInventoryUseCase', () => {
     const module = await buildTestModule();
     const useCase = module.get(TransferInventoryUseCase);
     const service = module.get(InventoryTransactionService);
-    const transferResult = { success: true as const, outbound: MOCK_TXN_RESPONSE, inbound: MOCK_RELEASE_RESPONSE };
+    const transferResult = {
+      success: true as const,
+      outbound: MOCK_TXN_RESPONSE,
+      inbound: MOCK_RELEASE_RESPONSE,
+    };
     jest.spyOn(service, 'transfer').mockResolvedValue(transferResult);
 
-    const cmd = new TransferInventoryCommand('TXN-001', BigInt(10), null, BigInt(1), BigInt(2), 5, BigInt(99), null);
+    const cmd = new TransferInventoryCommand(
+      'TXN-001',
+      BigInt(10),
+      null,
+      BigInt(1),
+      BigInt(2),
+      5,
+      BigInt(99),
+      null,
+    );
     const result = await useCase.execute(cmd);
     expect(result.success).toBe(true);
     expect('outbound' in result).toBe(true);
@@ -340,9 +440,19 @@ describe('AdjustInventoryUseCase', () => {
     const module = await buildTestModule();
     const useCase = module.get(AdjustInventoryUseCase);
     const service = module.get(InventoryTransactionService);
-    jest.spyOn(service, 'adjust').mockResolvedValue({ success: true, transaction: MOCK_TXN_RESPONSE });
+    jest
+      .spyOn(service, 'adjust')
+      .mockResolvedValue({ success: true, transaction: MOCK_TXN_RESPONSE });
 
-    const cmd = new AdjustInventoryCommand('TXN-001', BigInt(10), null, BigInt(1), -2, BigInt(99), null);
+    const cmd = new AdjustInventoryCommand(
+      'TXN-001',
+      BigInt(10),
+      null,
+      BigInt(1),
+      -2,
+      BigInt(99),
+      null,
+    );
     const result = await useCase.execute(cmd);
     expect(result.success).toBe(true);
     expect(service.adjust).toHaveBeenCalledWith(cmd);
@@ -360,46 +470,103 @@ describe('CreateInventoryTransactionUseCase', () => {
   });
 
   it('routes RECEIVE to service.receive', async () => {
-    jest.spyOn(service, 'receive').mockResolvedValue({ success: true, transaction: MOCK_TXN_RESPONSE });
+    jest
+      .spyOn(service, 'receive')
+      .mockResolvedValue({ success: true, transaction: MOCK_TXN_RESPONSE });
     const cmd = new CreateInventoryTransactionCommand(
-      TransactionOperationType.RECEIVE, 'TXN-001', BigInt(10), null, null, BigInt(1), null, 5, BigInt(99), null,
+      TransactionOperationType.RECEIVE,
+      'TXN-001',
+      BigInt(10),
+      null,
+      null,
+      BigInt(1),
+      null,
+      5,
+      BigInt(99),
+      null,
     );
     await useCase.execute(cmd);
     expect(service.receive).toHaveBeenCalled();
   });
 
   it('routes ISSUE to service.issue', async () => {
-    jest.spyOn(service, 'issue').mockResolvedValue({ success: true, transaction: MOCK_TXN_RESPONSE });
+    jest
+      .spyOn(service, 'issue')
+      .mockResolvedValue({ success: true, transaction: MOCK_TXN_RESPONSE });
     const cmd = new CreateInventoryTransactionCommand(
-      TransactionOperationType.ISSUE, 'TXN-001', BigInt(10), null, BigInt(1), null, BigInt(20), 5, BigInt(99), null,
+      TransactionOperationType.ISSUE,
+      'TXN-001',
+      BigInt(10),
+      null,
+      BigInt(1),
+      null,
+      BigInt(20),
+      5,
+      BigInt(99),
+      null,
     );
     await useCase.execute(cmd);
     expect(service.issue).toHaveBeenCalled();
   });
 
   it('routes TRANSFER to service.transfer', async () => {
-    const transferResult = { success: true as const, outbound: MOCK_TXN_RESPONSE, inbound: MOCK_RELEASE_RESPONSE };
+    const transferResult = {
+      success: true as const,
+      outbound: MOCK_TXN_RESPONSE,
+      inbound: MOCK_RELEASE_RESPONSE,
+    };
     jest.spyOn(service, 'transfer').mockResolvedValue(transferResult);
     const cmd = new CreateInventoryTransactionCommand(
-      TransactionOperationType.TRANSFER, 'TXN-001', BigInt(10), null, BigInt(1), BigInt(2), null, 5, BigInt(99), null,
+      TransactionOperationType.TRANSFER,
+      'TXN-001',
+      BigInt(10),
+      null,
+      BigInt(1),
+      BigInt(2),
+      null,
+      5,
+      BigInt(99),
+      null,
     );
     await useCase.execute(cmd);
     expect(service.transfer).toHaveBeenCalled();
   });
 
   it('routes ADJUSTMENT to service.adjust', async () => {
-    jest.spyOn(service, 'adjust').mockResolvedValue({ success: true, transaction: MOCK_TXN_RESPONSE });
+    jest
+      .spyOn(service, 'adjust')
+      .mockResolvedValue({ success: true, transaction: MOCK_TXN_RESPONSE });
     const cmd = new CreateInventoryTransactionCommand(
-      TransactionOperationType.ADJUSTMENT, 'TXN-001', BigInt(10), null, null, BigInt(1), null, -2, BigInt(99), null,
+      TransactionOperationType.ADJUSTMENT,
+      'TXN-001',
+      BigInt(10),
+      null,
+      null,
+      BigInt(1),
+      null,
+      -2,
+      BigInt(99),
+      null,
     );
     await useCase.execute(cmd);
     expect(service.adjust).toHaveBeenCalled();
   });
 
   it('routes OPENING_BALANCE to service.receive', async () => {
-    jest.spyOn(service, 'receive').mockResolvedValue({ success: true, transaction: MOCK_TXN_RESPONSE });
+    jest
+      .spyOn(service, 'receive')
+      .mockResolvedValue({ success: true, transaction: MOCK_TXN_RESPONSE });
     const cmd = new CreateInventoryTransactionCommand(
-      TransactionOperationType.OPENING_BALANCE, 'TXN-001', BigInt(10), null, null, BigInt(1), null, 5, BigInt(99), null,
+      TransactionOperationType.OPENING_BALANCE,
+      'TXN-001',
+      BigInt(10),
+      null,
+      null,
+      BigInt(1),
+      null,
+      5,
+      BigInt(99),
+      null,
     );
     await useCase.execute(cmd);
     expect(service.receive).toHaveBeenCalled();
@@ -407,23 +574,56 @@ describe('CreateInventoryTransactionUseCase', () => {
 
   it('throws BadRequestException when RECEIVE missing to_warehouse_id', async () => {
     const cmd = new CreateInventoryTransactionCommand(
-      TransactionOperationType.RECEIVE, 'TXN-001', BigInt(10), null, null, null, null, 5, BigInt(99), null,
+      TransactionOperationType.RECEIVE,
+      'TXN-001',
+      BigInt(10),
+      null,
+      null,
+      null,
+      null,
+      5,
+      BigInt(99),
+      null,
     );
-    await expect(useCase.execute(cmd)).rejects.toBeInstanceOf(BadRequestException);
+    await expect(useCase.execute(cmd)).rejects.toBeInstanceOf(
+      BadRequestException,
+    );
   });
 
   it('throws BadRequestException when ISSUE missing from_warehouse_id', async () => {
     const cmd = new CreateInventoryTransactionCommand(
-      TransactionOperationType.ISSUE, 'TXN-001', BigInt(10), null, null, null, BigInt(20), 5, BigInt(99), null,
+      TransactionOperationType.ISSUE,
+      'TXN-001',
+      BigInt(10),
+      null,
+      null,
+      null,
+      BigInt(20),
+      5,
+      BigInt(99),
+      null,
     );
-    await expect(useCase.execute(cmd)).rejects.toBeInstanceOf(BadRequestException);
+    await expect(useCase.execute(cmd)).rejects.toBeInstanceOf(
+      BadRequestException,
+    );
   });
 
   it('throws BadRequestException when TRANSFER missing to_warehouse_id', async () => {
     const cmd = new CreateInventoryTransactionCommand(
-      TransactionOperationType.TRANSFER, 'TXN-001', BigInt(10), null, BigInt(1), null, null, 5, BigInt(99), null,
+      TransactionOperationType.TRANSFER,
+      'TXN-001',
+      BigInt(10),
+      null,
+      BigInt(1),
+      null,
+      null,
+      5,
+      BigInt(99),
+      null,
     );
-    await expect(useCase.execute(cmd)).rejects.toBeInstanceOf(BadRequestException);
+    await expect(useCase.execute(cmd)).rejects.toBeInstanceOf(
+      BadRequestException,
+    );
   });
 });
 
@@ -432,7 +632,9 @@ describe('ListInventoryTransactionsUseCase', () => {
     const module = await buildTestModule();
     const useCase = module.get(ListInventoryTransactionsUseCase);
     const service = module.get(InventoryTransactionService);
-    jest.spyOn(service, 'listTransactions').mockResolvedValue({ items: [MOCK_TXN_RESPONSE], meta: MOCK_PAGINATION });
+    jest
+      .spyOn(service, 'listTransactions')
+      .mockResolvedValue({ items: [MOCK_TXN_RESPONSE], meta: MOCK_PAGINATION });
 
     const query = new GetTransactionsQuery(1, 20);
     const result = await useCase.execute(query);
@@ -458,15 +660,26 @@ describe('GetInventoryTransactionUseCase', () => {
 describe('GetBagTransactionHistoryUseCase', () => {
   it('delegates to InventoryTransactionService.getBagHistory', async () => {
     const MOCK_HISTORY: TransactionHistoryDto = {
-      movement_id: '1', bag_id: '5', from_status: null, to_status: 'AVAILABLE',
-      from_warehouse_id: null, to_warehouse_id: '1', from_order_id: null, to_order_id: null,
-      dozens_moved: null, movement_reason: 'RECEIVE', performed_by: '99',
-      performed_at: '2026-06-27T10:00:00.000Z', notes: null,
+      movement_id: '1',
+      bag_id: '5',
+      from_status: null,
+      to_status: 'AVAILABLE',
+      from_warehouse_id: null,
+      to_warehouse_id: '1',
+      from_order_id: null,
+      to_order_id: null,
+      dozens_moved: null,
+      movement_reason: 'RECEIVE',
+      performed_by: '99',
+      performed_at: '2026-06-27T10:00:00.000Z',
+      notes: null,
     };
     const module = await buildTestModule();
     const useCase = module.get(GetBagTransactionHistoryUseCase);
     const service = module.get(InventoryTransactionService);
-    jest.spyOn(service, 'getBagHistory').mockResolvedValue({ items: [MOCK_HISTORY], meta: MOCK_PAGINATION });
+    jest
+      .spyOn(service, 'getBagHistory')
+      .mockResolvedValue({ items: [MOCK_HISTORY], meta: MOCK_PAGINATION });
 
     const query = new GetTransactionsByBagQuery(BigInt(5), 1, 20);
     const result = await useCase.execute(query);

@@ -8,7 +8,9 @@ import type { GetTransactionsQuery } from './queries/get-transactions.query';
 export class ListInventoryTransactionsUseCase {
   constructor(private readonly txnService: InventoryTransactionService) {}
 
-  async execute(query: GetTransactionsQuery): Promise<PaginatedResult<TransactionResponseDto>> {
+  async execute(
+    query: GetTransactionsQuery,
+  ): Promise<PaginatedResult<TransactionResponseDto>> {
     return this.txnService.listTransactions(query);
   }
 }

@@ -9,7 +9,13 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Roles } from '../../authorization/decorators/roles.decorator';
 import { SystemRoles } from '../../../core/constants/system-roles.constants';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
@@ -17,6 +23,8 @@ import type { JwtPayload } from '../../auth/use-cases/login';
 
 import { TransactionRequestDto } from '../dto/transaction-request.dto';
 import { TransactionFilterDto } from '../dto/transaction-filter.dto';
+import { ReservationRequestDto } from '../dto/reservation-request.dto';
+import { ReservationFilterDto } from '../dto/reservation-filter.dto';
 import { PaginationDto } from '../../../common/dto/pagination/pagination.dto';
 
 import { CreateInventoryTransactionUseCase } from '../use-cases/create-inventory-transaction/create-inventory-transaction.use-case';
@@ -27,15 +35,31 @@ import { AdjustInventoryUseCase } from '../use-cases/create-inventory-transactio
 import { ListInventoryTransactionsUseCase } from '../use-cases/list-inventory-transactions/list-inventory-transactions.use-case';
 import { GetInventoryTransactionUseCase } from '../use-cases/get-inventory-transaction/get-inventory-transaction.use-case';
 import { GetBagTransactionHistoryUseCase } from '../use-cases/get-bag-transaction-history/get-bag-transaction-history.use-case';
+import { CreateReservationUseCase } from '../use-cases/create-reservation/create-reservation.use-case';
+import { ReleaseReservationUseCase } from '../use-cases/create-reservation/release-reservation.use-case';
+import { CancelReservationUseCase } from '../use-cases/create-reservation/cancel-reservation.use-case';
+import { ExpireReservationUseCase } from '../use-cases/create-reservation/expire-reservation.use-case';
+import { GetReservationUseCase } from '../use-cases/get-reservation/get-reservation.use-case';
+import { ListReservationsUseCase } from '../use-cases/list-reservations/list-reservations.use-case';
+import { ListReservationsByBagUseCase } from '../use-cases/list-reservations/list-reservations-by-bag.use-case';
+import { ListReservationsByOrderUseCase } from '../use-cases/list-reservations/list-reservations-by-order.use-case';
 
 import { CreateInventoryTransactionCommand } from '../use-cases/create-inventory-transaction/commands/create-inventory-transaction.command';
 import { ReceiveInventoryCommand } from '../use-cases/create-inventory-transaction/commands/receive-inventory.command';
 import { IssueInventoryCommand } from '../use-cases/create-inventory-transaction/commands/issue-inventory.command';
 import { TransferInventoryCommand } from '../use-cases/create-inventory-transaction/commands/transfer-inventory.command';
 import { AdjustInventoryCommand } from '../use-cases/create-inventory-transaction/commands/adjust-inventory.command';
+import { CreateReservationCommand } from '../use-cases/create-reservation/commands/create-reservation.command';
+import { ReleaseReservationCommand } from '../use-cases/create-reservation/commands/release-reservation.command';
+import { CancelReservationCommand } from '../use-cases/create-reservation/commands/cancel-reservation.command';
+import { ExpireReservationCommand } from '../use-cases/create-reservation/commands/expire-reservation.command';
 import { GetTransactionQuery } from '../use-cases/get-inventory-transaction/queries/get-transaction.query';
 import { GetTransactionsQuery } from '../use-cases/list-inventory-transactions/queries/get-transactions.query';
 import { GetTransactionsByBagQuery } from '../use-cases/get-bag-transaction-history/queries/get-transactions-by-bag.query';
+import { GetReservationQuery } from '../use-cases/get-reservation/queries/get-reservation.query';
+import { GetReservationsQuery } from '../use-cases/list-reservations/queries/get-reservations.query';
+import { GetReservationsByBagQuery } from '../use-cases/list-reservations/queries/get-reservations-by-bag.query';
+import { GetReservationsByOrderQuery } from '../use-cases/list-reservations/queries/get-reservations-by-order.query';
 
 @ApiBearerAuth('JWT')
 @ApiTags('Inventory')
@@ -57,24 +81,37 @@ export class InventoryController {
     private readonly listTxnsUseCase: ListInventoryTransactionsUseCase,
     private readonly getTxnUseCase: GetInventoryTransactionUseCase,
     private readonly bagHistoryUseCase: GetBagTransactionHistoryUseCase,
+    private readonly createReservationUseCase: CreateReservationUseCase,
+    private readonly releaseReservationUseCase: ReleaseReservationUseCase,
+    private readonly cancelReservationUseCase: CancelReservationUseCase,
+    private readonly expireReservationUseCase: ExpireReservationUseCase,
+    private readonly getReservationUseCase: GetReservationUseCase,
+    private readonly listReservationsUseCase: ListReservationsUseCase,
+    private readonly listReservationsByBagUseCase: ListReservationsByBagUseCase,
+    private readonly listReservationsByOrderUseCase: ListReservationsByOrderUseCase,
   ) {}
 
   @Post('transactions')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create an inventory transaction (generic)' })
   @ApiResponse({ status: 201, description: 'Transaction created' })
-  async createTransaction(@Body() dto: TransactionRequestDto, @CurrentUser() user: JwtPayload) {
+  async createTransaction(
+    @Body() dto: TransactionRequestDto,
+    @CurrentUser() user: JwtPayload,
+  ) {
     if (!dto.operation) {
-      throw new BadRequestException('operation field is required for generic endpoint');
+      throw new BadRequestException(
+        'operation field is required for generic endpoint',
+      );
     }
     const cmd = new CreateInventoryTransactionCommand(
       dto.operation,
       dto.txn_reference,
-      BigInt(dto.model_id as unknown as number),
-      dto.part_id != null ? BigInt(dto.part_id as unknown as number) : null,
-      dto.from_warehouse_id != null ? BigInt(dto.from_warehouse_id as unknown as number) : null,
-      dto.to_warehouse_id != null ? BigInt(dto.to_warehouse_id as unknown as number) : null,
-      dto.to_order_id != null ? BigInt(dto.to_order_id as unknown as number) : null,
+      BigInt(dto.model_id),
+      dto.part_id != null ? BigInt(dto.part_id) : null,
+      dto.from_warehouse_id != null ? BigInt(dto.from_warehouse_id) : null,
+      dto.to_warehouse_id != null ? BigInt(dto.to_warehouse_id) : null,
+      dto.to_order_id != null ? BigInt(dto.to_order_id) : null,
       dto.dozens_qty,
       user.sub,
       dto.notes ?? null,
@@ -86,14 +123,18 @@ export class InventoryController {
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Record inventory receipt into a warehouse' })
   @ApiResponse({ status: 201, description: 'Receipt recorded' })
-  async receive(@Body() dto: TransactionRequestDto, @CurrentUser() user: JwtPayload) {
+  async receive(
+    @Body() dto: TransactionRequestDto,
+    @CurrentUser() user: JwtPayload,
+  ) {
     const warehouseId = dto.to_warehouse_id ?? dto.from_warehouse_id;
-    if (!warehouseId) throw new BadRequestException('to_warehouse_id is required');
+    if (!warehouseId)
+      throw new BadRequestException('to_warehouse_id is required');
     const cmd = new ReceiveInventoryCommand(
       dto.txn_reference,
-      BigInt(dto.model_id as unknown as number),
-      dto.part_id != null ? BigInt(dto.part_id as unknown as number) : null,
-      BigInt(warehouseId as unknown as number),
+      BigInt(dto.model_id),
+      dto.part_id != null ? BigInt(dto.part_id) : null,
+      BigInt(warehouseId),
       dto.dozens_qty,
       user.sub,
       dto.notes ?? null,
@@ -103,17 +144,24 @@ export class InventoryController {
 
   @Post('transactions/issue')
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Issue inventory from a warehouse to a production order' })
+  @ApiOperation({
+    summary: 'Issue inventory from a warehouse to a production order',
+  })
   @ApiResponse({ status: 201, description: 'Issue recorded' })
-  async issue(@Body() dto: TransactionRequestDto, @CurrentUser() user: JwtPayload) {
-    if (!dto.from_warehouse_id) throw new BadRequestException('from_warehouse_id is required');
-    if (!dto.to_order_id) throw new BadRequestException('to_order_id is required');
+  async issue(
+    @Body() dto: TransactionRequestDto,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    if (!dto.from_warehouse_id)
+      throw new BadRequestException('from_warehouse_id is required');
+    if (!dto.to_order_id)
+      throw new BadRequestException('to_order_id is required');
     const cmd = new IssueInventoryCommand(
       dto.txn_reference,
-      BigInt(dto.model_id as unknown as number),
-      dto.part_id != null ? BigInt(dto.part_id as unknown as number) : null,
-      BigInt(dto.from_warehouse_id as unknown as number),
-      BigInt(dto.to_order_id as unknown as number),
+      BigInt(dto.model_id),
+      dto.part_id != null ? BigInt(dto.part_id) : null,
+      BigInt(dto.from_warehouse_id),
+      BigInt(dto.to_order_id),
       dto.dozens_qty,
       user.sub,
       dto.notes ?? null,
@@ -123,17 +171,24 @@ export class InventoryController {
 
   @Post('transactions/transfer')
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Transfer inventory between warehouses (atomic double-entry)' })
+  @ApiOperation({
+    summary: 'Transfer inventory between warehouses (atomic double-entry)',
+  })
   @ApiResponse({ status: 201, description: 'Transfer recorded' })
-  async transfer(@Body() dto: TransactionRequestDto, @CurrentUser() user: JwtPayload) {
-    if (!dto.from_warehouse_id) throw new BadRequestException('from_warehouse_id is required');
-    if (!dto.to_warehouse_id) throw new BadRequestException('to_warehouse_id is required');
+  async transfer(
+    @Body() dto: TransactionRequestDto,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    if (!dto.from_warehouse_id)
+      throw new BadRequestException('from_warehouse_id is required');
+    if (!dto.to_warehouse_id)
+      throw new BadRequestException('to_warehouse_id is required');
     const cmd = new TransferInventoryCommand(
       dto.txn_reference,
-      BigInt(dto.model_id as unknown as number),
-      dto.part_id != null ? BigInt(dto.part_id as unknown as number) : null,
-      BigInt(dto.from_warehouse_id as unknown as number),
-      BigInt(dto.to_warehouse_id as unknown as number),
+      BigInt(dto.model_id),
+      dto.part_id != null ? BigInt(dto.part_id) : null,
+      BigInt(dto.from_warehouse_id),
+      BigInt(dto.to_warehouse_id),
       dto.dozens_qty,
       user.sub,
       dto.notes ?? null,
@@ -143,16 +198,21 @@ export class InventoryController {
 
   @Post('transactions/adjust')
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Adjust inventory quantity in a warehouse (positive or negative)' })
+  @ApiOperation({
+    summary: 'Adjust inventory quantity in a warehouse (positive or negative)',
+  })
   @ApiResponse({ status: 201, description: 'Adjustment recorded' })
-  async adjust(@Body() dto: TransactionRequestDto, @CurrentUser() user: JwtPayload) {
+  async adjust(
+    @Body() dto: TransactionRequestDto,
+    @CurrentUser() user: JwtPayload,
+  ) {
     const warehouseId = dto.to_warehouse_id ?? dto.from_warehouse_id;
     if (!warehouseId) throw new BadRequestException('warehouse_id is required');
     const cmd = new AdjustInventoryCommand(
       dto.txn_reference,
-      BigInt(dto.model_id as unknown as number),
-      dto.part_id != null ? BigInt(dto.part_id as unknown as number) : null,
-      BigInt(warehouseId as unknown as number),
+      BigInt(dto.model_id),
+      dto.part_id != null ? BigInt(dto.part_id) : null,
+      BigInt(warehouseId),
       dto.dozens_qty,
       user.sub,
       dto.notes ?? null,
@@ -168,7 +228,7 @@ export class InventoryController {
       filter.page,
       filter.limit,
       filter.txn_type,
-      filter.model_id != null ? BigInt(filter.model_id as unknown as number) : undefined,
+      filter.model_id != null ? BigInt(filter.model_id) : undefined,
       filter.txn_reference,
       filter.from_date,
       filter.to_date,
@@ -190,9 +250,156 @@ export class InventoryController {
   @ApiParam({ name: 'id', description: 'Bag ID' })
   @ApiResponse({ status: 200, description: 'Paginated bag movement history' })
   @ApiResponse({ status: 404, description: 'Bag not found' })
-  async getBagHistory(@Param('id') id: string, @Query() pagination: PaginationDto) {
+  async getBagHistory(
+    @Param('id') id: string,
+    @Query() pagination: PaginationDto,
+  ) {
     return this.bagHistoryUseCase.execute(
-      new GetTransactionsByBagQuery(BigInt(id), pagination.page, pagination.limit),
+      new GetTransactionsByBagQuery(
+        BigInt(id),
+        pagination.page,
+        pagination.limit,
+      ),
+    );
+  }
+
+  // ─── Reservation endpoints ───────────────────────────────────────────────
+
+  @Post('reservations')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({
+    summary: 'Reserve dozens from a physical bag for a production order',
+  })
+  @ApiResponse({ status: 201, description: 'Reservation created' })
+  @ApiResponse({ status: 404, description: 'Bag or order not found' })
+  @ApiResponse({
+    status: 409,
+    description: 'Duplicate reservation for bag+order',
+  })
+  @ApiResponse({ status: 422, description: 'Insufficient available quantity' })
+  async createReservation(
+    @Body() dto: ReservationRequestDto,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    const cmd = new CreateReservationCommand(
+      BigInt(dto.bag_id),
+      BigInt(dto.order_id),
+      dto.reserved_dozens,
+      user.sub,
+    );
+    return this.createReservationUseCase.execute(cmd);
+  }
+
+  @Post('reservations/:id/release')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Release an active reservation' })
+  @ApiParam({ name: 'id', description: 'Reservation ID' })
+  @ApiResponse({ status: 200, description: 'Reservation released' })
+  @ApiResponse({ status: 404, description: 'Reservation not found' })
+  @ApiResponse({ status: 422, description: 'Reservation is not ACTIVE' })
+  async releaseReservation(
+    @Param('id') id: string,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    return this.releaseReservationUseCase.execute(
+      new ReleaseReservationCommand(BigInt(id), user.sub),
+    );
+  }
+
+  @Post('reservations/:id/cancel')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Cancel an active reservation' })
+  @ApiParam({ name: 'id', description: 'Reservation ID' })
+  @ApiResponse({ status: 200, description: 'Reservation cancelled' })
+  @ApiResponse({ status: 404, description: 'Reservation not found' })
+  @ApiResponse({ status: 422, description: 'Reservation is not ACTIVE' })
+  async cancelReservation(
+    @Param('id') id: string,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    return this.cancelReservationUseCase.execute(
+      new CancelReservationCommand(BigInt(id), user.sub),
+    );
+  }
+
+  @Post('reservations/:id/expire')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Manually expire an active reservation' })
+  @ApiParam({ name: 'id', description: 'Reservation ID' })
+  @ApiResponse({ status: 200, description: 'Reservation expired' })
+  @ApiResponse({ status: 404, description: 'Reservation not found' })
+  @ApiResponse({ status: 422, description: 'Reservation is not ACTIVE' })
+  async expireReservation(
+    @Param('id') id: string,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    return this.expireReservationUseCase.execute(
+      new ExpireReservationCommand(BigInt(id), user.sub),
+    );
+  }
+
+  @Get('reservations')
+  @ApiOperation({ summary: 'List reservations with optional filters' })
+  @ApiResponse({ status: 200, description: 'Paginated list of reservations' })
+  async listReservations(@Query() filter: ReservationFilterDto) {
+    const query = new GetReservationsQuery(
+      filter.page,
+      filter.limit,
+      filter.status,
+      filter.bag_id != null ? BigInt(filter.bag_id) : undefined,
+      filter.order_id != null ? BigInt(filter.order_id) : undefined,
+    );
+    return this.listReservationsUseCase.execute(query);
+  }
+
+  @Get('reservations/:id')
+  @ApiOperation({ summary: 'Get a single reservation by ID' })
+  @ApiParam({ name: 'id', description: 'Reservation ID' })
+  @ApiResponse({ status: 200, description: 'Reservation found' })
+  @ApiResponse({ status: 404, description: 'Reservation not found' })
+  async getReservation(@Param('id') id: string) {
+    return this.getReservationUseCase.execute(
+      new GetReservationQuery(BigInt(id)),
+    );
+  }
+
+  @Get('bags/:id/reservations')
+  @ApiOperation({ summary: 'List all reservations for a physical bag' })
+  @ApiParam({ name: 'id', description: 'Bag ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Paginated reservation history for bag',
+  })
+  async getBagReservations(
+    @Param('id') id: string,
+    @Query() pagination: PaginationDto,
+  ) {
+    return this.listReservationsByBagUseCase.execute(
+      new GetReservationsByBagQuery(
+        BigInt(id),
+        pagination.page,
+        pagination.limit,
+      ),
+    );
+  }
+
+  @Get('orders/:id/reservations')
+  @ApiOperation({ summary: 'List all reservations for a production order' })
+  @ApiParam({ name: 'id', description: 'Order ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Paginated reservation history for order',
+  })
+  async getOrderReservations(
+    @Param('id') id: string,
+    @Query() pagination: PaginationDto,
+  ) {
+    return this.listReservationsByOrderUseCase.execute(
+      new GetReservationsByOrderQuery(
+        BigInt(id),
+        pagination.page,
+        pagination.limit,
+      ),
     );
   }
 }
