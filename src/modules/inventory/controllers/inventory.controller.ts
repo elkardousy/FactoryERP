@@ -65,6 +65,18 @@ import { ApplyInventoryAdjustmentUseCase } from '../use-cases/apply-inventory-ad
 import { ApplyAdjustmentDto } from '../dto/apply-adjustment.dto';
 import { ApplyInventoryAdjustmentCommand } from '../use-cases/apply-inventory-adjustment/commands/apply-inventory-adjustment.command';
 
+import { GetTransactionVolumeReportUseCase } from '../use-cases/get-transaction-volume-report/get-transaction-volume-report.use-case';
+import { GetStockPositionReportUseCase } from '../use-cases/get-stock-position-report/get-stock-position-report.use-case';
+import { GetVarianceReportUseCase } from '../use-cases/get-variance-report/get-variance-report.use-case';
+import {
+  TransactionVolumeQueryDto,
+  StockPositionQueryDto,
+  VarianceReportQueryDto,
+  TransactionVolumeReportDto,
+  StockPositionReportDto,
+  VarianceSummaryReportDto,
+} from '../dto/inventory-report.dto';
+
 import { GetInventoryPerformanceSummaryUseCase } from '../use-cases/get-inventory-performance-summary/get-inventory-performance-summary.use-case';
 import { GetBagStatusDistributionUseCase } from '../use-cases/get-bag-status-distribution/get-bag-status-distribution.use-case';
 import {
@@ -143,6 +155,9 @@ export class InventoryController {
     private readonly getModelBalanceSummaryUseCase: GetModelBalanceSummaryUseCase,
     private readonly getBalanceSnapshotUseCase: GetBalanceSnapshotUseCase,
     private readonly applyInventoryAdjustmentUseCase: ApplyInventoryAdjustmentUseCase,
+    private readonly getTransactionVolumeReportUseCase: GetTransactionVolumeReportUseCase,
+    private readonly getStockPositionReportUseCase: GetStockPositionReportUseCase,
+    private readonly getVarianceReportUseCase: GetVarianceReportUseCase,
     private readonly getInventoryPerformanceSummaryUseCase: GetInventoryPerformanceSummaryUseCase,
     private readonly getBagStatusDistributionUseCase: GetBagStatusDistributionUseCase,
     private readonly openCycleCountUseCase: OpenCycleCountUseCase,
@@ -526,6 +541,47 @@ export class InventoryController {
   })
   async getBagStatusDistribution(): Promise<BagStatusDistributionDto[]> {
     return this.getBagStatusDistributionUseCase.execute();
+  }
+
+  // ─── Inventory Reporting endpoints ───────────────────────────────────────
+
+  @Get('reports/transaction-volume')
+  @ApiOperation({
+    summary: 'Transaction volume report grouped by type for a date range',
+  })
+  @ApiResponse({ status: 200, type: TransactionVolumeReportDto })
+  async getTransactionVolumeReport(
+    @Query() query: TransactionVolumeQueryDto,
+  ): Promise<TransactionVolumeReportDto> {
+    const fromDate = query.from_date
+      ? new Date(query.from_date)
+      : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const toDate = query.to_date ? new Date(query.to_date) : new Date();
+    return this.getTransactionVolumeReportUseCase.execute(fromDate, toDate);
+  }
+
+  @Get('reports/stock-position')
+  @ApiOperation({
+    summary: 'Current stock position report — all inventory_bags records',
+  })
+  @ApiResponse({ status: 200, type: StockPositionReportDto })
+  async getStockPositionReport(
+    @Query() query: StockPositionQueryDto,
+  ): Promise<StockPositionReportDto> {
+    return this.getStockPositionReportUseCase.execute(
+      query.warehouse_id ? BigInt(query.warehouse_id) : undefined,
+    );
+  }
+
+  @Get('reports/variances')
+  @ApiOperation({
+    summary: 'Variance summary report — all INVENTORY_VARIANCE investigations',
+  })
+  @ApiResponse({ status: 200, type: VarianceSummaryReportDto })
+  async getVarianceReport(
+    @Query() query: VarianceReportQueryDto,
+  ): Promise<VarianceSummaryReportDto> {
+    return this.getVarianceReportUseCase.execute(query.closure_status);
   }
 
   @Post('transactions')

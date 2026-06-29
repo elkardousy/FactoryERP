@@ -25,6 +25,12 @@ import { GetBalanceSnapshotUseCase } from './use-cases/get-balance-snapshot/get-
 import { InventoryAdjustmentService } from './services/inventory-adjustment.service';
 import { ApplyInventoryAdjustmentUseCase } from './use-cases/apply-inventory-adjustment/apply-inventory-adjustment.use-case';
 
+import { InventoryReportingRepository } from './repositories/inventory-reporting.repository';
+import { InventoryReportingService } from './services/inventory-reporting.service';
+import { GetTransactionVolumeReportUseCase } from './use-cases/get-transaction-volume-report/get-transaction-volume-report.use-case';
+import { GetStockPositionReportUseCase } from './use-cases/get-stock-position-report/get-stock-position-report.use-case';
+import { GetVarianceReportUseCase } from './use-cases/get-variance-report/get-variance-report.use-case';
+
 import { InventoryPerformanceRepository } from './repositories/inventory-performance.repository';
 import { InventoryPerformanceService } from './services/inventory-performance.service';
 import { GetInventoryPerformanceSummaryUseCase } from './use-cases/get-inventory-performance-summary/get-inventory-performance-summary.use-case';
@@ -92,6 +98,12 @@ import { ListReservationsByOrderUseCase } from './use-cases/list-reservations/li
     // Adjustment services and use cases
     InventoryAdjustmentService,
     ApplyInventoryAdjustmentUseCase,
+    // Reporting services and use cases
+    InventoryReportingRepository,
+    InventoryReportingService,
+    GetTransactionVolumeReportUseCase,
+    GetStockPositionReportUseCase,
+    GetVarianceReportUseCase,
     // Performance services and use cases
     InventoryPerformanceRepository,
     InventoryPerformanceService,
