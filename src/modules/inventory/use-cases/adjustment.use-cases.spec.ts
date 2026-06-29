@@ -60,6 +60,7 @@ describe('InventoryAdjustmentService', () => {
       validationRepo,
       mapper,
       logger,
+      { emitInventoryAdjusted: jest.fn() } as any,
     );
   });
 

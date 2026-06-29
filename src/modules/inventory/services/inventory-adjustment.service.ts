@@ -10,6 +10,8 @@ import { InventoryTransactionsRepository } from '../repositories/inventory-trans
 import { InventoryValidationRepository } from '../repositories/inventory-validation.repository';
 import { InventoryTransactionMapper } from './inventory-transaction.mapper';
 import { AdjustmentReasonEnum } from '../dto/apply-adjustment.dto';
+import { InventoryEventPublisher } from '../events/inventory-event.publisher';
+import { InventoryAdjustedEvent } from '../events/inventory.events';
 import type { TransactionResult } from '../contracts/transaction-result.interface';
 import type { ApplyInventoryAdjustmentCommand } from '../use-cases/apply-inventory-adjustment/commands/apply-inventory-adjustment.command';
 
@@ -21,6 +23,7 @@ export class InventoryAdjustmentService {
     private readonly validationRepo: InventoryValidationRepository,
     private readonly mapper: InventoryTransactionMapper,
     private readonly logger: LoggerService,
+    private readonly eventPublisher: InventoryEventPublisher,
   ) {}
 
   async applyAdjustment(
@@ -89,7 +92,21 @@ export class InventoryAdjustmentService {
     this.logger.info(
       `Adjustment applied: ref=${cmd.txn_reference}, reason=${cmd.reason}, delta=${cmd.dozens_delta}`,
     );
-    return { success: true, transaction: this.mapper.toResponse(txn) };
+    const result: TransactionResult = { success: true, transaction: this.mapper.toResponse(txn) };
+    this.eventPublisher.emitInventoryAdjusted(
+      new InventoryAdjustedEvent(
+        txn.txn_id.toString(),
+        cmd.txn_reference,
+        cmd.warehouse_id.toString(),
+        cmd.model_id.toString(),
+        cmd.part_id ? cmd.part_id.toString() : null,
+        cmd.dozens_delta,
+        cmd.reason,
+        cmd.executed_by.toString(),
+        txn.executed_at,
+      ),
+    );
+    return result;
   }
 
   private validateSignByReason(

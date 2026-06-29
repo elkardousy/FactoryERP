@@ -1,5 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { LoggerService } from '../../../core/logger/logger.service';
+import { InventoryEventPublisher } from '../events/inventory-event.publisher';
+import { GoodsReceivedEvent } from '../events/inventory.events';
 import { PaginatedResult } from '../../../common/interfaces/paginated-result.interface';
 import { InventoryTransactionsRepository } from '../repositories/inventory-transactions.repository';
 import { PhysicalBagsRepository } from '../repositories/physical-bags.repository';
@@ -31,6 +33,7 @@ export class InventoryTransactionService {
     private readonly mapper: InventoryTransactionMapper,
     private readonly validator: InventoryTransactionValidator,
     private readonly logger: LoggerService,
+    private readonly eventPublisher: InventoryEventPublisher,
   ) {}
 
   async receive(cmd: ReceiveInventoryCommand): Promise<TransactionResult> {
@@ -40,7 +43,23 @@ export class InventoryTransactionService {
     this.logger.info(
       `Inventory received: ref=${cmd.txn_reference}, model=${cmd.model_id}`,
     );
-    return { success: true, transaction: this.mapper.toResponse(txn) };
+    const receiveResult: TransactionResult = {
+      success: true,
+      transaction: this.mapper.toResponse(txn),
+    };
+    this.eventPublisher.emitGoodsReceived(
+      new GoodsReceivedEvent(
+        txn.txn_id.toString(),
+        cmd.txn_reference,
+        cmd.model_id.toString(),
+        cmd.part_id ? cmd.part_id.toString() : null,
+        cmd.warehouse_id.toString(),
+        cmd.dozens_qty,
+        cmd.executed_by.toString(),
+        txn.executed_at,
+      ),
+    );
+    return receiveResult;
   }
 
   async issue(cmd: IssueInventoryCommand): Promise<TransactionResult> {

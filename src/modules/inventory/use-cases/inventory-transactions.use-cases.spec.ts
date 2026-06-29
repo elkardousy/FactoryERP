@@ -9,6 +9,7 @@ import { InventoryTransactionValidator } from '../services/inventory-transaction
 import { InventoryTransactionsRepository } from '../repositories/inventory-transactions.repository';
 import { PhysicalBagsRepository } from '../repositories/physical-bags.repository';
 import { LoggerService } from '../../../core/logger/logger.service';
+import { InventoryEventPublisher } from '../events/inventory-event.publisher';
 
 import { ReceiveInventoryUseCase } from './create-inventory-transaction/receive-inventory.use-case';
 import { IssueInventoryUseCase } from './create-inventory-transaction/issue-inventory.use-case';
@@ -170,6 +171,10 @@ function buildTestModule(overrides: Record<string, any> = {}) {
       { provide: InventoryTransactionMapper, useValue: mapper },
       { provide: InventoryTransactionValidator, useValue: validator },
       { provide: LoggerService, useValue: logger },
+      {
+        provide: InventoryEventPublisher,
+        useValue: { emitGoodsReceived: jest.fn() },
+      },
     ],
   }).compile();
 }

@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { InventoryController } from './controllers/inventory.controller';
+import { InventoryEventPublisher } from './events/inventory-event.publisher';
+import { InventoryEventListener } from './events/inventory-event.listener';
 import { InventoryService } from './services/inventory.service';
 import { PhysicalBagsRepository } from './repositories/physical-bags.repository';
 import { PhysicalBagReservationsRepository } from './repositories/physical-bag-reservations.repository';
@@ -156,6 +158,9 @@ import { ListReservationsByOrderUseCase } from './use-cases/list-reservations/li
     ListReservationsUseCase,
     ListReservationsByBagUseCase,
     ListReservationsByOrderUseCase,
+    // Event infrastructure
+    InventoryEventPublisher,
+    InventoryEventListener,
   ],
   exports: [
     PhysicalBagsRepository,

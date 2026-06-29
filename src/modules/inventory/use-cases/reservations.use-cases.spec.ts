@@ -15,6 +15,7 @@ import { PhysicalBagReservationsRepository } from '../repositories/physical-bag-
 import { PhysicalBagsRepository } from '../repositories/physical-bags.repository';
 import { InventoryValidationRepository } from '../repositories/inventory-validation.repository';
 import { LoggerService } from '../../../core/logger/logger.service';
+import { InventoryEventPublisher } from '../events/inventory-event.publisher';
 
 import { CreateReservationUseCase } from './create-reservation/create-reservation.use-case';
 import { ReleaseReservationUseCase } from './create-reservation/release-reservation.use-case';
@@ -148,6 +149,13 @@ function buildModule(overrides: Record<string, any> = {}) {
       { provide: InventoryValidationRepository, useValue: validationRepo },
       { provide: ReservationMapper, useValue: mapper },
       { provide: LoggerService, useValue: logger },
+      {
+        provide: InventoryEventPublisher,
+        useValue: {
+          emitBagReserved: jest.fn(),
+          emitReservationReleased: jest.fn(),
+        },
+      },
     ],
   }).compile();
 }

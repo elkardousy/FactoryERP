@@ -1,6 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ReservationStatusEnum } from '@prisma/client';
 import { LoggerService } from '../../../core/logger/logger.service';
+import { InventoryEventPublisher } from '../events/inventory-event.publisher';
+import {
+  BagReservedEvent,
+  ReservationReleasedEvent,
+} from '../events/inventory.events';
 import { PaginatedResult } from '../../../common/interfaces/paginated-result.interface';
 import { PhysicalBagReservationsRepository } from '../repositories/physical-bag-reservations.repository';
 import { ReservationFactory } from './reservation.factory';
@@ -26,6 +31,7 @@ export class ReservationService {
     private readonly mapper: ReservationMapper,
     private readonly validator: ReservationValidator,
     private readonly logger: LoggerService,
+    private readonly eventPublisher: InventoryEventPublisher,
   ) {}
 
   async reserve(cmd: CreateReservationCommand): Promise<ReservationResult> {
@@ -35,7 +41,21 @@ export class ReservationService {
     this.logger.info(
       `Reservation created: id=${reservation.reservation_id}, bag=${cmd.bag_id}, order=${cmd.order_id}`,
     );
-    return { success: true, reservation: this.mapper.toResponse(reservation) };
+    const reserveResult: ReservationResult = {
+      success: true,
+      reservation: this.mapper.toResponse(reservation),
+    };
+    this.eventPublisher.emitBagReserved(
+      new BagReservedEvent(
+        reservation.reservation_id.toString(),
+        cmd.bag_id.toString(),
+        cmd.order_id.toString(),
+        cmd.reserved_dozens,
+        cmd.reserved_by.toString(),
+        new Date(),
+      ),
+    );
+    return reserveResult;
   }
 
   async release(cmd: ReleaseReservationCommand): Promise<ReservationResult> {
@@ -54,7 +74,20 @@ export class ReservationService {
       new Date(),
     );
     this.logger.info(`Reservation released: id=${cmd.reservation_id}`);
-    return { success: true, reservation: this.mapper.toResponse(updated) };
+    const releaseResult: ReservationResult = {
+      success: true,
+      reservation: this.mapper.toResponse(updated),
+    };
+    this.eventPublisher.emitReservationReleased(
+      new ReservationReleasedEvent(
+        cmd.reservation_id.toString(),
+        reservation.bag_id.toString(),
+        reservation.order_id.toString(),
+        cmd.released_by.toString(),
+        new Date(),
+      ),
+    );
+    return releaseResult;
   }
 
   async cancel(cmd: CancelReservationCommand): Promise<ReservationResult> {
@@ -72,7 +105,20 @@ export class ReservationService {
       ReservationStatusEnum.CANCELLED,
     );
     this.logger.info(`Reservation cancelled: id=${cmd.reservation_id}`);
-    return { success: true, reservation: this.mapper.toResponse(updated) };
+    const cancelResult: ReservationResult = {
+      success: true,
+      reservation: this.mapper.toResponse(updated),
+    };
+    this.eventPublisher.emitReservationReleased(
+      new ReservationReleasedEvent(
+        cmd.reservation_id.toString(),
+        reservation.bag_id.toString(),
+        reservation.order_id.toString(),
+        cmd.cancelled_by.toString(),
+        new Date(),
+      ),
+    );
+    return cancelResult;
   }
 
   async expire(cmd: ExpireReservationCommand): Promise<ReservationResult> {

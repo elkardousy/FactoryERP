@@ -2,6 +2,7 @@ import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 import { AuditModule } from './core/audit/audit.module';
 import { DocumentNumberingModule } from './core/document-numbering/document-numbering.module';
@@ -50,6 +51,7 @@ import { ResponseInterceptor } from './core/interceptors/response.interceptor';
     AuthorizationModule,
     InventoryModule,
     WarehouseLocationsModule,
+    EventEmitterModule.forRoot({ wildcard: false, delimiter: '.' }),
     ThrottlerModule.forRoot([{ name: 'default', ttl: 60_000, limit: 60 }]),
   ],
   providers: [
