@@ -8,6 +8,26 @@ import {
 } from '../../../common/interfaces/paginated-result.interface';
 import type { physical_bags, physical_bag_movements } from '@prisma/client';
 
+export interface CreateMovementData {
+  bag_id: bigint;
+  from_status: BagStatusEnum | null;
+  to_status: BagStatusEnum;
+  from_warehouse_id: bigint | null;
+  to_warehouse_id: bigint | null;
+  from_order_id: bigint | null;
+  to_order_id: bigint | null;
+  dozens_moved: number | null;
+  movement_reason: string;
+  performed_by: bigint;
+  notes: string | null;
+}
+
+export interface UpdateBagLocationData {
+  current_warehouse_id?: bigint | null;
+  current_order_id?: bigint | null;
+  status: BagStatusEnum;
+}
+
 export interface PhysicalBagFilter {
   search?: string;
   status?: BagStatusEnum;
@@ -56,6 +76,24 @@ export class PhysicalBagsRepository extends BaseRepository {
     ]);
 
     return { items, meta: buildPaginationMeta(page, limit, total) };
+  }
+
+  async createMovementInTx(
+    tx: PrismaService,
+    data: CreateMovementData,
+  ): Promise<physical_bag_movements> {
+    return tx.physical_bag_movements.create({ data });
+  }
+
+  async updateBagLocationInTx(
+    tx: PrismaService,
+    bagId: bigint,
+    data: UpdateBagLocationData,
+  ): Promise<physical_bags> {
+    return tx.physical_bags.update({
+      where: { bag_id: bagId },
+      data,
+    });
   }
 
   async findMovementHistory(

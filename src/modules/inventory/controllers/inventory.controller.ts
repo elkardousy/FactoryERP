@@ -27,6 +27,17 @@ import { ReservationRequestDto } from '../dto/reservation-request.dto';
 import { ReservationFilterDto } from '../dto/reservation-filter.dto';
 import { PaginationDto } from '../../../common/dto/pagination/pagination.dto';
 
+import { TransferBagToWarehouseUseCase } from '../use-cases/transfer-bag-to-warehouse/transfer-bag-to-warehouse.use-case';
+import { AssignBagToOrderUseCase } from '../use-cases/assign-bag-to-order/assign-bag-to-order.use-case';
+import { ReturnBagFromOrderUseCase } from '../use-cases/return-bag-from-order/return-bag-from-order.use-case';
+import { TransferToWarehouseDto } from '../dto/transfer-to-warehouse.dto';
+import { AssignToOrderDto } from '../dto/assign-to-order.dto';
+import { ReturnFromOrderDto } from '../dto/return-from-order.dto';
+import { TransferBagToWarehouseCommand } from '../use-cases/transfer-bag-to-warehouse/commands/transfer-bag-to-warehouse.command';
+import { AssignBagToOrderCommand } from '../use-cases/assign-bag-to-order/commands/assign-bag-to-order.command';
+import { ReturnBagFromOrderCommand } from '../use-cases/return-bag-from-order/commands/return-bag-from-order.command';
+import { TransactionHistoryDto } from '../dto/transaction-history.dto';
+
 import { GetBagAvailabilityUseCase } from '../use-cases/get-bag-availability/get-bag-availability.use-case';
 import { GetWarehouseAvailabilityUseCase } from '../use-cases/get-warehouse-availability/get-warehouse-availability.use-case';
 import { GetModelAvailabilityUseCase } from '../use-cases/get-model-availability/get-model-availability.use-case';
@@ -95,6 +106,9 @@ import { GetReservationsByOrderQuery } from '../use-cases/list-reservations/quer
 @Controller({ path: 'inventory', version: '1' })
 export class InventoryController {
   constructor(
+    private readonly transferBagToWarehouseUseCase: TransferBagToWarehouseUseCase,
+    private readonly assignBagToOrderUseCase: AssignBagToOrderUseCase,
+    private readonly returnBagFromOrderUseCase: ReturnBagFromOrderUseCase,
     private readonly getBagAvailabilityUseCase: GetBagAvailabilityUseCase,
     private readonly getWarehouseAvailabilityUseCase: GetWarehouseAvailabilityUseCase,
     private readonly getModelAvailabilityUseCase: GetModelAvailabilityUseCase,
@@ -118,6 +132,93 @@ export class InventoryController {
     private readonly listReservationsByBagUseCase: ListReservationsByBagUseCase,
     private readonly listReservationsByOrderUseCase: ListReservationsByOrderUseCase,
   ) {}
+
+  // ─── Physical Bag Movement endpoints ────────────────────────────────────
+
+  @Post('bags/:bagId/transfer-warehouse')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Transfer a physical bag to a different warehouse' })
+  @ApiParam({ name: 'bagId', description: 'Physical bag ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Bag transferred',
+    type: TransactionHistoryDto,
+  })
+  @ApiResponse({ status: 404, description: 'Bag or warehouse not found' })
+  @ApiResponse({ status: 422, description: 'Bag not in transferable state' })
+  async transferBagToWarehouse(
+    @Param('bagId') bagId: string,
+    @Body() dto: TransferToWarehouseDto,
+    @CurrentUser() user: JwtPayload,
+  ): Promise<TransactionHistoryDto> {
+    return this.transferBagToWarehouseUseCase.execute(
+      new TransferBagToWarehouseCommand(
+        BigInt(bagId),
+        BigInt(dto.to_warehouse_id),
+        dto.dozens_moved ?? null,
+        dto.movement_reason,
+        user.sub,
+        dto.notes ?? null,
+      ),
+    );
+  }
+
+  @Post('bags/:bagId/assign-order')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Assign a physical bag to a production order' })
+  @ApiParam({ name: 'bagId', description: 'Physical bag ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Bag assigned to order',
+    type: TransactionHistoryDto,
+  })
+  @ApiResponse({ status: 404, description: 'Bag or order not found' })
+  @ApiResponse({ status: 422, description: 'Bag is not AVAILABLE' })
+  async assignBagToOrder(
+    @Param('bagId') bagId: string,
+    @Body() dto: AssignToOrderDto,
+    @CurrentUser() user: JwtPayload,
+  ): Promise<TransactionHistoryDto> {
+    return this.assignBagToOrderUseCase.execute(
+      new AssignBagToOrderCommand(
+        BigInt(bagId),
+        BigInt(dto.to_order_id),
+        dto.dozens_moved ?? null,
+        dto.movement_reason,
+        user.sub,
+        dto.notes ?? null,
+      ),
+    );
+  }
+
+  @Post('bags/:bagId/return')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Return a physical bag from a production order to a warehouse',
+  })
+  @ApiParam({ name: 'bagId', description: 'Physical bag ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Bag returned',
+    type: TransactionHistoryDto,
+  })
+  @ApiResponse({ status: 404, description: 'Bag not found' })
+  @ApiResponse({ status: 422, description: 'Bag is not IN_WIP' })
+  async returnBagFromOrder(
+    @Param('bagId') bagId: string,
+    @Body() dto: ReturnFromOrderDto,
+    @CurrentUser() user: JwtPayload,
+  ): Promise<TransactionHistoryDto> {
+    return this.returnBagFromOrderUseCase.execute(
+      new ReturnBagFromOrderCommand(
+        BigInt(bagId),
+        BigInt(dto.to_warehouse_id),
+        dto.movement_reason,
+        user.sub,
+        dto.notes ?? null,
+      ),
+    );
+  }
 
   // ─── Availability endpoints ──────────────────────────────────────────────
 

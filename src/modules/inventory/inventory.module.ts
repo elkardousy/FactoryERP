@@ -7,6 +7,12 @@ import { InventoryBagsRepository } from './repositories/inventory-bags.repositor
 import { InventoryTransactionsRepository } from './repositories/inventory-transactions.repository';
 import { InventoryValidationRepository } from './repositories/inventory-validation.repository';
 
+import { PhysicalBagMovementService } from './services/physical-bag-movement.service';
+import { PhysicalBagMovementValidator } from './services/physical-bag-movement.validator';
+import { TransferBagToWarehouseUseCase } from './use-cases/transfer-bag-to-warehouse/transfer-bag-to-warehouse.use-case';
+import { AssignBagToOrderUseCase } from './use-cases/assign-bag-to-order/assign-bag-to-order.use-case';
+import { ReturnBagFromOrderUseCase } from './use-cases/return-bag-from-order/return-bag-from-order.use-case';
+
 import { InventoryAvailabilityService } from './services/inventory-availability.service';
 import { GetBagAvailabilityUseCase } from './use-cases/get-bag-availability/get-bag-availability.use-case';
 import { GetWarehouseAvailabilityUseCase } from './use-cases/get-warehouse-availability/get-warehouse-availability.use-case';
@@ -51,6 +57,12 @@ import { ListReservationsByOrderUseCase } from './use-cases/list-reservations/li
     InventoryBagsRepository,
     InventoryTransactionsRepository,
     InventoryValidationRepository,
+    // Movement services and use cases
+    PhysicalBagMovementService,
+    PhysicalBagMovementValidator,
+    TransferBagToWarehouseUseCase,
+    AssignBagToOrderUseCase,
+    ReturnBagFromOrderUseCase,
     // Availability services and use cases
     InventoryAvailabilityService,
     GetBagAvailabilityUseCase,
