@@ -1,0 +1,335 @@
+# 08 — Production Module Progress Tracker
+
+| Field | Value |
+|---|---|
+| **Purpose** | Live implementation tracking ledger for the Production Module |
+| **Scope** | Feature-by-feature status, gate results, blockers |
+| **Audience** | Implementing agents, project lead |
+| **Status** | ACTIVE — update on every feature completion or state change |
+| **Owner** | Implementing agent (updates), Chief Architect (reviews) |
+| **Review Cycle** | Per-commit |
+| **Version** | 1.0 |
+
+---
+
+## Module Progress Summary
+
+| Feature | State | Commit | Date | Gate C-001 | Gate C-002 | Gate C-003 |
+|---|---|---|---|---|---|---|
+| P01 — Production Order Management | PENDING | — | — | — | — | — |
+| P02 — Material Release | PENDING | — | — | — | — | — |
+| P03 — Production Stage Tracking | PENDING | — | — | — | — | — |
+| P04 — WIP Inventory Management | PENDING | — | — | — | — | — |
+| P05 — Scrap & Incomplete Recording | PENDING | — | — | — | — | — |
+| P06 — Quality Output | PENDING | — | — | — | — | — |
+| P07 — Return to Warehouse | PENDING | — | — | — | — | — |
+| P08 — Packing Execution | PENDING | — | — | — | — | — |
+| P09 — Finished Goods Management | PENDING | — | — | — | — | — |
+| P10 — Supplementary Material Requests | PENDING | — | — | — | — | — |
+| P11 — Production Reporting | PENDING | — | — | — | — | — |
+
+**Module Status:** NOT STARTED  
+**Last Updated:** 2026-06-29  
+**Quality Gate Baseline:** Build PASS | Lint 0 | Tests 287/287
+
+---
+
+## Feature Detail Records
+
+### P01 — Production Order Management
+
+**State:** PENDING  
+**Dependencies:** Platform F01–F05 (COMPLETE)  
+**Started:** —  
+**Completed:** —  
+**Commit:** —
+
+**Files created:**
+- [ ] `src/modules/production/production.module.ts`
+- [ ] `src/modules/production/repositories/production-orders.repository.ts`
+- [ ] `src/modules/production/use-cases/create-production-order/`
+- [ ] `src/modules/production/use-cases/plan-production-order/`
+- [ ] `src/modules/production/use-cases/start-production/`
+- [ ] `src/modules/production/use-cases/complete-production/`
+- [ ] `src/modules/production/use-cases/close-production-order/`
+- [ ] `src/modules/production/use-cases/get-production-order/`
+- [ ] `src/modules/production/use-cases/list-production-orders/`
+- [ ] `src/modules/production/controllers/production.controller.ts`
+- [ ] `src/modules/production/events/production.events.ts`
+- [ ] `src/modules/production/events/production-event.publisher.ts`
+- [ ] `src/modules/production/events/production-event.listener.ts`
+
+**Gate results:**
+- C-001 Build: —
+- C-002 Lint: —
+- C-003 Tests: —
+
+**Blockers:** None identified
+
+---
+
+### P02 — Material Release
+
+**State:** PENDING  
+**Dependencies:** P01  
+**Started:** —  
+**Completed:** —  
+**Commit:** —
+
+**Files created:**
+- [ ] `src/modules/production/repositories/material-release.repository.ts`
+- [ ] `src/modules/production/use-cases/create-release-group/`
+- [ ] `src/modules/production/use-cases/get-release-group/`
+- [ ] `src/modules/production/use-cases/list-release-groups/`
+- [ ] `src/modules/production/controllers/material-release.controller.ts`
+
+**Gate results:**
+- C-001 Build: —
+- C-002 Lint: —
+- C-003 Tests: —
+
+**Blockers:** None identified
+
+---
+
+### P03 — Production Stage Tracking
+
+**State:** PENDING  
+**Dependencies:** P02  
+**Started:** —  
+**Completed:** —  
+**Commit:** —
+
+**Files created:**
+- [ ] `src/modules/production/repositories/production-stages.repository.ts`
+- [ ] `src/modules/production/use-cases/initialize-stage-logs/`
+- [ ] `src/modules/production/use-cases/start-stage/`
+- [ ] `src/modules/production/use-cases/record-stage-output/`
+- [ ] `src/modules/production/use-cases/get-stage-log/`
+- [ ] `src/modules/production/use-cases/list-stage-logs/`
+- [ ] `src/modules/production/controllers/production-stages.controller.ts`
+
+**Gate results:**
+- C-001 Build: —
+- C-002 Lint: —
+- C-003 Tests: —
+
+**Blockers:** None identified
+
+---
+
+### P04 — WIP Inventory Management
+
+**State:** PENDING  
+**Dependencies:** P03  
+**Started:** —  
+**Completed:** —  
+**Commit:** —
+
+**Files created:**
+- [ ] `src/modules/production/repositories/wip-inventory.repository.ts`
+- [ ] `src/modules/production/use-cases/update-wip-on-stage-complete/`
+- [ ] `src/modules/production/use-cases/get-wip-position/`
+- [ ] `src/modules/production/use-cases/list-wip-positions/`
+
+**Gate results:**
+- C-001 Build: —
+- C-002 Lint: —
+- C-003 Tests: —
+
+**Blockers:** None identified
+
+---
+
+### P05 — Scrap & Incomplete Recording
+
+**State:** PENDING  
+**Dependencies:** P03  
+**Started:** —  
+**Completed:** —  
+**Commit:** —
+
+**Files created:**
+- [ ] `src/modules/production/use-cases/get-scrap-summary/`
+- [ ] `src/modules/production/use-cases/get-incomplete-summary/`
+
+**Gate results:**
+- C-001 Build: —
+- C-002 Lint: —
+- C-003 Tests: —
+
+**Blockers:** None identified
+
+---
+
+### P06 — Quality Output
+
+**State:** PENDING  
+**Dependencies:** P04, P05  
+**Started:** —  
+**Completed:** —  
+**Commit:** —
+
+**Files created:**
+- [ ] `src/modules/production/repositories/quality-output.repository.ts`
+- [ ] `src/modules/production/use-cases/record-quality-output/`
+- [ ] `src/modules/production/use-cases/get-quality-output/`
+- [ ] `src/modules/production/controllers/quality-output.controller.ts`
+
+**Gate results:**
+- C-001 Build: —
+- C-002 Lint: —
+- C-003 Tests: —
+
+**Blockers:** None identified
+
+---
+
+### P07 — Return to Warehouse
+
+**State:** PENDING  
+**Dependencies:** P02  
+**Started:** —  
+**Completed:** —  
+**Commit:** —
+
+**Files created:**
+- [ ] `src/modules/production/repositories/return-transactions.repository.ts`
+- [ ] `src/modules/production/use-cases/return-material/`
+- [ ] `src/modules/production/use-cases/list-returns/`
+
+**Gate results:**
+- C-001 Build: —
+- C-002 Lint: —
+- C-003 Tests: —
+
+**Blockers:** None identified
+
+---
+
+### P08 — Packing Execution
+
+**State:** PENDING  
+**Dependencies:** P06  
+**Started:** —  
+**Completed:** —  
+**Commit:** —
+
+**Files created:**
+- [ ] `src/modules/production/repositories/packing.repository.ts`
+- [ ] `src/modules/production/use-cases/create-packing-order/`
+- [ ] `src/modules/production/use-cases/add-assembly/`
+- [ ] `src/modules/production/use-cases/start-packing/`
+- [ ] `src/modules/production/use-cases/complete-assembly/`
+- [ ] `src/modules/production/use-cases/record-verification/`
+- [ ] `src/modules/production/use-cases/approve-verification/`
+- [ ] `src/modules/production/use-cases/post-packing-order/`
+- [ ] `src/modules/production/controllers/packing.controller.ts`
+
+**Gate results:**
+- C-001 Build: —
+- C-002 Lint: —
+- C-003 Tests: —
+
+**Blockers:** None identified
+
+---
+
+### P09 — Finished Goods Management
+
+**State:** PENDING  
+**Dependencies:** P08  
+**Started:** —  
+**Completed:** —  
+**Commit:** —
+
+**Files created:**
+- [ ] `src/modules/production/repositories/finished-goods.repository.ts`
+- [ ] `src/modules/production/use-cases/get-finished-goods-bag/`
+- [ ] `src/modules/production/use-cases/list-finished-goods-bags/`
+- [ ] `src/modules/production/controllers/finished-goods.controller.ts`
+
+**Gate results:**
+- C-001 Build: —
+- C-002 Lint: —
+- C-003 Tests: —
+
+**Blockers:** None identified
+
+---
+
+### P10 — Supplementary Material Requests
+
+**State:** PENDING  
+**Dependencies:** P02  
+**Started:** —  
+**Completed:** —  
+**Commit:** —
+
+**Files created:**
+- [ ] `src/modules/production/repositories/supplementary.repository.ts`
+- [ ] `src/modules/production/use-cases/create-supplementary-request/`
+- [ ] `src/modules/production/use-cases/submit-supplementary-request/`
+- [ ] `src/modules/production/use-cases/approve-supplementary-request/`
+- [ ] `src/modules/production/use-cases/reject-supplementary-request/`
+- [ ] `src/modules/production/use-cases/transfer-supplementary-material/`
+- [ ] `src/modules/production/use-cases/cancel-supplementary-request/`
+- [ ] `src/modules/production/use-cases/get-supplementary-request/`
+- [ ] `src/modules/production/use-cases/list-supplementary-requests/`
+- [ ] `src/modules/production/controllers/supplementary.controller.ts`
+
+**Gate results:**
+- C-001 Build: —
+- C-002 Lint: —
+- C-003 Tests: —
+
+**Blockers:** None identified
+
+---
+
+### P11 — Production Reporting
+
+**State:** PENDING  
+**Dependencies:** P01–P09  
+**Started:** —  
+**Completed:** —  
+**Commit:** —
+
+**Files created:**
+- [ ] `src/modules/production/repositories/production-reporting.repository.ts`
+- [ ] `src/modules/production/use-cases/get-production-dashboard/`
+- [ ] `src/modules/production/use-cases/get-order-progress-report/`
+- [ ] `src/modules/production/use-cases/get-scrap-analytics/`
+- [ ] `src/modules/production/use-cases/get-wip-summary/`
+- [ ] `src/modules/production/use-cases/get-packing-efficiency-report/`
+- [ ] `src/modules/production/controllers/production-reports.controller.ts`
+
+**Gate results:**
+- C-001 Build: —
+- C-002 Lint: —
+- C-003 Tests: —
+
+**Blockers:** None identified
+
+---
+
+## Blockers Log
+
+| Date | Feature | Blocker | Status |
+|---|---|---|---|
+| — | — | — | — |
+
+---
+
+## Unknown Items Requiring Clarification
+
+| ID | Item | Feature | Priority |
+|---|---|---|---|
+| U-001 | How FG warehouse is determined (production line config vs. system setting) | P08, P09 | High |
+| U-002 | Customer assignment for PARTIAL orders without CMO link | P09 | High |
+| U-003 | Whether DRAFT/PLANNED orders can be deleted (cancellation path) | P01 | Medium |
+| U-004 | Exact formula for `customer_manufacturing_order_lines.remaining_dozens` | P02 | High |
+| U-005 | DocumentNumberingService configuration for `order_number` prefix | P01 | High |
+| U-006 | DocumentNumberingService configuration for `request_number` prefix | P10 | High |
+| U-007 | Approval role requirement for supplementary requests (specific role vs. RBAC) | P10 | Medium |
+| U-008 | Whether QO recording cap applies per-recording or only total per order | P06 | Low |

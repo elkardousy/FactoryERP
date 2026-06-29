@@ -17,6 +17,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { AuthorizationModule } from './modules/authorization/authorization.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
 import { WarehouseLocationsModule } from './modules/warehouse-locations/warehouse-locations.module';
+import { ProductionModule } from './modules/production/production.module';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 import { RolesGuard } from './modules/authorization/guards/roles.guard';
 import { ScreenPermissionGuard } from './modules/authorization/guards/screen-permission.guard';
@@ -51,6 +52,7 @@ import { ResponseInterceptor } from './core/interceptors/response.interceptor';
     AuthorizationModule,
     InventoryModule,
     WarehouseLocationsModule,
+    ProductionModule,
     EventEmitterModule.forRoot({ wildcard: false, delimiter: '.' }),
     ThrottlerModule.forRoot([{ name: 'default', ttl: 60_000, limit: 60 }]),
   ],
