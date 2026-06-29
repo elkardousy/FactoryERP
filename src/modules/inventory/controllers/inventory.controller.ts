@@ -60,6 +60,10 @@ import {
   BalanceSnapshotQueryDto,
 } from '../dto/balance-snapshot.dto';
 
+import { ApplyInventoryAdjustmentUseCase } from '../use-cases/apply-inventory-adjustment/apply-inventory-adjustment.use-case';
+import { ApplyAdjustmentDto } from '../dto/apply-adjustment.dto';
+import { ApplyInventoryAdjustmentCommand } from '../use-cases/apply-inventory-adjustment/commands/apply-inventory-adjustment.command';
+
 import { CreateInventoryTransactionUseCase } from '../use-cases/create-inventory-transaction/create-inventory-transaction.use-case';
 import { ReceiveInventoryUseCase } from '../use-cases/create-inventory-transaction/receive-inventory.use-case';
 import { IssueInventoryUseCase } from '../use-cases/create-inventory-transaction/issue-inventory.use-case';
@@ -115,6 +119,7 @@ export class InventoryController {
     private readonly getWarehouseBalanceSummaryUseCase: GetWarehouseBalanceSummaryUseCase,
     private readonly getModelBalanceSummaryUseCase: GetModelBalanceSummaryUseCase,
     private readonly getBalanceSnapshotUseCase: GetBalanceSnapshotUseCase,
+    private readonly applyInventoryAdjustmentUseCase: ApplyInventoryAdjustmentUseCase,
     private readonly createTxnUseCase: CreateInventoryTransactionUseCase,
     private readonly receiveUseCase: ReceiveInventoryUseCase,
     private readonly issueUseCase: IssueInventoryUseCase,
@@ -330,6 +335,43 @@ export class InventoryController {
         BigInt(query.part_id),
       ),
     );
+  }
+
+  // ─── Inventory Adjustment endpoints ─────────────────────────────────────
+
+  @Post('adjustments')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({
+    summary:
+      'Apply a typed inventory adjustment — atomically updates ledger and records transaction',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Adjustment applied and ledger updated',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid adjustment (zero delta or sign violation)',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Model, part, or warehouse not found',
+  })
+  async applyAdjustment(
+    @Body() dto: ApplyAdjustmentDto,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    const cmd = new ApplyInventoryAdjustmentCommand(
+      BigInt(dto.warehouse_id),
+      BigInt(dto.model_id),
+      BigInt(dto.part_id),
+      dto.reason,
+      dto.dozens_delta,
+      dto.txn_reference,
+      user.sub,
+      dto.notes ?? null,
+    );
+    return this.applyInventoryAdjustmentUseCase.execute(cmd);
   }
 
   @Post('transactions')

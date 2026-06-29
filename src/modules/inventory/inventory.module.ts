@@ -22,6 +22,9 @@ import { GetWarehouseBalanceSummaryUseCase } from './use-cases/get-warehouse-bal
 import { GetModelBalanceSummaryUseCase } from './use-cases/get-model-balance-summary/get-model-balance-summary.use-case';
 import { GetBalanceSnapshotUseCase } from './use-cases/get-balance-snapshot/get-balance-snapshot.use-case';
 
+import { InventoryAdjustmentService } from './services/inventory-adjustment.service';
+import { ApplyInventoryAdjustmentUseCase } from './use-cases/apply-inventory-adjustment/apply-inventory-adjustment.use-case';
+
 import { InventoryTransactionFactory } from './services/inventory-transaction.factory';
 import { InventoryTransactionMapper } from './services/inventory-transaction.mapper';
 import { InventoryTransactionValidator } from './services/inventory-transaction.validator';
@@ -73,6 +76,9 @@ import { ListReservationsByOrderUseCase } from './use-cases/list-reservations/li
     GetWarehouseBalanceSummaryUseCase,
     GetModelBalanceSummaryUseCase,
     GetBalanceSnapshotUseCase,
+    // Adjustment services and use cases
+    InventoryAdjustmentService,
+    ApplyInventoryAdjustmentUseCase,
     // Transaction services
     InventoryService,
     InventoryTransactionFactory,

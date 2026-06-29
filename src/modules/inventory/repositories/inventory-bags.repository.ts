@@ -38,4 +38,32 @@ export class InventoryBagsRepository extends BaseRepository {
       orderBy: [{ warehouse_id: 'asc' }, { part_id: 'asc' }],
     });
   }
+
+  async upsertOnHandInTx(
+    tx: PrismaService,
+    warehouseId: bigint,
+    modelId: bigint,
+    partId: bigint,
+    delta: number,
+  ): Promise<void> {
+    await tx.inventory_bags.upsert({
+      where: {
+        warehouse_id_model_id_part_id: {
+          warehouse_id: warehouseId,
+          model_id: modelId,
+          part_id: partId,
+        },
+      },
+      create: {
+        warehouse_id: warehouseId,
+        model_id: modelId,
+        part_id: partId,
+        dozens_on_hand: delta,
+      },
+      update: {
+        dozens_on_hand: { increment: delta },
+        last_updated: new Date(),
+      },
+    });
+  }
 }
