@@ -36,6 +36,19 @@ import { GetModelAvailabilityQuery } from '../use-cases/get-model-availability/q
 import { BagAvailabilityDto } from '../dto/bag-availability.dto';
 import { LedgerAvailabilityDto } from '../dto/ledger-availability.dto';
 
+import { GetWarehouseBalanceSummaryUseCase } from '../use-cases/get-warehouse-balance-summary/get-warehouse-balance-summary.use-case';
+import { GetModelBalanceSummaryUseCase } from '../use-cases/get-model-balance-summary/get-model-balance-summary.use-case';
+import { GetBalanceSnapshotUseCase } from '../use-cases/get-balance-snapshot/get-balance-snapshot.use-case';
+import { GetWarehouseBalanceSummaryQuery } from '../use-cases/get-warehouse-balance-summary/queries/get-warehouse-balance-summary.query';
+import { GetModelBalanceSummaryQuery } from '../use-cases/get-model-balance-summary/queries/get-model-balance-summary.query';
+import { GetBalanceSnapshotQuery } from '../use-cases/get-balance-snapshot/queries/get-balance-snapshot.query';
+import { WarehouseBalanceSummaryDto } from '../dto/warehouse-balance-summary.dto';
+import { ModelBalanceSummaryDto } from '../dto/model-balance-summary.dto';
+import {
+  BalanceSnapshotDto,
+  BalanceSnapshotQueryDto,
+} from '../dto/balance-snapshot.dto';
+
 import { CreateInventoryTransactionUseCase } from '../use-cases/create-inventory-transaction/create-inventory-transaction.use-case';
 import { ReceiveInventoryUseCase } from '../use-cases/create-inventory-transaction/receive-inventory.use-case';
 import { IssueInventoryUseCase } from '../use-cases/create-inventory-transaction/issue-inventory.use-case';
@@ -85,6 +98,9 @@ export class InventoryController {
     private readonly getBagAvailabilityUseCase: GetBagAvailabilityUseCase,
     private readonly getWarehouseAvailabilityUseCase: GetWarehouseAvailabilityUseCase,
     private readonly getModelAvailabilityUseCase: GetModelAvailabilityUseCase,
+    private readonly getWarehouseBalanceSummaryUseCase: GetWarehouseBalanceSummaryUseCase,
+    private readonly getModelBalanceSummaryUseCase: GetModelBalanceSummaryUseCase,
+    private readonly getBalanceSnapshotUseCase: GetBalanceSnapshotUseCase,
     private readonly createTxnUseCase: CreateInventoryTransactionUseCase,
     private readonly receiveUseCase: ReceiveInventoryUseCase,
     private readonly issueUseCase: IssueInventoryUseCase,
@@ -153,6 +169,65 @@ export class InventoryController {
   ): Promise<LedgerAvailabilityDto[]> {
     return this.getModelAvailabilityUseCase.execute(
       new GetModelAvailabilityQuery(BigInt(modelId)),
+    );
+  }
+
+  // ─── Balance endpoints ────────────────────────────────────────────────────
+
+  @Get('balance/warehouse/:warehouseId')
+  @ApiOperation({ summary: 'Get aggregated balance summary for a warehouse' })
+  @ApiParam({ name: 'warehouseId', description: 'Warehouse ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Warehouse balance summary',
+    type: WarehouseBalanceSummaryDto,
+  })
+  async getWarehouseBalanceSummary(
+    @Param('warehouseId') warehouseId: string,
+  ): Promise<WarehouseBalanceSummaryDto> {
+    return this.getWarehouseBalanceSummaryUseCase.execute(
+      new GetWarehouseBalanceSummaryQuery(BigInt(warehouseId)),
+    );
+  }
+
+  @Get('balance/model/:modelId')
+  @ApiOperation({
+    summary: 'Get aggregated balance summary for a model across all warehouses',
+  })
+  @ApiParam({ name: 'modelId', description: 'Model ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Model balance summary',
+    type: ModelBalanceSummaryDto,
+  })
+  async getModelBalanceSummary(
+    @Param('modelId') modelId: string,
+  ): Promise<ModelBalanceSummaryDto> {
+    return this.getModelBalanceSummaryUseCase.execute(
+      new GetModelBalanceSummaryQuery(BigInt(modelId)),
+    );
+  }
+
+  @Get('balance/snapshot')
+  @ApiOperation({
+    summary:
+      'Get current ledger snapshot for a specific warehouse + model + part',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Balance snapshot',
+    type: BalanceSnapshotDto,
+  })
+  @ApiResponse({ status: 404, description: 'Ledger entry not found' })
+  async getBalanceSnapshot(
+    @Query() query: BalanceSnapshotQueryDto,
+  ): Promise<BalanceSnapshotDto> {
+    return this.getBalanceSnapshotUseCase.execute(
+      new GetBalanceSnapshotQuery(
+        BigInt(query.warehouse_id),
+        BigInt(query.model_id),
+        BigInt(query.part_id),
+      ),
     );
   }
 

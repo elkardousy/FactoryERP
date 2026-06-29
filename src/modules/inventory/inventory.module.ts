@@ -11,6 +11,11 @@ import { InventoryAvailabilityService } from './services/inventory-availability.
 import { GetBagAvailabilityUseCase } from './use-cases/get-bag-availability/get-bag-availability.use-case';
 import { GetWarehouseAvailabilityUseCase } from './use-cases/get-warehouse-availability/get-warehouse-availability.use-case';
 import { GetModelAvailabilityUseCase } from './use-cases/get-model-availability/get-model-availability.use-case';
+import { InventoryBalanceService } from './services/inventory-balance.service';
+import { GetWarehouseBalanceSummaryUseCase } from './use-cases/get-warehouse-balance-summary/get-warehouse-balance-summary.use-case';
+import { GetModelBalanceSummaryUseCase } from './use-cases/get-model-balance-summary/get-model-balance-summary.use-case';
+import { GetBalanceSnapshotUseCase } from './use-cases/get-balance-snapshot/get-balance-snapshot.use-case';
+
 import { InventoryTransactionFactory } from './services/inventory-transaction.factory';
 import { InventoryTransactionMapper } from './services/inventory-transaction.mapper';
 import { InventoryTransactionValidator } from './services/inventory-transaction.validator';
@@ -51,6 +56,11 @@ import { ListReservationsByOrderUseCase } from './use-cases/list-reservations/li
     GetBagAvailabilityUseCase,
     GetWarehouseAvailabilityUseCase,
     GetModelAvailabilityUseCase,
+    // Balance services and use cases
+    InventoryBalanceService,
+    GetWarehouseBalanceSummaryUseCase,
+    GetModelBalanceSummaryUseCase,
+    GetBalanceSnapshotUseCase,
     // Transaction services
     InventoryService,
     InventoryTransactionFactory,
