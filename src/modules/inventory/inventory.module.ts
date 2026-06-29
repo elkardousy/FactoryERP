@@ -25,6 +25,14 @@ import { GetBalanceSnapshotUseCase } from './use-cases/get-balance-snapshot/get-
 import { InventoryAdjustmentService } from './services/inventory-adjustment.service';
 import { ApplyInventoryAdjustmentUseCase } from './use-cases/apply-inventory-adjustment/apply-inventory-adjustment.use-case';
 
+import { CycleCountRepository } from './repositories/cycle-count.repository';
+import { CycleCountService } from './services/cycle-count.service';
+import { OpenCycleCountUseCase } from './use-cases/open-cycle-count/open-cycle-count.use-case';
+import { ListCycleCountsUseCase } from './use-cases/list-cycle-counts/list-cycle-counts.use-case';
+import { GetCycleCountUseCase } from './use-cases/get-cycle-count/get-cycle-count.use-case';
+import { AddCycleCountActionUseCase } from './use-cases/add-cycle-count-action/add-cycle-count-action.use-case';
+import { CloseCycleCountUseCase } from './use-cases/close-cycle-count/close-cycle-count.use-case';
+
 import { InventoryTransactionFactory } from './services/inventory-transaction.factory';
 import { InventoryTransactionMapper } from './services/inventory-transaction.mapper';
 import { InventoryTransactionValidator } from './services/inventory-transaction.validator';
@@ -79,6 +87,14 @@ import { ListReservationsByOrderUseCase } from './use-cases/list-reservations/li
     // Adjustment services and use cases
     InventoryAdjustmentService,
     ApplyInventoryAdjustmentUseCase,
+    // Cycle Count services and use cases
+    CycleCountRepository,
+    CycleCountService,
+    OpenCycleCountUseCase,
+    ListCycleCountsUseCase,
+    GetCycleCountUseCase,
+    AddCycleCountActionUseCase,
+    CloseCycleCountUseCase,
     // Transaction services
     InventoryService,
     InventoryTransactionFactory,

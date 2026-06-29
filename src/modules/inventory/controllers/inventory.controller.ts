@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Query,
 } from '@nestjs/common';
@@ -64,6 +65,21 @@ import { ApplyInventoryAdjustmentUseCase } from '../use-cases/apply-inventory-ad
 import { ApplyAdjustmentDto } from '../dto/apply-adjustment.dto';
 import { ApplyInventoryAdjustmentCommand } from '../use-cases/apply-inventory-adjustment/commands/apply-inventory-adjustment.command';
 
+import { OpenCycleCountUseCase } from '../use-cases/open-cycle-count/open-cycle-count.use-case';
+import { ListCycleCountsUseCase } from '../use-cases/list-cycle-counts/list-cycle-counts.use-case';
+import { GetCycleCountUseCase } from '../use-cases/get-cycle-count/get-cycle-count.use-case';
+import { AddCycleCountActionUseCase } from '../use-cases/add-cycle-count-action/add-cycle-count-action.use-case';
+import { CloseCycleCountUseCase } from '../use-cases/close-cycle-count/close-cycle-count.use-case';
+import { OpenCycleCountDto } from '../dto/open-cycle-count.dto';
+import { AddCycleCountActionDto } from '../dto/add-cycle-count-action.dto';
+import { CloseCycleCountDto } from '../dto/close-cycle-count.dto';
+import { CycleCountFilterDto } from '../dto/cycle-count-filter.dto';
+import { OpenCycleCountCommand } from '../use-cases/open-cycle-count/commands/open-cycle-count.command';
+import { AddCycleCountActionCommand } from '../use-cases/add-cycle-count-action/commands/add-cycle-count-action.command';
+import { CloseCycleCountCommand } from '../use-cases/close-cycle-count/commands/close-cycle-count.command';
+import { ListCycleCountsQuery } from '../use-cases/list-cycle-counts/queries/list-cycle-counts.query';
+import { GetCycleCountQuery } from '../use-cases/get-cycle-count/queries/get-cycle-count.query';
+
 import { CreateInventoryTransactionUseCase } from '../use-cases/create-inventory-transaction/create-inventory-transaction.use-case';
 import { ReceiveInventoryUseCase } from '../use-cases/create-inventory-transaction/receive-inventory.use-case';
 import { IssueInventoryUseCase } from '../use-cases/create-inventory-transaction/issue-inventory.use-case';
@@ -120,6 +136,11 @@ export class InventoryController {
     private readonly getModelBalanceSummaryUseCase: GetModelBalanceSummaryUseCase,
     private readonly getBalanceSnapshotUseCase: GetBalanceSnapshotUseCase,
     private readonly applyInventoryAdjustmentUseCase: ApplyInventoryAdjustmentUseCase,
+    private readonly openCycleCountUseCase: OpenCycleCountUseCase,
+    private readonly listCycleCountsUseCase: ListCycleCountsUseCase,
+    private readonly getCycleCountUseCase: GetCycleCountUseCase,
+    private readonly addCycleCountActionUseCase: AddCycleCountActionUseCase,
+    private readonly closeCycleCountUseCase: CloseCycleCountUseCase,
     private readonly createTxnUseCase: CreateInventoryTransactionUseCase,
     private readonly receiveUseCase: ReceiveInventoryUseCase,
     private readonly issueUseCase: IssueInventoryUseCase,
@@ -372,6 +393,103 @@ export class InventoryController {
       dto.notes ?? null,
     );
     return this.applyInventoryAdjustmentUseCase.execute(cmd);
+  }
+
+  // ─── Cycle Count endpoints ────────────────────────────────────────────────
+
+  @Post('cycle-counts')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({
+    summary:
+      'Open a cycle count — records physical count result and raises investigation if variance exists',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Cycle count result with variance assessment',
+  })
+  async openCycleCount(
+    @Body() dto: OpenCycleCountDto,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    const cmd = new OpenCycleCountCommand(
+      dto.investigation_number,
+      BigInt(dto.warehouse_id),
+      BigInt(dto.model_id),
+      BigInt(dto.part_id),
+      dto.actual_dozens,
+      dto.notes ?? null,
+      user.sub,
+    );
+    return this.openCycleCountUseCase.execute(cmd);
+  }
+
+  @Get('cycle-counts')
+  @ApiOperation({ summary: 'List cycle count investigations' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of cycle count investigations',
+  })
+  async listCycleCounts(@Query() filter: CycleCountFilterDto) {
+    const query = new ListCycleCountsQuery(
+      filter.warehouse_id ? BigInt(filter.warehouse_id) : null,
+      filter.model_id ? BigInt(filter.model_id) : null,
+      filter.closure_status ?? null,
+      filter.page ?? 1,
+      filter.limit ?? 20,
+    );
+    return this.listCycleCountsUseCase.execute(query);
+  }
+
+  @Get('cycle-counts/:investigationId')
+  @ApiOperation({ summary: 'Get a single cycle count investigation' })
+  @ApiParam({ name: 'investigationId', description: 'Investigation ID' })
+  @ApiResponse({ status: 200, description: 'Cycle count investigation' })
+  @ApiResponse({ status: 404, description: 'Investigation not found' })
+  async getCycleCount(@Param('investigationId') investigationId: string) {
+    return this.getCycleCountUseCase.execute(
+      new GetCycleCountQuery(BigInt(investigationId)),
+    );
+  }
+
+  @Post('cycle-counts/:investigationId/actions')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({
+    summary: 'Add an action note to a cycle count investigation',
+  })
+  @ApiParam({ name: 'investigationId', description: 'Investigation ID' })
+  @ApiResponse({ status: 201, description: 'Action recorded' })
+  @ApiResponse({ status: 422, description: 'Investigation is already closed' })
+  async addCycleCountAction(
+    @Param('investigationId') investigationId: string,
+    @Body() dto: AddCycleCountActionDto,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    const cmd = new AddCycleCountActionCommand(
+      BigInt(investigationId),
+      dto.action_note,
+      user.sub,
+    );
+    return this.addCycleCountActionUseCase.execute(cmd);
+  }
+
+  @Patch('cycle-counts/:investigationId/close')
+  @ApiOperation({ summary: 'Close a cycle count investigation' })
+  @ApiParam({ name: 'investigationId', description: 'Investigation ID' })
+  @ApiResponse({ status: 200, description: 'Investigation closed' })
+  @ApiResponse({ status: 422, description: 'Investigation already closed' })
+  async closeCycleCount(
+    @Param('investigationId') investigationId: string,
+    @Body() dto: CloseCycleCountDto,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    const cmd = new CloseCycleCountCommand(
+      BigInt(investigationId),
+      dto.root_cause_category,
+      dto.corrective_action ?? null,
+      dto.preventive_action ?? null,
+      user.sub,
+    );
+    return this.closeCycleCountUseCase.execute(cmd);
   }
 
   @Post('transactions')
