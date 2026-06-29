@@ -65,6 +65,13 @@ import { ApplyInventoryAdjustmentUseCase } from '../use-cases/apply-inventory-ad
 import { ApplyAdjustmentDto } from '../dto/apply-adjustment.dto';
 import { ApplyInventoryAdjustmentCommand } from '../use-cases/apply-inventory-adjustment/commands/apply-inventory-adjustment.command';
 
+import { GetInventoryPerformanceSummaryUseCase } from '../use-cases/get-inventory-performance-summary/get-inventory-performance-summary.use-case';
+import { GetBagStatusDistributionUseCase } from '../use-cases/get-bag-status-distribution/get-bag-status-distribution.use-case';
+import {
+  InventoryPerformanceSummaryDto,
+  BagStatusDistributionDto,
+} from '../dto/inventory-performance.dto';
+
 import { OpenCycleCountUseCase } from '../use-cases/open-cycle-count/open-cycle-count.use-case';
 import { ListCycleCountsUseCase } from '../use-cases/list-cycle-counts/list-cycle-counts.use-case';
 import { GetCycleCountUseCase } from '../use-cases/get-cycle-count/get-cycle-count.use-case';
@@ -136,6 +143,8 @@ export class InventoryController {
     private readonly getModelBalanceSummaryUseCase: GetModelBalanceSummaryUseCase,
     private readonly getBalanceSnapshotUseCase: GetBalanceSnapshotUseCase,
     private readonly applyInventoryAdjustmentUseCase: ApplyInventoryAdjustmentUseCase,
+    private readonly getInventoryPerformanceSummaryUseCase: GetInventoryPerformanceSummaryUseCase,
+    private readonly getBagStatusDistributionUseCase: GetBagStatusDistributionUseCase,
     private readonly openCycleCountUseCase: OpenCycleCountUseCase,
     private readonly listCycleCountsUseCase: ListCycleCountsUseCase,
     private readonly getCycleCountUseCase: GetCycleCountUseCase,
@@ -490,6 +499,33 @@ export class InventoryController {
       user.sub,
     );
     return this.closeCycleCountUseCase.execute(cmd);
+  }
+
+  // ─── Inventory Performance endpoints ─────────────────────────────────────
+
+  @Get('performance/summary')
+  @ApiOperation({
+    summary:
+      'Get inventory performance summary — stock health, cycle count metrics, and 30-day transaction activity',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Performance summary',
+    type: InventoryPerformanceSummaryDto,
+  })
+  async getPerformanceSummary(): Promise<InventoryPerformanceSummaryDto> {
+    return this.getInventoryPerformanceSummaryUseCase.execute();
+  }
+
+  @Get('performance/bag-status')
+  @ApiOperation({ summary: 'Get physical bag count by status' })
+  @ApiResponse({
+    status: 200,
+    description: 'Bag status distribution',
+    type: [BagStatusDistributionDto],
+  })
+  async getBagStatusDistribution(): Promise<BagStatusDistributionDto[]> {
+    return this.getBagStatusDistributionUseCase.execute();
   }
 
   @Post('transactions')

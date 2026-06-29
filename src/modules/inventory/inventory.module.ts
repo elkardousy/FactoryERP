@@ -25,6 +25,11 @@ import { GetBalanceSnapshotUseCase } from './use-cases/get-balance-snapshot/get-
 import { InventoryAdjustmentService } from './services/inventory-adjustment.service';
 import { ApplyInventoryAdjustmentUseCase } from './use-cases/apply-inventory-adjustment/apply-inventory-adjustment.use-case';
 
+import { InventoryPerformanceRepository } from './repositories/inventory-performance.repository';
+import { InventoryPerformanceService } from './services/inventory-performance.service';
+import { GetInventoryPerformanceSummaryUseCase } from './use-cases/get-inventory-performance-summary/get-inventory-performance-summary.use-case';
+import { GetBagStatusDistributionUseCase } from './use-cases/get-bag-status-distribution/get-bag-status-distribution.use-case';
+
 import { CycleCountRepository } from './repositories/cycle-count.repository';
 import { CycleCountService } from './services/cycle-count.service';
 import { OpenCycleCountUseCase } from './use-cases/open-cycle-count/open-cycle-count.use-case';
@@ -87,6 +92,11 @@ import { ListReservationsByOrderUseCase } from './use-cases/list-reservations/li
     // Adjustment services and use cases
     InventoryAdjustmentService,
     ApplyInventoryAdjustmentUseCase,
+    // Performance services and use cases
+    InventoryPerformanceRepository,
+    InventoryPerformanceService,
+    GetInventoryPerformanceSummaryUseCase,
+    GetBagStatusDistributionUseCase,
     // Cycle Count services and use cases
     CycleCountRepository,
     CycleCountService,
