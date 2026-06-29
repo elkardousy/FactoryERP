@@ -44,6 +44,11 @@ import { GetCycleCountUseCase } from './use-cases/get-cycle-count/get-cycle-coun
 import { AddCycleCountActionUseCase } from './use-cases/add-cycle-count-action/add-cycle-count-action.use-case';
 import { CloseCycleCountUseCase } from './use-cases/close-cycle-count/close-cycle-count.use-case';
 
+import { InventoryIntegrationRepository } from './repositories/inventory-integration.repository';
+import { InventoryIntegrationService } from './services/inventory-integration.service';
+import { GetOrderInventoryContextUseCase } from './use-cases/get-order-inventory-context/get-order-inventory-context.use-case';
+import { ListWipPositionsUseCase } from './use-cases/list-wip-positions/list-wip-positions.use-case';
+
 import { InventoryTransactionFactory } from './services/inventory-transaction.factory';
 import { InventoryTransactionMapper } from './services/inventory-transaction.mapper';
 import { InventoryTransactionValidator } from './services/inventory-transaction.validator';
@@ -109,6 +114,11 @@ import { ListReservationsByOrderUseCase } from './use-cases/list-reservations/li
     InventoryPerformanceService,
     GetInventoryPerformanceSummaryUseCase,
     GetBagStatusDistributionUseCase,
+    // Integration services and use cases
+    InventoryIntegrationRepository,
+    InventoryIntegrationService,
+    GetOrderInventoryContextUseCase,
+    ListWipPositionsUseCase,
     // Cycle Count services and use cases
     CycleCountRepository,
     CycleCountService,

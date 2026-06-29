@@ -65,6 +65,14 @@ import { ApplyInventoryAdjustmentUseCase } from '../use-cases/apply-inventory-ad
 import { ApplyAdjustmentDto } from '../dto/apply-adjustment.dto';
 import { ApplyInventoryAdjustmentCommand } from '../use-cases/apply-inventory-adjustment/commands/apply-inventory-adjustment.command';
 
+import { GetOrderInventoryContextUseCase } from '../use-cases/get-order-inventory-context/get-order-inventory-context.use-case';
+import { ListWipPositionsUseCase } from '../use-cases/list-wip-positions/list-wip-positions.use-case';
+import {
+  OrderInventoryContextDto,
+  WipPositionDto,
+  WipPositionsQueryDto,
+} from '../dto/inventory-integration.dto';
+
 import { GetTransactionVolumeReportUseCase } from '../use-cases/get-transaction-volume-report/get-transaction-volume-report.use-case';
 import { GetStockPositionReportUseCase } from '../use-cases/get-stock-position-report/get-stock-position-report.use-case';
 import { GetVarianceReportUseCase } from '../use-cases/get-variance-report/get-variance-report.use-case';
@@ -165,6 +173,8 @@ export class InventoryController {
     private readonly getCycleCountUseCase: GetCycleCountUseCase,
     private readonly addCycleCountActionUseCase: AddCycleCountActionUseCase,
     private readonly closeCycleCountUseCase: CloseCycleCountUseCase,
+    private readonly getOrderInventoryContextUseCase: GetOrderInventoryContextUseCase,
+    private readonly listWipPositionsUseCase: ListWipPositionsUseCase,
     private readonly createTxnUseCase: CreateInventoryTransactionUseCase,
     private readonly receiveUseCase: ReceiveInventoryUseCase,
     private readonly issueUseCase: IssueInventoryUseCase,
@@ -582,6 +592,43 @@ export class InventoryController {
     @Query() query: VarianceReportQueryDto,
   ): Promise<VarianceSummaryReportDto> {
     return this.getVarianceReportUseCase.execute(query.closure_status);
+  }
+
+  // ─── Inventory Integration endpoints ─────────────────────────────────────
+
+  @Get('integration/orders/:orderId')
+  @ApiOperation({
+    summary:
+      'Get inventory context for a production order — physical bags and WIP balance',
+  })
+  @ApiParam({ name: 'orderId', description: 'Production order ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Order inventory context',
+    type: OrderInventoryContextDto,
+  })
+  async getOrderInventoryContext(
+    @Param('orderId') orderId: string,
+  ): Promise<OrderInventoryContextDto> {
+    return this.getOrderInventoryContextUseCase.execute(BigInt(orderId));
+  }
+
+  @Get('integration/wip')
+  @ApiOperation({
+    summary:
+      'List WIP inventory positions — optionally filtered by production order',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'WIP inventory positions',
+    type: [WipPositionDto],
+  })
+  async listWipPositions(
+    @Query() query: WipPositionsQueryDto,
+  ): Promise<WipPositionDto[]> {
+    return this.listWipPositionsUseCase.execute(
+      query.order_id ? BigInt(query.order_id) : undefined,
+    );
   }
 
   @Post('transactions')
