@@ -96,6 +96,16 @@ export class PhysicalBagsRepository extends BaseRepository {
     });
   }
 
+  async updateBagStatus(
+    bagId: bigint,
+    status: BagStatusEnum,
+  ): Promise<physical_bags> {
+    return this.db.physical_bags.update({
+      where: { bag_id: bagId },
+      data: { status },
+    });
+  }
+
   async findMovementHistory(
     bagId: bigint,
     page: number,

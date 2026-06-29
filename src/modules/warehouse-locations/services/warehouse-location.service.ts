@@ -61,7 +61,9 @@ export class WarehouseLocationService {
       capacity_dozens: dto.capacity_dozens ?? null,
     });
 
-    this.logger.info(`Warehouse location created: ${location.location_id.toString()}`);
+    this.logger.info(
+      `Warehouse location created: ${location.location_id.toString()}`,
+    );
     return this.toDto(location);
   }
 

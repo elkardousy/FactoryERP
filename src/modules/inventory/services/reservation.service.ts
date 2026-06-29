@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { ReservationStatusEnum } from '@prisma/client';
+import { BagStatusEnum, ReservationStatusEnum } from '@prisma/client';
 import { LoggerService } from '../../../core/logger/logger.service';
 import { InventoryEventPublisher } from '../events/inventory-event.publisher';
 import {
@@ -7,6 +7,7 @@ import {
   ReservationReleasedEvent,
 } from '../events/inventory.events';
 import { PaginatedResult } from '../../../common/interfaces/paginated-result.interface';
+import { PhysicalBagsRepository } from '../repositories/physical-bags.repository';
 import { PhysicalBagReservationsRepository } from '../repositories/physical-bag-reservations.repository';
 import { ReservationFactory } from './reservation.factory';
 import { ReservationMapper } from './reservation.mapper';
@@ -27,6 +28,7 @@ import type { GetReservationsByOrderQuery } from '../use-cases/list-reservations
 export class ReservationService {
   constructor(
     private readonly reservationsRepo: PhysicalBagReservationsRepository,
+    private readonly bagsRepo: PhysicalBagsRepository,
     private readonly factory: ReservationFactory,
     private readonly mapper: ReservationMapper,
     private readonly validator: ReservationValidator,
@@ -38,6 +40,7 @@ export class ReservationService {
     await this.validator.validateCreate(cmd);
     const data = this.factory.fromCreate(cmd);
     const reservation = await this.reservationsRepo.create(data);
+    await this.bagsRepo.updateBagStatus(cmd.bag_id, BagStatusEnum.RESERVED);
     this.logger.info(
       `Reservation created: id=${reservation.reservation_id}, bag=${cmd.bag_id}, order=${cmd.order_id}`,
     );
@@ -73,6 +76,14 @@ export class ReservationService {
       ReservationStatusEnum.RELEASED,
       new Date(),
     );
+    const remainingAfterRelease =
+      await this.reservationsRepo.sumActiveReservedDozens(reservation.bag_id);
+    if (remainingAfterRelease === 0) {
+      await this.bagsRepo.updateBagStatus(
+        reservation.bag_id,
+        BagStatusEnum.RECEIVED,
+      );
+    }
     this.logger.info(`Reservation released: id=${cmd.reservation_id}`);
     const releaseResult: ReservationResult = {
       success: true,
@@ -104,6 +115,14 @@ export class ReservationService {
       cmd.reservation_id,
       ReservationStatusEnum.CANCELLED,
     );
+    const remainingAfterCancel =
+      await this.reservationsRepo.sumActiveReservedDozens(reservation.bag_id);
+    if (remainingAfterCancel === 0) {
+      await this.bagsRepo.updateBagStatus(
+        reservation.bag_id,
+        BagStatusEnum.RECEIVED,
+      );
+    }
     this.logger.info(`Reservation cancelled: id=${cmd.reservation_id}`);
     const cancelResult: ReservationResult = {
       success: true,

@@ -92,7 +92,10 @@ export class InventoryAdjustmentService {
     this.logger.info(
       `Adjustment applied: ref=${cmd.txn_reference}, reason=${cmd.reason}, delta=${cmd.dozens_delta}`,
     );
-    const result: TransactionResult = { success: true, transaction: this.mapper.toResponse(txn) };
+    const result: TransactionResult = {
+      success: true,
+      transaction: this.mapper.toResponse(txn),
+    };
     this.eventPublisher.emitInventoryAdjusted(
       new InventoryAdjustedEvent(
         txn.txn_id.toString(),

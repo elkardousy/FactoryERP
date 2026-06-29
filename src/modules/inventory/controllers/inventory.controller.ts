@@ -739,7 +739,9 @@ export class InventoryController {
   @Post('transactions/adjust')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
-    summary: 'Adjust inventory quantity in a warehouse (positive or negative)',
+    deprecated: true,
+    summary:
+      '[DEPRECATED] Use POST /v1/inventory/adjustments instead. Adjust inventory quantity in a warehouse (positive or negative)',
   })
   @ApiResponse({ status: 201, description: 'Adjustment recorded' })
   async adjust(

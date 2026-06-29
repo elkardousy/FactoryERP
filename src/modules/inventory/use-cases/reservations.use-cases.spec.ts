@@ -106,6 +106,7 @@ function buildModule(overrides: Record<string, any> = {}) {
       bag_id: BigInt(5),
       current_dozens: { toString: () => '20.000' },
     }),
+    updateBagStatus: jest.fn().mockResolvedValue(undefined),
     ...overrides.bagsRepo,
   };
 
