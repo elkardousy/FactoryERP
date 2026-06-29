@@ -29,6 +29,7 @@ export class InventoryBagsRepository extends BaseRepository {
     return this.db.inventory_bags.findMany({
       where: { warehouse_id: warehouseId },
       orderBy: [{ model_id: 'asc' }, { part_id: 'asc' }],
+      take: 5000,
     });
   }
 
@@ -36,6 +37,7 @@ export class InventoryBagsRepository extends BaseRepository {
     return this.db.inventory_bags.findMany({
       where: { model_id: modelId },
       orderBy: [{ warehouse_id: 'asc' }, { part_id: 'asc' }],
+      take: 5000,
     });
   }
 

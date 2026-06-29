@@ -27,6 +27,7 @@ export class InventoryIntegrationRepository extends BaseRepository {
     return this.db.wip_inventory.findMany({
       where: { ...(orderId && { order_id: orderId }) },
       orderBy: [{ order_id: 'asc' }, { part_id: 'asc' }],
+      take: 500,
     });
   }
 }

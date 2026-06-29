@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { LoggerService } from '../../../core/logger/logger.service';
 import { WarehouseLocationRepository } from '../repositories/warehouse-location.repository';
+import type { PaginatedResult } from '../../../common/interfaces/paginated-result.interface';
 import type {
   CreateWarehouseLocationDto,
   LocationFilterDto,
@@ -77,15 +78,21 @@ export class WarehouseLocationService {
 
   async listLocations(
     filter: LocationFilterDto,
-  ): Promise<LocationResponseDto[]> {
-    const locations = await this.repo.findMany({
-      warehouse_id: filter.warehouse_id
-        ? BigInt(filter.warehouse_id)
-        : undefined,
-      zone_code: filter.zone_code,
-      is_active: filter.is_active,
-    });
-    return locations.map((l) => this.toDto(l));
+    page: number,
+    limit: number,
+  ): Promise<PaginatedResult<LocationResponseDto>> {
+    const result = await this.repo.findManyWithPagination(
+      {
+        warehouse_id: filter.warehouse_id
+          ? BigInt(filter.warehouse_id)
+          : undefined,
+        zone_code: filter.zone_code,
+        is_active: filter.is_active,
+      },
+      page,
+      limit,
+    );
+    return { items: result.items.map((l) => this.toDto(l)), meta: result.meta };
   }
 
   async updateLocationStatus(

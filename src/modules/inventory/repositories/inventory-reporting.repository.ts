@@ -42,6 +42,7 @@ export class InventoryReportingRepository extends BaseRepository {
         { model_id: 'asc' },
         { part_id: 'asc' },
       ],
+      take: 5000,
     });
   }
 
@@ -54,6 +55,7 @@ export class InventoryReportingRepository extends BaseRepository {
         ...(closureStatus && { closure_status: closureStatus }),
       },
       orderBy: { reported_at: 'desc' },
+      take: 500,
     });
   }
 }

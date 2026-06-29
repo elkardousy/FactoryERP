@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../core/database/prisma/prisma.service';
 import { BaseRepository } from '../../../core/database/repositories/base/base.repository';
+import {
+  buildPaginationMeta,
+  PaginatedResult,
+} from '../../../common/interfaces/paginated-result.interface';
 import type { warehouse_locations, Prisma } from '@prisma/client';
 
 @Injectable()
@@ -26,12 +30,7 @@ export class WarehouseLocationRepository extends BaseRepository {
     zone_code?: string;
     is_active?: boolean;
   }): Promise<warehouse_locations[]> {
-    const where: Prisma.warehouse_locationsWhereInput = {};
-    if (filter.warehouse_id !== undefined)
-      where.warehouse_id = filter.warehouse_id;
-    if (filter.zone_code !== undefined) where.zone_code = filter.zone_code;
-    if (filter.is_active !== undefined) where.is_active = filter.is_active;
-
+    const where = this.buildWhere(filter);
     return this.db.warehouse_locations.findMany({
       where,
       orderBy: [
@@ -40,7 +39,47 @@ export class WarehouseLocationRepository extends BaseRepository {
         { shelf_code: 'asc' },
         { bin_code: 'asc' },
       ],
+      take: 1000,
     });
+  }
+
+  async findManyWithPagination(
+    filter: { warehouse_id?: bigint; zone_code?: string; is_active?: boolean },
+    page: number,
+    limit: number,
+  ): Promise<PaginatedResult<warehouse_locations>> {
+    const where = this.buildWhere(filter);
+    const order = [
+      { zone_code: 'asc' as const },
+      { rack_code: 'asc' as const },
+      { shelf_code: 'asc' as const },
+      { bin_code: 'asc' as const },
+    ];
+
+    const [items, total] = await this.db.$transaction([
+      this.db.warehouse_locations.findMany({
+        where,
+        orderBy: order,
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      this.db.warehouse_locations.count({ where }),
+    ]);
+
+    return { items, meta: buildPaginationMeta(page, limit, total) };
+  }
+
+  private buildWhere(filter: {
+    warehouse_id?: bigint;
+    zone_code?: string;
+    is_active?: boolean;
+  }): Prisma.warehouse_locationsWhereInput {
+    const where: Prisma.warehouse_locationsWhereInput = {};
+    if (filter.warehouse_id !== undefined)
+      where.warehouse_id = filter.warehouse_id;
+    if (filter.zone_code !== undefined) where.zone_code = filter.zone_code;
+    if (filter.is_active !== undefined) where.is_active = filter.is_active;
+    return where;
   }
 
   async updateStatus(

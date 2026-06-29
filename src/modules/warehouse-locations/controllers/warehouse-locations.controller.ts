@@ -18,6 +18,8 @@ import {
 } from '@nestjs/swagger';
 import { Roles } from '../../authorization/decorators/roles.decorator';
 import { SystemRoles } from '../../../core/constants/system-roles.constants';
+import { PaginationDto } from '../../../common/dto/pagination/pagination.dto';
+import type { PaginatedResult } from '../../../common/interfaces/paginated-result.interface';
 import {
   CreateWarehouseLocationDto,
   LocationFilterDto,
@@ -72,14 +74,18 @@ export class WarehouseLocationsController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'List warehouse locations with optional filters' })
+  @ApiOperation({
+    summary: 'List warehouse locations with optional filters and pagination',
+  })
   @ApiResponse({
     status: 200,
-    description: 'Location list',
-    type: [LocationResponseDto],
+    description: 'Paginated location list',
   })
-  list(@Query() filter: LocationFilterDto): Promise<LocationResponseDto[]> {
-    return this.listUseCase.execute(filter);
+  list(
+    @Query() filter: LocationFilterDto,
+    @Query() pagination: PaginationDto,
+  ): Promise<PaginatedResult<LocationResponseDto>> {
+    return this.listUseCase.execute(filter, pagination.page, pagination.limit);
   }
 
   @Get('warehouse/:warehouseId/hierarchy')

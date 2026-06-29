@@ -7,11 +7,21 @@ import {
 import { WarehouseLocationService } from '../services/warehouse-location.service';
 import { WarehouseLocationRepository } from '../repositories/warehouse-location.repository';
 
+const MOCK_PAGINATION = {
+  page: 1,
+  limit: 20,
+  total: 2,
+  totalPages: 1,
+  hasNext: false,
+  hasPrev: false,
+};
+
 const mockRepo = (): jest.Mocked<WarehouseLocationRepository> =>
   ({
     create: jest.fn(),
     findById: jest.fn(),
     findMany: jest.fn(),
+    findManyWithPagination: jest.fn(),
     updateStatus: jest.fn(),
     existsByCode: jest.fn(),
     sumCapacityInUse: jest.fn(),
@@ -114,28 +124,39 @@ describe('WarehouseLocationService', () => {
   });
 
   describe('listLocations', () => {
-    it('returns mapped list with warehouse filter applied', async () => {
+    it('returns paginated list with warehouse filter applied', async () => {
       const locations = [
         buildLocation(),
         buildLocation({ location_id: BigInt(2), location_code: 'A-R2' }),
       ];
-      (repo.findMany as jest.Mock).mockResolvedValue(locations);
+      (repo.findManyWithPagination as jest.Mock).mockResolvedValue({
+        items: locations,
+        meta: MOCK_PAGINATION,
+      });
 
-      const results = await service.listLocations({ warehouse_id: '10' });
+      const result = await service.listLocations({ warehouse_id: '10' }, 1, 20);
 
-      expect(results).toHaveLength(2);
-      expect(repo.findMany).toHaveBeenCalledWith(
+      expect(result.items).toHaveLength(2);
+      expect(result.meta.page).toBe(1);
+      expect(repo.findManyWithPagination).toHaveBeenCalledWith(
         expect.objectContaining({ warehouse_id: BigInt(10) }),
+        1,
+        20,
       );
     });
 
     it('passes zone filter to repository', async () => {
-      (repo.findMany as jest.Mock).mockResolvedValue([]);
+      (repo.findManyWithPagination as jest.Mock).mockResolvedValue({
+        items: [],
+        meta: { ...MOCK_PAGINATION, total: 0 },
+      });
 
-      await service.listLocations({ zone_code: 'B' });
+      await service.listLocations({ zone_code: 'B' }, 1, 20);
 
-      expect(repo.findMany).toHaveBeenCalledWith(
+      expect(repo.findManyWithPagination).toHaveBeenCalledWith(
         expect.objectContaining({ zone_code: 'B' }),
+        1,
+        20,
       );
     });
   });
