@@ -27,6 +27,15 @@ import { ReservationRequestDto } from '../dto/reservation-request.dto';
 import { ReservationFilterDto } from '../dto/reservation-filter.dto';
 import { PaginationDto } from '../../../common/dto/pagination/pagination.dto';
 
+import { GetBagAvailabilityUseCase } from '../use-cases/get-bag-availability/get-bag-availability.use-case';
+import { GetWarehouseAvailabilityUseCase } from '../use-cases/get-warehouse-availability/get-warehouse-availability.use-case';
+import { GetModelAvailabilityUseCase } from '../use-cases/get-model-availability/get-model-availability.use-case';
+import { GetBagAvailabilityQuery } from '../use-cases/get-bag-availability/queries/get-bag-availability.query';
+import { GetWarehouseAvailabilityQuery } from '../use-cases/get-warehouse-availability/queries/get-warehouse-availability.query';
+import { GetModelAvailabilityQuery } from '../use-cases/get-model-availability/queries/get-model-availability.query';
+import { BagAvailabilityDto } from '../dto/bag-availability.dto';
+import { LedgerAvailabilityDto } from '../dto/ledger-availability.dto';
+
 import { CreateInventoryTransactionUseCase } from '../use-cases/create-inventory-transaction/create-inventory-transaction.use-case';
 import { ReceiveInventoryUseCase } from '../use-cases/create-inventory-transaction/receive-inventory.use-case';
 import { IssueInventoryUseCase } from '../use-cases/create-inventory-transaction/issue-inventory.use-case';
@@ -73,6 +82,9 @@ import { GetReservationsByOrderQuery } from '../use-cases/list-reservations/quer
 @Controller({ path: 'inventory', version: '1' })
 export class InventoryController {
   constructor(
+    private readonly getBagAvailabilityUseCase: GetBagAvailabilityUseCase,
+    private readonly getWarehouseAvailabilityUseCase: GetWarehouseAvailabilityUseCase,
+    private readonly getModelAvailabilityUseCase: GetModelAvailabilityUseCase,
     private readonly createTxnUseCase: CreateInventoryTransactionUseCase,
     private readonly receiveUseCase: ReceiveInventoryUseCase,
     private readonly issueUseCase: IssueInventoryUseCase,
@@ -90,6 +102,59 @@ export class InventoryController {
     private readonly listReservationsByBagUseCase: ListReservationsByBagUseCase,
     private readonly listReservationsByOrderUseCase: ListReservationsByOrderUseCase,
   ) {}
+
+  // ─── Availability endpoints ──────────────────────────────────────────────
+
+  @Get('availability/bags/:bagId')
+  @ApiOperation({ summary: 'Get availability for a single physical bag' })
+  @ApiParam({ name: 'bagId', description: 'Physical bag ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Bag availability',
+    type: BagAvailabilityDto,
+  })
+  @ApiResponse({ status: 404, description: 'Bag not found' })
+  async getBagAvailability(
+    @Param('bagId') bagId: string,
+  ): Promise<BagAvailabilityDto> {
+    return this.getBagAvailabilityUseCase.execute(
+      new GetBagAvailabilityQuery(BigInt(bagId)),
+    );
+  }
+
+  @Get('availability/warehouse/:warehouseId')
+  @ApiOperation({ summary: 'Get on-hand inventory ledger for a warehouse' })
+  @ApiParam({ name: 'warehouseId', description: 'Warehouse ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Ledger entries for warehouse',
+    type: [LedgerAvailabilityDto],
+  })
+  async getWarehouseAvailability(
+    @Param('warehouseId') warehouseId: string,
+  ): Promise<LedgerAvailabilityDto[]> {
+    return this.getWarehouseAvailabilityUseCase.execute(
+      new GetWarehouseAvailabilityQuery(BigInt(warehouseId)),
+    );
+  }
+
+  @Get('availability/model/:modelId')
+  @ApiOperation({
+    summary: 'Get on-hand inventory ledger for a model across all warehouses',
+  })
+  @ApiParam({ name: 'modelId', description: 'Model ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Ledger entries for model',
+    type: [LedgerAvailabilityDto],
+  })
+  async getModelAvailability(
+    @Param('modelId') modelId: string,
+  ): Promise<LedgerAvailabilityDto[]> {
+    return this.getModelAvailabilityUseCase.execute(
+      new GetModelAvailabilityQuery(BigInt(modelId)),
+    );
+  }
 
   @Post('transactions')
   @HttpCode(HttpStatus.CREATED)

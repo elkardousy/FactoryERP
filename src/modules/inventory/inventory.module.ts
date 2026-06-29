@@ -7,6 +7,10 @@ import { InventoryBagsRepository } from './repositories/inventory-bags.repositor
 import { InventoryTransactionsRepository } from './repositories/inventory-transactions.repository';
 import { InventoryValidationRepository } from './repositories/inventory-validation.repository';
 
+import { InventoryAvailabilityService } from './services/inventory-availability.service';
+import { GetBagAvailabilityUseCase } from './use-cases/get-bag-availability/get-bag-availability.use-case';
+import { GetWarehouseAvailabilityUseCase } from './use-cases/get-warehouse-availability/get-warehouse-availability.use-case';
+import { GetModelAvailabilityUseCase } from './use-cases/get-model-availability/get-model-availability.use-case';
 import { InventoryTransactionFactory } from './services/inventory-transaction.factory';
 import { InventoryTransactionMapper } from './services/inventory-transaction.mapper';
 import { InventoryTransactionValidator } from './services/inventory-transaction.validator';
@@ -42,6 +46,11 @@ import { ListReservationsByOrderUseCase } from './use-cases/list-reservations/li
     InventoryBagsRepository,
     InventoryTransactionsRepository,
     InventoryValidationRepository,
+    // Availability services and use cases
+    InventoryAvailabilityService,
+    GetBagAvailabilityUseCase,
+    GetWarehouseAvailabilityUseCase,
+    GetModelAvailabilityUseCase,
     // Transaction services
     InventoryService,
     InventoryTransactionFactory,
