@@ -18,7 +18,7 @@
 |---|---|---|---|---|---|---|
 | P01 — Production Order Management | DONE | 335174e | 2026-06-30 | PASS | PASS | 312/312 |
 | P02 — Material Release | DONE | b104f8b | 2026-06-30 | PASS | PASS | 326/326 |
-| P03 — Production Stage Tracking | PENDING | — | — | — | — | — |
+| P03 — Production Stage Tracking | DONE | da85920 | 2026-06-30 | PASS | PASS | 346/346 |
 | P04 — WIP Inventory Management | PENDING | — | — | — | — | — |
 | P05 — Scrap & Incomplete Recording | PENDING | — | — | — | — | — |
 | P06 — Quality Output | PENDING | — | — | — | — | — |
@@ -28,10 +28,10 @@
 | P10 — Supplementary Material Requests | PENDING | — | — | — | — | — |
 | P11 — Production Reporting | PENDING | — | — | — | — | — |
 
-**Module Status:** IN PROGRESS (2/11 features DONE)  
+**Module Status:** IN PROGRESS (3/11 features DONE)  
 **Last Updated:** 2026-06-30  
 **Quality Gate Baseline:** Build PASS | Lint 0 | Tests 287/287  
-**Current:** Build PASS | Lint 0 | Tests 326/326
+**Current:** Build PASS | Lint 0 | Tests 346/346
 
 ---
 
@@ -107,27 +107,37 @@
 
 ### P03 — Production Stage Tracking
 
-**State:** PENDING  
+**State:** DONE  
 **Dependencies:** P02  
-**Started:** —  
-**Completed:** —  
-**Commit:** —
+**Started:** 2026-06-30  
+**Completed:** 2026-06-30  
+**Commit:** da85920
 
 **Files created:**
-- [ ] `src/modules/production/repositories/production-stages.repository.ts`
-- [ ] `src/modules/production/use-cases/initialize-stage-logs/`
-- [ ] `src/modules/production/use-cases/start-stage/`
-- [ ] `src/modules/production/use-cases/record-stage-output/`
-- [ ] `src/modules/production/use-cases/get-stage-log/`
-- [ ] `src/modules/production/use-cases/list-stage-logs/`
-- [ ] `src/modules/production/controllers/production-stages.controller.ts`
+- [x] `src/modules/production/repositories/production-stages.repository.ts`
+- [x] `src/modules/production/dto/production-stage.dto.ts`
+- [x] `src/modules/production/use-cases/start-stage/start-stage.use-case.ts`
+- [x] `src/modules/production/use-cases/record-stage-output/record-stage-output.use-case.ts`
+- [x] `src/modules/production/use-cases/get-stage-log/get-stage-log.use-case.ts`
+- [x] `src/modules/production/use-cases/list-stage-logs/list-stage-logs.use-case.ts`
+- [x] `src/modules/production/use-cases/production-stages.use-cases.spec.ts`
+- [x] `src/modules/production/controllers/production-stages.controller.ts`
+- [x] `docs/execution/production/ENGINEERING_DECISION_REPORT_P03.md`
+
+**Files modified:**
+- [x] `src/modules/production/production.module.ts` (ProductionStagesRepository + 4 use cases + controller)
+- [x] `src/modules/production/events/production.events.ts` (ProductionStageStartedEvent, ProductionStageCompletedEvent)
+- [x] `src/modules/production/events/production-event.publisher.ts` (emitStageStarted, emitStageCompleted)
+- [x] `src/modules/production/events/production-event.listener.ts` (onStageStarted, onStageCompleted)
 
 **Gate results:**
-- C-001 Build: —
-- C-002 Lint: —
-- C-003 Tests: —
+- C-001 Build: PASS
+- C-002 Lint: PASS (0 errors)
+- C-003 Tests: 346/346 PASS (20 new)
 
-**Blockers:** None identified
+**Engineering decisions:** See `ENGINEERING_DECISION_REPORT_P03.md`  
+**Deferred:** PAUSE/RESUME (no StageStatusEnum.PAUSED), WIP_CONSUMPTION (P04 via event), Quality trigger (P06 via isLastStage flag)  
+**Blockers:** None
 
 ---
 
