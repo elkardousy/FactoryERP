@@ -5,6 +5,8 @@ import type {
   ProductionOrderCreatedEvent,
   ProductionOrderStatusChangedEvent,
   ProductionOrderUpdatedEvent,
+  ProductionQualityRecordedEvent,
+  ProductionQualitySummaryUpdatedEvent,
   ProductionStageCompletedEvent,
   ProductionStageStartedEvent,
   ProductionWipUpdatedEvent,
@@ -39,6 +41,14 @@ export class ProductionEventPublisher {
   }
 
   emitWipUpdated(event: ProductionWipUpdatedEvent): void {
+    this.emitter.emit(event.event, event);
+  }
+
+  emitQualityRecorded(event: ProductionQualityRecordedEvent): void {
+    this.emitter.emit(event.event, event);
+  }
+
+  emitQualitySummaryUpdated(event: ProductionQualitySummaryUpdatedEvent): void {
     this.emitter.emit(event.event, event);
   }
 }

@@ -75,6 +75,29 @@ export class ProductionWipUpdatedEvent {
   ) {}
 }
 
+export class ProductionQualityRecordedEvent {
+  readonly event = 'production.quality.recorded';
+  constructor(
+    public readonly boxId: string,
+    public readonly orderId: string,
+    public readonly colorId: string,
+    public readonly sizeId: string,
+    public readonly dozensRecorded: number,
+    public readonly dozensAvailable: number,
+    public readonly actorId: string,
+    public readonly occurredAt: Date,
+  ) {}
+}
+
+export class ProductionQualitySummaryUpdatedEvent {
+  readonly event = 'production.quality.summary.updated';
+  constructor(
+    public readonly orderId: string,
+    public readonly actorId: string,
+    public readonly occurredAt: Date,
+  ) {}
+}
+
 export class MaterialReleaseCreatedEvent {
   readonly event = 'production.material.release.created';
   constructor(

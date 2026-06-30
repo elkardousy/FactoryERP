@@ -2,6 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { LoggerService } from '../../../core/logger/logger.service';
 import { ProcessStageCompletionWipUseCase } from '../use-cases/process-stage-completion-wip/process-stage-completion-wip.use-case';
+import { ProductionEventPublisher } from './production-event.publisher';
+import {
+  ProductionQualityRecordedEvent,
+  ProductionQualitySummaryUpdatedEvent,
+} from './production.events';
 import type {
   MaterialReleaseCreatedEvent,
   ProductionOrderCreatedEvent,
@@ -17,6 +22,7 @@ export class ProductionEventListener {
   constructor(
     private readonly logger: LoggerService,
     private readonly processWipUseCase: ProcessStageCompletionWipUseCase,
+    private readonly publisher: ProductionEventPublisher,
   ) {}
 
   @OnEvent('production.order.created')
@@ -71,6 +77,38 @@ export class ProductionEventListener {
   onWipUpdated(event: ProductionWipUpdatedEvent): void {
     this.logger.debug(
       `[PROD-007] WipUpdated: wip=${event.wipId} order=${event.orderId} part=${event.partId} dozens=${event.dozensInWip} isLast=${event.isLastStage}`,
+    );
+  }
+
+  // Emit quality readiness signals when the last stage completes
+  @OnEvent('production.stage.completed')
+  onStageCompletedQuality(event: ProductionStageCompletedEvent): void {
+    if (!event.isLastStage) return;
+    const now = new Date();
+    this.logger.debug(
+      `[PROD-008] LastStageCompleted — quality output now eligible for order=${event.orderId}`,
+    );
+    // Emit a placeholder quality summary update to signal QO is now open
+    this.publisher.emitQualitySummaryUpdated(
+      new ProductionQualitySummaryUpdatedEvent(
+        event.orderId,
+        event.actorId,
+        now,
+      ),
+    );
+  }
+
+  @OnEvent('production.quality.recorded')
+  onQualityRecorded(event: ProductionQualityRecordedEvent): void {
+    this.logger.debug(
+      `[PROD-009] QualityRecorded: box=${event.boxId} order=${event.orderId} color=${event.colorId} size=${event.sizeId} +${event.dozensRecorded} dozens (total: ${event.dozensAvailable})`,
+    );
+  }
+
+  @OnEvent('production.quality.summary.updated')
+  onQualitySummaryUpdated(event: ProductionQualitySummaryUpdatedEvent): void {
+    this.logger.debug(
+      `[PROD-010] QualitySummaryUpdated: order=${event.orderId}`,
     );
   }
 }

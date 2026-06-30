@@ -4,6 +4,7 @@ import { ProductionController } from './controllers/production.controller';
 import { MaterialReleaseController } from './controllers/material-release.controller';
 import { ProductionStagesController } from './controllers/production-stages.controller';
 import { ProductionWipController } from './controllers/production-wip.controller';
+import { ProductionQualityController } from './controllers/production-quality.controller';
 import { ProductionOrdersRepository } from './repositories/production-orders.repository';
 import { MaterialReleaseRepository } from './repositories/material-release.repository';
 import { ProductionStagesRepository } from './repositories/production-stages.repository';
@@ -30,6 +31,12 @@ import { GetWipUseCase } from './use-cases/get-wip/get-wip.use-case';
 import { ListWipUseCase } from './use-cases/list-wip/list-wip.use-case';
 import { GetWipHistoryUseCase } from './use-cases/get-wip-history/get-wip-history.use-case';
 import { GetProductionProgressUseCase } from './use-cases/get-production-progress/get-production-progress.use-case';
+import { ProductionQualityRepository } from './repositories/production-quality.repository';
+import { RecordQualityOutputUseCase } from './use-cases/record-quality-output/record-quality-output.use-case';
+import { GetQualityBoxUseCase } from './use-cases/get-quality-box/get-quality-box.use-case';
+import { ListQualityBoxesUseCase } from './use-cases/list-quality-boxes/list-quality-boxes.use-case';
+import { GetQualitySummaryUseCase } from './use-cases/get-quality-summary/get-quality-summary.use-case';
+import { GetQualityHistoryUseCase } from './use-cases/get-quality-history/get-quality-history.use-case';
 
 @Module({
   imports: [InventoryModule],
@@ -38,6 +45,7 @@ import { GetProductionProgressUseCase } from './use-cases/get-production-progres
     MaterialReleaseController,
     ProductionStagesController,
     ProductionWipController,
+    ProductionQualityController,
   ],
   providers: [
     // Repositories
@@ -45,6 +53,7 @@ import { GetProductionProgressUseCase } from './use-cases/get-production-progres
     MaterialReleaseRepository,
     ProductionStagesRepository,
     ProductionWipRepository,
+    ProductionQualityRepository,
     // Use Cases — Commands
     CreateProductionOrderUseCase,
     UpdateProductionOrderUseCase,
@@ -56,6 +65,7 @@ import { GetProductionProgressUseCase } from './use-cases/get-production-progres
     StartStageUseCase,
     RecordStageOutputUseCase,
     ProcessStageCompletionWipUseCase,
+    RecordQualityOutputUseCase,
     // Use Cases — Queries
     GetProductionOrderUseCase,
     ListProductionOrdersUseCase,
@@ -67,6 +77,10 @@ import { GetProductionProgressUseCase } from './use-cases/get-production-progres
     ListWipUseCase,
     GetWipHistoryUseCase,
     GetProductionProgressUseCase,
+    GetQualityBoxUseCase,
+    ListQualityBoxesUseCase,
+    GetQualitySummaryUseCase,
+    GetQualityHistoryUseCase,
     // Event infrastructure
     ProductionEventPublisher,
     ProductionEventListener,
