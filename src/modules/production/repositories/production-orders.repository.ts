@@ -209,4 +209,15 @@ export class ProductionOrdersRepository extends BaseRepository {
     });
     return count === partIds.length;
   }
+
+  async findOrderPartId(
+    orderId: bigint,
+    partId: bigint,
+  ): Promise<bigint | null> {
+    const row = await this.db.production_order_parts.findUnique({
+      where: { order_id_part_id: { order_id: orderId, part_id: partId } },
+      select: { order_part_id: true },
+    });
+    return row?.order_part_id ?? null;
+  }
 }

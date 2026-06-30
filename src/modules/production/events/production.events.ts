@@ -32,3 +32,16 @@ export class ProductionOrderUpdatedEvent {
     public readonly occurredAt: Date,
   ) {}
 }
+
+export class MaterialReleaseCreatedEvent {
+  readonly event = 'production.material.release.created';
+  constructor(
+    public readonly releaseGroupId: string,
+    public readonly orderId: string,
+    public readonly groupNumber: number,
+    public readonly linesCount: number,
+    public readonly totalDozens: number,
+    public readonly actorId: string,
+    public readonly occurredAt: Date,
+  ) {}
+}

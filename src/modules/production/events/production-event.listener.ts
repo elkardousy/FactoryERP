@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { LoggerService } from '../../../core/logger/logger.service';
 import type {
+  MaterialReleaseCreatedEvent,
   ProductionOrderCreatedEvent,
   ProductionOrderStatusChangedEvent,
   ProductionOrderUpdatedEvent,
@@ -28,5 +29,12 @@ export class ProductionEventListener {
   @OnEvent('production.order.updated')
   onOrderUpdated(event: ProductionOrderUpdatedEvent): void {
     this.logger.debug(`[PROD-003] OrderUpdated: order=${event.orderId}`);
+  }
+
+  @OnEvent('production.material.release.created')
+  onMaterialReleased(event: MaterialReleaseCreatedEvent): void {
+    this.logger.debug(
+      `[PROD-004] MaterialReleased: group=${event.releaseGroupId} order=${event.orderId} groupNum=${event.groupNumber} lines=${event.linesCount}`,
+    );
   }
 }

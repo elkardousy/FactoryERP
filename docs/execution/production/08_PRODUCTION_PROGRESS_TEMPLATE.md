@@ -16,8 +16,8 @@
 
 | Feature | State | Commit | Date | Gate C-001 | Gate C-002 | Gate C-003 |
 |---|---|---|---|---|---|---|
-| P01 — Production Order Management | PENDING | — | — | — | — | — |
-| P02 — Material Release | PENDING | — | — | — | — | — |
+| P01 — Production Order Management | DONE | 335174e | 2026-06-30 | PASS | PASS | 312/312 |
+| P02 — Material Release | DONE | TBD | 2026-06-30 | PASS | PASS | 326/326 |
 | P03 — Production Stage Tracking | PENDING | — | — | — | — | — |
 | P04 — WIP Inventory Management | PENDING | — | — | — | — | — |
 | P05 — Scrap & Incomplete Recording | PENDING | — | — | — | — | — |
@@ -28,9 +28,10 @@
 | P10 — Supplementary Material Requests | PENDING | — | — | — | — | — |
 | P11 — Production Reporting | PENDING | — | — | — | — | — |
 
-**Module Status:** NOT STARTED  
-**Last Updated:** 2026-06-29  
-**Quality Gate Baseline:** Build PASS | Lint 0 | Tests 287/287
+**Module Status:** IN PROGRESS (2/11 features DONE)  
+**Last Updated:** 2026-06-30  
+**Quality Gate Baseline:** Build PASS | Lint 0 | Tests 287/287  
+**Current:** Build PASS | Lint 0 | Tests 326/326
 
 ---
 
@@ -70,25 +71,37 @@
 
 ### P02 — Material Release
 
-**State:** PENDING  
+**State:** DONE  
 **Dependencies:** P01  
-**Started:** —  
-**Completed:** —  
-**Commit:** —
+**Started:** 2026-06-30  
+**Completed:** 2026-06-30  
+**Commit:** TBD
 
 **Files created:**
-- [ ] `src/modules/production/repositories/material-release.repository.ts`
-- [ ] `src/modules/production/use-cases/create-release-group/`
-- [ ] `src/modules/production/use-cases/get-release-group/`
-- [ ] `src/modules/production/use-cases/list-release-groups/`
-- [ ] `src/modules/production/controllers/material-release.controller.ts`
+- [x] `src/modules/production/dto/material-release.dto.ts`
+- [x] `src/modules/production/repositories/material-release.repository.ts`
+- [x] `src/modules/production/use-cases/create-release-group/create-release-group.use-case.ts`
+- [x] `src/modules/production/use-cases/get-release-group/get-release-group.use-case.ts`
+- [x] `src/modules/production/use-cases/list-release-groups/list-release-groups.use-case.ts`
+- [x] `src/modules/production/use-cases/material-release.use-cases.spec.ts`
+- [x] `src/modules/production/controllers/material-release.controller.ts`
+- [x] `docs/execution/production/ENGINEERING_DECISION_REPORT_P02.md`
+- [x] `docs/execution/production/reports/P02_REPORT.md`
+
+**Files modified:**
+- [x] `src/modules/production/production.module.ts` (InventoryModule import + new providers)
+- [x] `src/modules/production/repositories/production-orders.repository.ts` (findOrderPartId)
+- [x] `src/modules/production/events/production.events.ts` (MaterialReleaseCreatedEvent)
+- [x] `src/modules/production/events/production-event.publisher.ts` (emitMaterialReleased)
+- [x] `src/modules/production/events/production-event.listener.ts` (onMaterialReleased)
 
 **Gate results:**
-- C-001 Build: —
-- C-002 Lint: —
-- C-003 Tests: —
+- C-001 Build: PASS
+- C-002 Lint: PASS (0 errors)
+- C-003 Tests: 326/326 PASS (14 new)
 
-**Blockers:** None identified
+**Engineering decisions:** See `ENGINEERING_DECISION_REPORT_P02.md` for schema conflicts and resolutions  
+**Blockers:** None — full bag release only (partial release deferred pending schema extension)
 
 ---
 

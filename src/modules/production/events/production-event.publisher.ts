@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import type {
+  MaterialReleaseCreatedEvent,
   ProductionOrderCreatedEvent,
   ProductionOrderStatusChangedEvent,
   ProductionOrderUpdatedEvent,
@@ -19,6 +20,10 @@ export class ProductionEventPublisher {
   }
 
   emitOrderUpdated(event: ProductionOrderUpdatedEvent): void {
+    this.emitter.emit(event.event, event);
+  }
+
+  emitMaterialReleased(event: MaterialReleaseCreatedEvent): void {
     this.emitter.emit(event.event, event);
   }
 }
