@@ -25,13 +25,13 @@
 | P07 — Return to Warehouse | DONE | e066a53 | 2026-06-30 | PASS | PASS | 392/392 |
 | P08 — Packing Execution | DONE | 050d255 | 2026-06-30 | PASS | PASS | 419/419 |
 | P09 — Finished Goods Management | DONE | 0a392bb | 2026-06-30 | PASS | PASS | 436/436 |
-| P10 — Supplementary Material Requests | PENDING | — | — | — | — | — |
+| P10 — Supplementary Material Requests | DONE | 90bf553 | 2026-07-01 | PASS | PASS | 464/464 |
 | P11 — Production Reporting | PENDING | — | — | — | — | — |
 
-**Module Status:** IN PROGRESS (8/11 features DONE)  
-**Last Updated:** 2026-06-30  
+**Module Status:** IN PROGRESS (9/11 features DONE)  
+**Last Updated:** 2026-07-01  
 **Quality Gate Baseline:** Build PASS | Lint 0 | Tests 287/287  
-**Current:** Build PASS | Lint 0 | Tests 436/436
+**Current:** Build PASS | Lint 0 | Tests 464/464
 
 ---
 
