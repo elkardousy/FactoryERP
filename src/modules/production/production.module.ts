@@ -54,6 +54,14 @@ import { GetPackingOrderUseCase } from './use-cases/get-packing-order/get-packin
 import { ListPackingOrdersUseCase } from './use-cases/list-packing-orders/list-packing-orders.use-case';
 import { GetPackingHistoryUseCase } from './use-cases/get-packing-history/get-packing-history.use-case';
 import { GetPackingSummaryUseCase } from './use-cases/get-packing-summary/get-packing-summary.use-case';
+import { ProductionFinishedGoodsController } from './controllers/production-finished-goods.controller';
+import { ProductionFinishedGoodsRepository } from './repositories/production-finished-goods.repository';
+import { CreateFinishedGoodsUseCase } from './use-cases/create-finished-goods/create-finished-goods.use-case';
+import { GetFinishedGoodsUseCase } from './use-cases/get-finished-goods/get-finished-goods.use-case';
+import { ListFinishedGoodsUseCase } from './use-cases/list-finished-goods/list-finished-goods.use-case';
+import { GetFinishedGoodsHistoryUseCase } from './use-cases/get-finished-goods-history/get-finished-goods-history.use-case';
+import { GetFinishedGoodsSummaryUseCase } from './use-cases/get-finished-goods-summary/get-finished-goods-summary.use-case';
+import { FinishedGoodsDashboardUseCase } from './use-cases/finished-goods-dashboard/finished-goods-dashboard.use-case';
 
 @Module({
   imports: [InventoryModule],
@@ -65,6 +73,7 @@ import { GetPackingSummaryUseCase } from './use-cases/get-packing-summary/get-pa
     ProductionQualityController,
     ProductionReturnsController,
     ProductionPackingController,
+    ProductionFinishedGoodsController,
   ],
   providers: [
     // Repositories
@@ -75,6 +84,7 @@ import { GetPackingSummaryUseCase } from './use-cases/get-packing-summary/get-pa
     ProductionQualityRepository,
     ProductionReturnsRepository,
     ProductionPackingRepository,
+    ProductionFinishedGoodsRepository,
     // Use Cases — Commands
     CreateProductionOrderUseCase,
     UpdateProductionOrderUseCase,
@@ -92,6 +102,7 @@ import { GetPackingSummaryUseCase } from './use-cases/get-packing-summary/get-pa
     AddAssemblyUseCase,
     VerifyPackingUseCase,
     PostPackingOrderUseCase,
+    CreateFinishedGoodsUseCase,
     // Use Cases — Queries
     GetProductionOrderUseCase,
     ListProductionOrdersUseCase,
@@ -115,6 +126,11 @@ import { GetPackingSummaryUseCase } from './use-cases/get-packing-summary/get-pa
     ListPackingOrdersUseCase,
     GetPackingHistoryUseCase,
     GetPackingSummaryUseCase,
+    GetFinishedGoodsUseCase,
+    ListFinishedGoodsUseCase,
+    GetFinishedGoodsHistoryUseCase,
+    GetFinishedGoodsSummaryUseCase,
+    FinishedGoodsDashboardUseCase,
     // Event infrastructure
     ProductionEventPublisher,
     ProductionEventListener,

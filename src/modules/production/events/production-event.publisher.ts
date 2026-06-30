@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import type {
+  FinishedGoodsAvailableEvent,
+  FinishedGoodsCreatedEvent,
+  FinishedGoodsSummaryUpdatedEvent,
   MaterialReleaseCreatedEvent,
   PackingAssemblyAddedEvent,
   PackingOrderCreatedEvent,
@@ -79,6 +82,20 @@ export class ProductionEventPublisher {
   }
 
   emitPackingPosted(event: PackingPostedEvent): void {
+    this.emitter.emit(event.event, event);
+  }
+
+  emitFinishedGoodsCreated(event: FinishedGoodsCreatedEvent): void {
+    this.emitter.emit(event.event, event);
+  }
+
+  emitFinishedGoodsAvailable(event: FinishedGoodsAvailableEvent): void {
+    this.emitter.emit(event.event, event);
+  }
+
+  emitFinishedGoodsSummaryUpdated(
+    event: FinishedGoodsSummaryUpdatedEvent,
+  ): void {
     this.emitter.emit(event.event, event);
   }
 }

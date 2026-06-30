@@ -4,10 +4,13 @@ import { LoggerService } from '../../../core/logger/logger.service';
 import { ProcessStageCompletionWipUseCase } from '../use-cases/process-stage-completion-wip/process-stage-completion-wip.use-case';
 import { ProductionEventPublisher } from './production-event.publisher';
 import {
+  FinishedGoodsAvailableEvent,
   ProductionQualityRecordedEvent,
   ProductionQualitySummaryUpdatedEvent,
 } from './production.events';
 import type {
+  FinishedGoodsCreatedEvent,
+  FinishedGoodsSummaryUpdatedEvent,
   MaterialReleaseCreatedEvent,
   PackingAssemblyAddedEvent,
   PackingOrderCreatedEvent,
@@ -157,6 +160,37 @@ export class ProductionEventListener {
   onPackingPosted(event: PackingPostedEvent): void {
     this.logger.debug(
       `[PROD-016] PackingPosted: packing=${event.packingOrderId} order=${event.productionOrderId} dozens=${event.assembledDozens}`,
+    );
+  }
+
+  @OnEvent('production.finished_goods.created')
+  onFinishedGoodsCreated(event: FinishedGoodsCreatedEvent): void {
+    this.logger.debug(
+      `[PROD-017] FinishedGoodsCreated: bag=${event.fgBagId} model=${event.modelId} customer=${event.customerId} warehouse=${event.warehouseId} dozens=${event.dozensQty}`,
+    );
+    const now = new Date();
+    this.publisher.emitFinishedGoodsAvailable(
+      new FinishedGoodsAvailableEvent(
+        event.fgBagId,
+        event.modelId,
+        event.warehouseId,
+        event.dozensQty,
+        now,
+      ),
+    );
+  }
+
+  @OnEvent('production.finished_goods.available')
+  onFinishedGoodsAvailable(event: FinishedGoodsAvailableEvent): void {
+    this.logger.debug(
+      `[PROD-018] FinishedGoodsAvailable: bag=${event.fgBagId} model=${event.modelId} warehouse=${event.warehouseId} dozens=${event.dozensQty}`,
+    );
+  }
+
+  @OnEvent('production.finished_goods.summary.updated')
+  onFinishedGoodsSummaryUpdated(event: FinishedGoodsSummaryUpdatedEvent): void {
+    this.logger.debug(
+      `[PROD-019] FinishedGoodsSummaryUpdated: model=${event.modelId}`,
     );
   }
 }

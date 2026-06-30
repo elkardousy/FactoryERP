@@ -183,3 +183,37 @@ export class PackingPostedEvent {
     public readonly occurredAt: Date,
   ) {}
 }
+
+export class FinishedGoodsCreatedEvent {
+  readonly event = 'production.finished_goods.created';
+  constructor(
+    public readonly fgBagId: string,
+    public readonly modelId: string,
+    public readonly customerId: string,
+    public readonly warehouseId: string,
+    public readonly dozensQty: number,
+    public readonly cmoLineId: string | null,
+    public readonly actorId: string,
+    public readonly occurredAt: Date,
+  ) {}
+}
+
+export class FinishedGoodsAvailableEvent {
+  readonly event = 'production.finished_goods.available';
+  constructor(
+    public readonly fgBagId: string,
+    public readonly modelId: string,
+    public readonly warehouseId: string,
+    public readonly dozensQty: number,
+    public readonly occurredAt: Date,
+  ) {}
+}
+
+export class FinishedGoodsSummaryUpdatedEvent {
+  readonly event = 'production.finished_goods.summary.updated';
+  constructor(
+    public readonly modelId: string,
+    public readonly actorId: string,
+    public readonly occurredAt: Date,
+  ) {}
+}
