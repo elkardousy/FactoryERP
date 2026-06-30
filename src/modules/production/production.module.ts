@@ -2,8 +2,10 @@ import { Module } from '@nestjs/common';
 import { InventoryModule } from '../inventory/inventory.module';
 import { ProductionController } from './controllers/production.controller';
 import { MaterialReleaseController } from './controllers/material-release.controller';
+import { ProductionStagesController } from './controllers/production-stages.controller';
 import { ProductionOrdersRepository } from './repositories/production-orders.repository';
 import { MaterialReleaseRepository } from './repositories/material-release.repository';
+import { ProductionStagesRepository } from './repositories/production-stages.repository';
 import { ProductionEventPublisher } from './events/production-event.publisher';
 import { ProductionEventListener } from './events/production-event.listener';
 import { CreateProductionOrderUseCase } from './use-cases/create-production-order/create-production-order.use-case';
@@ -17,14 +19,23 @@ import { ListProductionOrdersUseCase } from './use-cases/list-production-orders/
 import { CreateReleaseGroupUseCase } from './use-cases/create-release-group/create-release-group.use-case';
 import { GetReleaseGroupUseCase } from './use-cases/get-release-group/get-release-group.use-case';
 import { ListReleaseGroupsUseCase } from './use-cases/list-release-groups/list-release-groups.use-case';
+import { StartStageUseCase } from './use-cases/start-stage/start-stage.use-case';
+import { RecordStageOutputUseCase } from './use-cases/record-stage-output/record-stage-output.use-case';
+import { GetStageLogUseCase } from './use-cases/get-stage-log/get-stage-log.use-case';
+import { ListStageLogsUseCase } from './use-cases/list-stage-logs/list-stage-logs.use-case';
 
 @Module({
   imports: [InventoryModule],
-  controllers: [ProductionController, MaterialReleaseController],
+  controllers: [
+    ProductionController,
+    MaterialReleaseController,
+    ProductionStagesController,
+  ],
   providers: [
     // Repositories
     ProductionOrdersRepository,
     MaterialReleaseRepository,
+    ProductionStagesRepository,
     // Use Cases — Commands
     CreateProductionOrderUseCase,
     UpdateProductionOrderUseCase,
@@ -33,11 +44,15 @@ import { ListReleaseGroupsUseCase } from './use-cases/list-release-groups/list-r
     CompleteProductionOrderUseCase,
     CloseProductionOrderUseCase,
     CreateReleaseGroupUseCase,
+    StartStageUseCase,
+    RecordStageOutputUseCase,
     // Use Cases — Queries
     GetProductionOrderUseCase,
     ListProductionOrdersUseCase,
     GetReleaseGroupUseCase,
     ListReleaseGroupsUseCase,
+    GetStageLogUseCase,
+    ListStageLogsUseCase,
     // Event infrastructure
     ProductionEventPublisher,
     ProductionEventListener,

@@ -33,6 +33,34 @@ export class ProductionOrderUpdatedEvent {
   ) {}
 }
 
+export class ProductionStageStartedEvent {
+  readonly event = 'production.stage.started';
+  constructor(
+    public readonly orderId: string,
+    public readonly stageId: string,
+    public readonly logId: string,
+    public readonly inputDozens: number,
+    public readonly actorId: string,
+    public readonly occurredAt: Date,
+  ) {}
+}
+
+export class ProductionStageCompletedEvent {
+  readonly event = 'production.stage.completed';
+  constructor(
+    public readonly orderId: string,
+    public readonly stageId: string,
+    public readonly logId: string,
+    public readonly inputDozens: number,
+    public readonly outputDozens: number,
+    public readonly scrapDozens: number,
+    public readonly incompleteDozens: number,
+    public readonly isLastStage: boolean,
+    public readonly actorId: string,
+    public readonly occurredAt: Date,
+  ) {}
+}
+
 export class MaterialReleaseCreatedEvent {
   readonly event = 'production.material.release.created';
   constructor(

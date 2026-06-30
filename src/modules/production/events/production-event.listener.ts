@@ -6,6 +6,8 @@ import type {
   ProductionOrderCreatedEvent,
   ProductionOrderStatusChangedEvent,
   ProductionOrderUpdatedEvent,
+  ProductionStageCompletedEvent,
+  ProductionStageStartedEvent,
 } from './production.events';
 
 @Injectable()
@@ -35,6 +37,20 @@ export class ProductionEventListener {
   onMaterialReleased(event: MaterialReleaseCreatedEvent): void {
     this.logger.debug(
       `[PROD-004] MaterialReleased: group=${event.releaseGroupId} order=${event.orderId} groupNum=${event.groupNumber} lines=${event.linesCount}`,
+    );
+  }
+
+  @OnEvent('production.stage.started')
+  onStageStarted(event: ProductionStageStartedEvent): void {
+    this.logger.debug(
+      `[PROD-005] StageStarted: order=${event.orderId} stage=${event.stageId} log=${event.logId} input=${event.inputDozens}`,
+    );
+  }
+
+  @OnEvent('production.stage.completed')
+  onStageCompleted(event: ProductionStageCompletedEvent): void {
+    this.logger.debug(
+      `[PROD-006] StageCompleted: order=${event.orderId} stage=${event.stageId} log=${event.logId} output=${event.outputDozens} scrap=${event.scrapDozens} incomplete=${event.incompleteDozens} isLast=${event.isLastStage}`,
     );
   }
 }

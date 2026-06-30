@@ -5,6 +5,8 @@ import type {
   ProductionOrderCreatedEvent,
   ProductionOrderStatusChangedEvent,
   ProductionOrderUpdatedEvent,
+  ProductionStageCompletedEvent,
+  ProductionStageStartedEvent,
 } from './production.events';
 
 @Injectable()
@@ -24,6 +26,14 @@ export class ProductionEventPublisher {
   }
 
   emitMaterialReleased(event: MaterialReleaseCreatedEvent): void {
+    this.emitter.emit(event.event, event);
+  }
+
+  emitStageStarted(event: ProductionStageStartedEvent): void {
+    this.emitter.emit(event.event, event);
+  }
+
+  emitStageCompleted(event: ProductionStageCompletedEvent): void {
     this.emitter.emit(event.event, event);
   }
 }
