@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { LoggerService } from '../../../core/logger/logger.service';
+import { ProcessStageCompletionWipUseCase } from '../use-cases/process-stage-completion-wip/process-stage-completion-wip.use-case';
 import type {
   MaterialReleaseCreatedEvent,
   ProductionOrderCreatedEvent,
@@ -8,11 +9,15 @@ import type {
   ProductionOrderUpdatedEvent,
   ProductionStageCompletedEvent,
   ProductionStageStartedEvent,
+  ProductionWipUpdatedEvent,
 } from './production.events';
 
 @Injectable()
 export class ProductionEventListener {
-  constructor(private readonly logger: LoggerService) {}
+  constructor(
+    private readonly logger: LoggerService,
+    private readonly processWipUseCase: ProcessStageCompletionWipUseCase,
+  ) {}
 
   @OnEvent('production.order.created')
   onOrderCreated(event: ProductionOrderCreatedEvent): void {
@@ -48,9 +53,24 @@ export class ProductionEventListener {
   }
 
   @OnEvent('production.stage.completed')
-  onStageCompleted(event: ProductionStageCompletedEvent): void {
+  async onStageCompleted(event: ProductionStageCompletedEvent): Promise<void> {
     this.logger.debug(
       `[PROD-006] StageCompleted: order=${event.orderId} stage=${event.stageId} log=${event.logId} output=${event.outputDozens} scrap=${event.scrapDozens} incomplete=${event.incompleteDozens} isLast=${event.isLastStage}`,
+    );
+    try {
+      await this.processWipUseCase.execute(event);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      this.logger.error(
+        `[PROD-006] WIP update failed for order=${event.orderId} stage=${event.stageId}: ${message}`,
+      );
+    }
+  }
+
+  @OnEvent('production.wip.updated')
+  onWipUpdated(event: ProductionWipUpdatedEvent): void {
+    this.logger.debug(
+      `[PROD-007] WipUpdated: wip=${event.wipId} order=${event.orderId} part=${event.partId} dozens=${event.dozensInWip} isLast=${event.isLastStage}`,
     );
   }
 }

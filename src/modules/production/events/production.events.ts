@@ -61,6 +61,20 @@ export class ProductionStageCompletedEvent {
   ) {}
 }
 
+export class ProductionWipUpdatedEvent {
+  readonly event = 'production.wip.updated';
+  constructor(
+    public readonly wipId: string,
+    public readonly orderId: string,
+    public readonly partId: string,
+    public readonly dozensInWip: number,
+    public readonly stageId: string,
+    public readonly isLastStage: boolean,
+    public readonly actorId: string,
+    public readonly occurredAt: Date,
+  ) {}
+}
+
 export class MaterialReleaseCreatedEvent {
   readonly event = 'production.material.release.created';
   constructor(

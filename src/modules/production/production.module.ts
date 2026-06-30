@@ -3,9 +3,11 @@ import { InventoryModule } from '../inventory/inventory.module';
 import { ProductionController } from './controllers/production.controller';
 import { MaterialReleaseController } from './controllers/material-release.controller';
 import { ProductionStagesController } from './controllers/production-stages.controller';
+import { ProductionWipController } from './controllers/production-wip.controller';
 import { ProductionOrdersRepository } from './repositories/production-orders.repository';
 import { MaterialReleaseRepository } from './repositories/material-release.repository';
 import { ProductionStagesRepository } from './repositories/production-stages.repository';
+import { ProductionWipRepository } from './repositories/production-wip.repository';
 import { ProductionEventPublisher } from './events/production-event.publisher';
 import { ProductionEventListener } from './events/production-event.listener';
 import { CreateProductionOrderUseCase } from './use-cases/create-production-order/create-production-order.use-case';
@@ -23,6 +25,11 @@ import { StartStageUseCase } from './use-cases/start-stage/start-stage.use-case'
 import { RecordStageOutputUseCase } from './use-cases/record-stage-output/record-stage-output.use-case';
 import { GetStageLogUseCase } from './use-cases/get-stage-log/get-stage-log.use-case';
 import { ListStageLogsUseCase } from './use-cases/list-stage-logs/list-stage-logs.use-case';
+import { ProcessStageCompletionWipUseCase } from './use-cases/process-stage-completion-wip/process-stage-completion-wip.use-case';
+import { GetWipUseCase } from './use-cases/get-wip/get-wip.use-case';
+import { ListWipUseCase } from './use-cases/list-wip/list-wip.use-case';
+import { GetWipHistoryUseCase } from './use-cases/get-wip-history/get-wip-history.use-case';
+import { GetProductionProgressUseCase } from './use-cases/get-production-progress/get-production-progress.use-case';
 
 @Module({
   imports: [InventoryModule],
@@ -30,12 +37,14 @@ import { ListStageLogsUseCase } from './use-cases/list-stage-logs/list-stage-log
     ProductionController,
     MaterialReleaseController,
     ProductionStagesController,
+    ProductionWipController,
   ],
   providers: [
     // Repositories
     ProductionOrdersRepository,
     MaterialReleaseRepository,
     ProductionStagesRepository,
+    ProductionWipRepository,
     // Use Cases — Commands
     CreateProductionOrderUseCase,
     UpdateProductionOrderUseCase,
@@ -46,6 +55,7 @@ import { ListStageLogsUseCase } from './use-cases/list-stage-logs/list-stage-log
     CreateReleaseGroupUseCase,
     StartStageUseCase,
     RecordStageOutputUseCase,
+    ProcessStageCompletionWipUseCase,
     // Use Cases — Queries
     GetProductionOrderUseCase,
     ListProductionOrdersUseCase,
@@ -53,6 +63,10 @@ import { ListStageLogsUseCase } from './use-cases/list-stage-logs/list-stage-log
     ListReleaseGroupsUseCase,
     GetStageLogUseCase,
     ListStageLogsUseCase,
+    GetWipUseCase,
+    ListWipUseCase,
+    GetWipHistoryUseCase,
+    GetProductionProgressUseCase,
     // Event infrastructure
     ProductionEventPublisher,
     ProductionEventListener,
