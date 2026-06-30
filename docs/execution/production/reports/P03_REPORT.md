@@ -60,6 +60,36 @@ Full decisions documented in `docs/execution/production/ENGINEERING_DECISION_REP
 
 ---
 
+## Deferred Integration Points
+
+The following responsibilities are intentionally **deferred** to later Production features in accordance with the approved Production Execution Contract.
+
+These items are **not missing functionality**.
+
+They are deliberate architectural boundaries designed to preserve feature isolation and prevent cross-feature coupling.
+
+| Responsibility | Deferred To | Reason |
+|---|---|---|
+| WIP Consumption | P04 — WIP Inventory Management | P03 emits `production.stage.completed` with complete quantity data. P04 owns WIP inventory updates. |
+| Quality Output Processing | P06 — Quality Output | P03 emits `production.stage.completed` including the `isLastStage` indicator. P06 owns quality recording and inspection logic. |
+| Packing Integration | P08 — Packing Execution | Packing begins only after production completion and quality acceptance. P08 owns packing workflows and inventory transitions. |
+
+### Architectural Note
+
+P03 intentionally publishes the required production events without implementing downstream business logic.
+
+This preserves:
+
+- module boundaries
+- single responsibility
+- event-driven architecture
+- feature isolation
+- Production roadmap sequencing
+
+No downstream feature dependencies are implemented inside P03.
+
+---
+
 ## Files Delivered
 
 ### New Files

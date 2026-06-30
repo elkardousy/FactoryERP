@@ -19,7 +19,7 @@
 | P01 — Production Order Management | DONE | 335174e | 2026-06-30 | PASS | PASS | 312/312 |
 | P02 — Material Release | DONE | b104f8b | 2026-06-30 | PASS | PASS | 326/326 |
 | P03 — Production Stage Tracking | DONE | da85920 | 2026-06-30 | PASS | PASS | 346/346 |
-| P04 — WIP Inventory Management | PENDING | — | — | — | — | — |
+| P04 — WIP Inventory Management | DONE | cf3e521 | 2026-06-30 | PASS | PASS | 360/360 |
 | P05 — Scrap & Incomplete Recording | PENDING | — | — | — | — | — |
 | P06 — Quality Output | PENDING | — | — | — | — | — |
 | P07 — Return to Warehouse | PENDING | — | — | — | — | — |
@@ -28,10 +28,10 @@
 | P10 — Supplementary Material Requests | PENDING | — | — | — | — | — |
 | P11 — Production Reporting | PENDING | — | — | — | — | — |
 
-**Module Status:** IN PROGRESS (3/11 features DONE)  
+**Module Status:** IN PROGRESS (4/11 features DONE)  
 **Last Updated:** 2026-06-30  
 **Quality Gate Baseline:** Build PASS | Lint 0 | Tests 287/287  
-**Current:** Build PASS | Lint 0 | Tests 346/346
+**Current:** Build PASS | Lint 0 | Tests 360/360
 
 ---
 
@@ -143,24 +143,38 @@
 
 ### P04 — WIP Inventory Management
 
-**State:** PENDING  
+**State:** DONE  
 **Dependencies:** P03  
-**Started:** —  
-**Completed:** —  
-**Commit:** —
+**Started:** 2026-06-30  
+**Completed:** 2026-06-30  
+**Commit:** cf3e521
 
 **Files created:**
-- [ ] `src/modules/production/repositories/wip-inventory.repository.ts`
-- [ ] `src/modules/production/use-cases/update-wip-on-stage-complete/`
-- [ ] `src/modules/production/use-cases/get-wip-position/`
-- [ ] `src/modules/production/use-cases/list-wip-positions/`
+- [x] `src/modules/production/repositories/production-wip.repository.ts`
+- [x] `src/modules/production/dto/production-wip.dto.ts`
+- [x] `src/modules/production/use-cases/process-stage-completion-wip/process-stage-completion-wip.use-case.ts`
+- [x] `src/modules/production/use-cases/get-wip/get-wip.use-case.ts`
+- [x] `src/modules/production/use-cases/list-wip/list-wip.use-case.ts`
+- [x] `src/modules/production/use-cases/get-wip-history/get-wip-history.use-case.ts`
+- [x] `src/modules/production/use-cases/get-production-progress/get-production-progress.use-case.ts`
+- [x] `src/modules/production/use-cases/production-wip.use-cases.spec.ts`
+- [x] `src/modules/production/controllers/production-wip.controller.ts`
+- [x] `docs/execution/production/ENGINEERING_DECISION_REPORT_P04.md`
+
+**Files modified:**
+- [x] `src/modules/production/production.module.ts` (ProductionWipRepository + 5 use cases + controller)
+- [x] `src/modules/production/events/production.events.ts` (ProductionWipUpdatedEvent)
+- [x] `src/modules/production/events/production-event.publisher.ts` (emitWipUpdated)
+- [x] `src/modules/production/events/production-event.listener.ts` (onStageCompleted async → calls ProcessStageCompletionWipUseCase; onWipUpdated)
 
 **Gate results:**
-- C-001 Build: —
-- C-002 Lint: —
-- C-003 Tests: —
+- C-001 Build: PASS
+- C-002 Lint: PASS (0 errors)
+- C-003 Tests: 360/360 PASS (14 new)
 
-**Blockers:** None identified
+**Engineering decisions:** See `ENGINEERING_DECISION_REPORT_P04.md`  
+**Deferred:** REST command endpoints (POST /wip, PATCH /wip/:id/consume, etc.) — no wip_history/wip_transfer schema; command endpoints pending schema extension  
+**Blockers:** None
 
 ---
 
