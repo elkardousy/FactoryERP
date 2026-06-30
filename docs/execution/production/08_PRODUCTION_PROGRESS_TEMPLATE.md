@@ -17,7 +17,7 @@
 | Feature | State | Commit | Date | Gate C-001 | Gate C-002 | Gate C-003 |
 |---|---|---|---|---|---|---|
 | P01 — Production Order Management | DONE | 335174e | 2026-06-30 | PASS | PASS | 312/312 |
-| P02 — Material Release | DONE | TBD | 2026-06-30 | PASS | PASS | 326/326 |
+| P02 — Material Release | DONE | b104f8b | 2026-06-30 | PASS | PASS | 326/326 |
 | P03 — Production Stage Tracking | PENDING | — | — | — | — | — |
 | P04 — WIP Inventory Management | PENDING | — | — | — | — | — |
 | P05 — Scrap & Incomplete Recording | PENDING | — | — | — | — | — |
@@ -75,7 +75,7 @@
 **Dependencies:** P01  
 **Started:** 2026-06-30  
 **Completed:** 2026-06-30  
-**Commit:** TBD
+**Commit:** b104f8b
 
 **Files created:**
 - [x] `src/modules/production/dto/material-release.dto.ts`
