@@ -74,6 +74,9 @@ import { ListSupplementaryRequestsUseCase } from './use-cases/list-supplementary
 import { GetSupplementaryHistoryUseCase } from './use-cases/get-supplementary-history/get-supplementary-history.use-case';
 import { GetSupplementarySummaryUseCase } from './use-cases/get-supplementary-summary/get-supplementary-summary.use-case';
 import { SupplementaryDashboardUseCase } from './use-cases/supplementary-dashboard/supplementary-dashboard.use-case';
+import { ProductionReportingController } from './controllers/production-reporting.controller';
+import { ProductionReportingRepository } from './repositories/production-reporting.repository';
+import { ProductionReportingService } from './services/production-reporting.service';
 
 @Module({
   imports: [InventoryModule],
@@ -87,6 +90,7 @@ import { SupplementaryDashboardUseCase } from './use-cases/supplementary-dashboa
     ProductionPackingController,
     ProductionFinishedGoodsController,
     ProductionSupplementaryController,
+    ProductionReportingController,
   ],
   providers: [
     // Repositories
@@ -99,6 +103,8 @@ import { SupplementaryDashboardUseCase } from './use-cases/supplementary-dashboa
     ProductionPackingRepository,
     ProductionFinishedGoodsRepository,
     ProductionSupplementaryRepository,
+    ProductionReportingRepository,
+    ProductionReportingService,
     // Use Cases — Commands
     CreateProductionOrderUseCase,
     UpdateProductionOrderUseCase,
