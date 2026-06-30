@@ -21,17 +21,17 @@
 | P03 — Production Stage Tracking | DONE | da85920 | 2026-06-30 | PASS | PASS | 346/346 |
 | P04 — WIP Inventory Management | DONE | cf3e521 | 2026-06-30 | PASS | PASS | 360/360 |
 | P05 — Scrap & Incomplete Recording | PENDING | — | — | — | — | — |
-| P06 — Quality Output | PENDING | — | — | — | — | — |
-| P07 — Return to Warehouse | PENDING | — | — | — | — | — |
+| P06 — Quality Output | DONE | 0b06e55 | 2026-06-30 | PASS | PASS | 376/376 |
+| P07 — Return to Warehouse | DONE | e066a53 | 2026-06-30 | PASS | PASS | 392/392 |
 | P08 — Packing Execution | PENDING | — | — | — | — | — |
 | P09 — Finished Goods Management | PENDING | — | — | — | — | — |
 | P10 — Supplementary Material Requests | PENDING | — | — | — | — | — |
 | P11 — Production Reporting | PENDING | — | — | — | — | — |
 
-**Module Status:** IN PROGRESS (4/11 features DONE)  
+**Module Status:** IN PROGRESS (6/11 features DONE)  
 **Last Updated:** 2026-06-30  
 **Quality Gate Baseline:** Build PASS | Lint 0 | Tests 287/287  
-**Current:** Build PASS | Lint 0 | Tests 360/360
+**Current:** Build PASS | Lint 0 | Tests 392/392
 
 ---
 
@@ -224,23 +224,38 @@
 
 ### P07 — Return to Warehouse
 
-**State:** PENDING  
+**State:** DONE  
 **Dependencies:** P02  
-**Started:** —  
-**Completed:** —  
-**Commit:** —
+**Started:** 2026-06-30  
+**Completed:** 2026-06-30  
+**Commit:** e066a53
 
 **Files created:**
-- [ ] `src/modules/production/repositories/return-transactions.repository.ts`
-- [ ] `src/modules/production/use-cases/return-material/`
-- [ ] `src/modules/production/use-cases/list-returns/`
+- [x] `src/modules/production/repositories/production-returns.repository.ts`
+- [x] `src/modules/production/dto/production-returns.dto.ts`
+- [x] `src/modules/production/use-cases/create-return/create-return.use-case.ts`
+- [x] `src/modules/production/use-cases/get-return/get-return.use-case.ts`
+- [x] `src/modules/production/use-cases/list-returns/list-returns.use-case.ts`
+- [x] `src/modules/production/use-cases/get-return-history/get-return-history.use-case.ts`
+- [x] `src/modules/production/use-cases/get-return-summary/get-return-summary.use-case.ts`
+- [x] `src/modules/production/use-cases/production-returns.use-cases.spec.ts`
+- [x] `src/modules/production/controllers/production-returns.controller.ts`
+- [x] `docs/execution/production/ENGINEERING_DECISION_REPORT_P07.md`
+
+**Files modified:**
+- [x] `src/modules/production/events/production.events.ts` (ProductionMaterialReturnedEvent, ProductionReturnSummaryUpdatedEvent)
+- [x] `src/modules/production/events/production-event.publisher.ts` (emitMaterialReturned, emitReturnSummaryUpdated)
+- [x] `src/modules/production/events/production-event.listener.ts` (onMaterialReturned PROD-011, onReturnSummaryUpdated PROD-012)
+- [x] `src/modules/production/production.module.ts` (ProductionReturnsRepository + 5 use cases + controller)
 
 **Gate results:**
-- C-001 Build: —
-- C-002 Lint: —
-- C-003 Tests: —
+- C-001 Build: PASS
+- C-002 Lint: PASS (0 errors)
+- C-003 Tests: 392/392 PASS (16 new)
 
-**Blockers:** None identified
+**Engineering decisions:** See `ENGINEERING_DECISION_REPORT_P07.md`  
+**Deferred:** Bag-level return tracking (no bag_id), BR-Rt04 bag status revert, CompleteReturn lifecycle  
+**Blockers:** None
 
 ---
 
