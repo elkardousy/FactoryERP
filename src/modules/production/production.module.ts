@@ -44,6 +44,16 @@ import { GetReturnUseCase } from './use-cases/get-return/get-return.use-case';
 import { ListReturnsUseCase } from './use-cases/list-returns/list-returns.use-case';
 import { GetReturnHistoryUseCase } from './use-cases/get-return-history/get-return-history.use-case';
 import { GetReturnSummaryUseCase } from './use-cases/get-return-summary/get-return-summary.use-case';
+import { ProductionPackingController } from './controllers/production-packing.controller';
+import { ProductionPackingRepository } from './repositories/production-packing.repository';
+import { CreatePackingOrderUseCase } from './use-cases/create-packing-order/create-packing-order.use-case';
+import { AddAssemblyUseCase } from './use-cases/add-assembly/add-assembly.use-case';
+import { VerifyPackingUseCase } from './use-cases/verify-packing/verify-packing.use-case';
+import { PostPackingOrderUseCase } from './use-cases/post-packing-order/post-packing-order.use-case';
+import { GetPackingOrderUseCase } from './use-cases/get-packing-order/get-packing-order.use-case';
+import { ListPackingOrdersUseCase } from './use-cases/list-packing-orders/list-packing-orders.use-case';
+import { GetPackingHistoryUseCase } from './use-cases/get-packing-history/get-packing-history.use-case';
+import { GetPackingSummaryUseCase } from './use-cases/get-packing-summary/get-packing-summary.use-case';
 
 @Module({
   imports: [InventoryModule],
@@ -54,6 +64,7 @@ import { GetReturnSummaryUseCase } from './use-cases/get-return-summary/get-retu
     ProductionWipController,
     ProductionQualityController,
     ProductionReturnsController,
+    ProductionPackingController,
   ],
   providers: [
     // Repositories
@@ -63,6 +74,7 @@ import { GetReturnSummaryUseCase } from './use-cases/get-return-summary/get-retu
     ProductionWipRepository,
     ProductionQualityRepository,
     ProductionReturnsRepository,
+    ProductionPackingRepository,
     // Use Cases — Commands
     CreateProductionOrderUseCase,
     UpdateProductionOrderUseCase,
@@ -76,6 +88,10 @@ import { GetReturnSummaryUseCase } from './use-cases/get-return-summary/get-retu
     ProcessStageCompletionWipUseCase,
     RecordQualityOutputUseCase,
     CreateReturnUseCase,
+    CreatePackingOrderUseCase,
+    AddAssemblyUseCase,
+    VerifyPackingUseCase,
+    PostPackingOrderUseCase,
     // Use Cases — Queries
     GetProductionOrderUseCase,
     ListProductionOrdersUseCase,
@@ -95,6 +111,10 @@ import { GetReturnSummaryUseCase } from './use-cases/get-return-summary/get-retu
     ListReturnsUseCase,
     GetReturnHistoryUseCase,
     GetReturnSummaryUseCase,
+    GetPackingOrderUseCase,
+    ListPackingOrdersUseCase,
+    GetPackingHistoryUseCase,
+    GetPackingSummaryUseCase,
     // Event infrastructure
     ProductionEventPublisher,
     ProductionEventListener,

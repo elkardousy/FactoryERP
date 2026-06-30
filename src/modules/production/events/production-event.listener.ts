@@ -9,6 +9,10 @@ import {
 } from './production.events';
 import type {
   MaterialReleaseCreatedEvent,
+  PackingAssemblyAddedEvent,
+  PackingOrderCreatedEvent,
+  PackingPostedEvent,
+  PackingVerifiedEvent,
   ProductionMaterialReturnedEvent,
   ProductionOrderCreatedEvent,
   ProductionOrderStatusChangedEvent,
@@ -125,6 +129,34 @@ export class ProductionEventListener {
   onReturnSummaryUpdated(event: ProductionReturnSummaryUpdatedEvent): void {
     this.logger.debug(
       `[PROD-012] ReturnSummaryUpdated: order=${event.orderId}`,
+    );
+  }
+
+  @OnEvent('production.packing.created')
+  onPackingOrderCreated(event: PackingOrderCreatedEvent): void {
+    this.logger.debug(
+      `[PROD-013] PackingOrderCreated: packing=${event.packingOrderId} no=${event.packingOrderNo} order=${event.productionOrderId} pattern=${event.patternId} target=${event.targetDozens}`,
+    );
+  }
+
+  @OnEvent('production.packing.assembly.added')
+  onPackingAssemblyAdded(event: PackingAssemblyAddedEvent): void {
+    this.logger.debug(
+      `[PROD-014] PackingAssemblyAdded: packing=${event.packingOrderId} assembly=${event.assemblyId} seq=${event.assemblySequence} dozens=${event.dozensAssembled} total=${event.assembledDozensTotal}`,
+    );
+  }
+
+  @OnEvent('production.packing.verified')
+  onPackingVerified(event: PackingVerifiedEvent): void {
+    this.logger.debug(
+      `[PROD-015] PackingVerified: packing=${event.packingOrderId} system=${event.systemDozens} physical=${event.physicalCountDozens} accepted=${event.varianceAccepted}`,
+    );
+  }
+
+  @OnEvent('production.packing.posted')
+  onPackingPosted(event: PackingPostedEvent): void {
+    this.logger.debug(
+      `[PROD-016] PackingPosted: packing=${event.packingOrderId} order=${event.productionOrderId} dozens=${event.assembledDozens}`,
     );
   }
 }

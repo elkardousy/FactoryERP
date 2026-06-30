@@ -134,3 +134,52 @@ export class ProductionReturnSummaryUpdatedEvent {
     public readonly occurredAt: Date,
   ) {}
 }
+
+export class PackingOrderCreatedEvent {
+  readonly event = 'production.packing.created';
+  constructor(
+    public readonly packingOrderId: string,
+    public readonly packingOrderNo: string,
+    public readonly productionOrderId: string,
+    public readonly patternId: string,
+    public readonly targetDozens: number,
+    public readonly actorId: string,
+    public readonly occurredAt: Date,
+  ) {}
+}
+
+export class PackingAssemblyAddedEvent {
+  readonly event = 'production.packing.assembly.added';
+  constructor(
+    public readonly packingOrderId: string,
+    public readonly assemblyId: string,
+    public readonly assemblySequence: number,
+    public readonly dozensAssembled: number,
+    public readonly assembledDozensTotal: number,
+    public readonly actorId: string,
+    public readonly occurredAt: Date,
+  ) {}
+}
+
+export class PackingVerifiedEvent {
+  readonly event = 'production.packing.verified';
+  constructor(
+    public readonly packingOrderId: string,
+    public readonly systemDozens: number,
+    public readonly physicalCountDozens: number,
+    public readonly varianceAccepted: boolean,
+    public readonly actorId: string,
+    public readonly occurredAt: Date,
+  ) {}
+}
+
+export class PackingPostedEvent {
+  readonly event = 'production.packing.posted';
+  constructor(
+    public readonly packingOrderId: string,
+    public readonly productionOrderId: string,
+    public readonly assembledDozens: number,
+    public readonly actorId: string,
+    public readonly occurredAt: Date,
+  ) {}
+}
