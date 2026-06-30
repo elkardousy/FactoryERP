@@ -62,6 +62,18 @@ import { ListFinishedGoodsUseCase } from './use-cases/list-finished-goods/list-f
 import { GetFinishedGoodsHistoryUseCase } from './use-cases/get-finished-goods-history/get-finished-goods-history.use-case';
 import { GetFinishedGoodsSummaryUseCase } from './use-cases/get-finished-goods-summary/get-finished-goods-summary.use-case';
 import { FinishedGoodsDashboardUseCase } from './use-cases/finished-goods-dashboard/finished-goods-dashboard.use-case';
+import { ProductionSupplementaryController } from './controllers/production-supplementary.controller';
+import { ProductionSupplementaryRepository } from './repositories/production-supplementary.repository';
+import { CreateSupplementaryRequestUseCase } from './use-cases/create-supplementary-request/create-supplementary-request.use-case';
+import { ApproveSupplementaryRequestUseCase } from './use-cases/approve-supplementary-request/approve-supplementary-request.use-case';
+import { RejectSupplementaryRequestUseCase } from './use-cases/reject-supplementary-request/reject-supplementary-request.use-case';
+import { CancelSupplementaryRequestUseCase } from './use-cases/cancel-supplementary-request/cancel-supplementary-request.use-case';
+import { TransferSupplementaryMaterialUseCase } from './use-cases/transfer-supplementary-material/transfer-supplementary-material.use-case';
+import { GetSupplementaryRequestUseCase } from './use-cases/get-supplementary-request/get-supplementary-request.use-case';
+import { ListSupplementaryRequestsUseCase } from './use-cases/list-supplementary-requests/list-supplementary-requests.use-case';
+import { GetSupplementaryHistoryUseCase } from './use-cases/get-supplementary-history/get-supplementary-history.use-case';
+import { GetSupplementarySummaryUseCase } from './use-cases/get-supplementary-summary/get-supplementary-summary.use-case';
+import { SupplementaryDashboardUseCase } from './use-cases/supplementary-dashboard/supplementary-dashboard.use-case';
 
 @Module({
   imports: [InventoryModule],
@@ -74,6 +86,7 @@ import { FinishedGoodsDashboardUseCase } from './use-cases/finished-goods-dashbo
     ProductionReturnsController,
     ProductionPackingController,
     ProductionFinishedGoodsController,
+    ProductionSupplementaryController,
   ],
   providers: [
     // Repositories
@@ -85,6 +98,7 @@ import { FinishedGoodsDashboardUseCase } from './use-cases/finished-goods-dashbo
     ProductionReturnsRepository,
     ProductionPackingRepository,
     ProductionFinishedGoodsRepository,
+    ProductionSupplementaryRepository,
     // Use Cases — Commands
     CreateProductionOrderUseCase,
     UpdateProductionOrderUseCase,
@@ -103,6 +117,11 @@ import { FinishedGoodsDashboardUseCase } from './use-cases/finished-goods-dashbo
     VerifyPackingUseCase,
     PostPackingOrderUseCase,
     CreateFinishedGoodsUseCase,
+    CreateSupplementaryRequestUseCase,
+    ApproveSupplementaryRequestUseCase,
+    RejectSupplementaryRequestUseCase,
+    CancelSupplementaryRequestUseCase,
+    TransferSupplementaryMaterialUseCase,
     // Use Cases — Queries
     GetProductionOrderUseCase,
     ListProductionOrdersUseCase,
@@ -131,6 +150,11 @@ import { FinishedGoodsDashboardUseCase } from './use-cases/finished-goods-dashbo
     GetFinishedGoodsHistoryUseCase,
     GetFinishedGoodsSummaryUseCase,
     FinishedGoodsDashboardUseCase,
+    GetSupplementaryRequestUseCase,
+    ListSupplementaryRequestsUseCase,
+    GetSupplementaryHistoryUseCase,
+    GetSupplementarySummaryUseCase,
+    SupplementaryDashboardUseCase,
     // Event infrastructure
     ProductionEventPublisher,
     ProductionEventListener,

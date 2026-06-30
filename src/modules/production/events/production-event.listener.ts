@@ -7,6 +7,7 @@ import {
   FinishedGoodsAvailableEvent,
   ProductionQualityRecordedEvent,
   ProductionQualitySummaryUpdatedEvent,
+  SupplementaryCompletedEvent,
 } from './production.events';
 import type {
   FinishedGoodsCreatedEvent,
@@ -24,6 +25,11 @@ import type {
   ProductionStageCompletedEvent,
   ProductionStageStartedEvent,
   ProductionWipUpdatedEvent,
+  SupplementaryApprovedEvent,
+  SupplementaryRejectedEvent,
+  SupplementaryRequestedEvent,
+  SupplementarySummaryUpdatedEvent,
+  SupplementaryTransferredEvent,
 } from './production.events';
 
 @Injectable()
@@ -191,6 +197,57 @@ export class ProductionEventListener {
   onFinishedGoodsSummaryUpdated(event: FinishedGoodsSummaryUpdatedEvent): void {
     this.logger.debug(
       `[PROD-019] FinishedGoodsSummaryUpdated: model=${event.modelId}`,
+    );
+  }
+
+  @OnEvent('production.supplementary.requested')
+  onSupplementaryRequested(event: SupplementaryRequestedEvent): void {
+    this.logger.debug(
+      `[PROD-020] SupplementaryRequested: request=${event.requestId} no=${event.requestNumber} order=${event.orderId} reason=${event.reasonType} lines=${event.linesCount}`,
+    );
+  }
+
+  @OnEvent('production.supplementary.approved')
+  onSupplementaryApproved(event: SupplementaryApprovedEvent): void {
+    this.logger.debug(
+      `[PROD-021] SupplementaryApproved: request=${event.requestId} no=${event.requestNumber}`,
+    );
+  }
+
+  @OnEvent('production.supplementary.rejected')
+  onSupplementaryRejected(event: SupplementaryRejectedEvent): void {
+    this.logger.debug(
+      `[PROD-022] SupplementaryRejected: request=${event.requestId} no=${event.requestNumber}`,
+    );
+  }
+
+  @OnEvent('production.supplementary.transferred')
+  onSupplementaryTransferred(event: SupplementaryTransferredEvent): void {
+    this.logger.debug(
+      `[PROD-023] SupplementaryTransferred: request=${event.requestId} no=${event.requestNumber} lines=${event.linesCount}`,
+    );
+    // ED-P10-002: emit completed event after transfer — TRANSFERRED = complete
+    const now = new Date();
+    this.publisher.emitSupplementaryCompleted(
+      new SupplementaryCompletedEvent(
+        event.requestId,
+        event.requestNumber,
+        now,
+      ),
+    );
+  }
+
+  @OnEvent('production.supplementary.completed')
+  onSupplementaryCompleted(event: SupplementaryCompletedEvent): void {
+    this.logger.debug(
+      `[PROD-024] SupplementaryCompleted: request=${event.requestId} no=${event.requestNumber}`,
+    );
+  }
+
+  @OnEvent('production.supplementary.summary.updated')
+  onSupplementarySummaryUpdated(event: SupplementarySummaryUpdatedEvent): void {
+    this.logger.debug(
+      `[PROD-025] SupplementarySummaryUpdated: order=${event.orderId}`,
     );
   }
 }

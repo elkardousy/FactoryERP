@@ -19,6 +19,12 @@ import type {
   ProductionStageCompletedEvent,
   ProductionStageStartedEvent,
   ProductionWipUpdatedEvent,
+  SupplementaryApprovedEvent,
+  SupplementaryCompletedEvent,
+  SupplementaryRejectedEvent,
+  SupplementaryRequestedEvent,
+  SupplementarySummaryUpdatedEvent,
+  SupplementaryTransferredEvent,
 } from './production.events';
 
 @Injectable()
@@ -95,6 +101,32 @@ export class ProductionEventPublisher {
 
   emitFinishedGoodsSummaryUpdated(
     event: FinishedGoodsSummaryUpdatedEvent,
+  ): void {
+    this.emitter.emit(event.event, event);
+  }
+
+  emitSupplementaryRequested(event: SupplementaryRequestedEvent): void {
+    this.emitter.emit(event.event, event);
+  }
+
+  emitSupplementaryApproved(event: SupplementaryApprovedEvent): void {
+    this.emitter.emit(event.event, event);
+  }
+
+  emitSupplementaryRejected(event: SupplementaryRejectedEvent): void {
+    this.emitter.emit(event.event, event);
+  }
+
+  emitSupplementaryTransferred(event: SupplementaryTransferredEvent): void {
+    this.emitter.emit(event.event, event);
+  }
+
+  emitSupplementaryCompleted(event: SupplementaryCompletedEvent): void {
+    this.emitter.emit(event.event, event);
+  }
+
+  emitSupplementarySummaryUpdated(
+    event: SupplementarySummaryUpdatedEvent,
   ): void {
     this.emitter.emit(event.event, event);
   }

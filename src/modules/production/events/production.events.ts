@@ -217,3 +217,65 @@ export class FinishedGoodsSummaryUpdatedEvent {
     public readonly occurredAt: Date,
   ) {}
 }
+
+export class SupplementaryRequestedEvent {
+  readonly event = 'production.supplementary.requested';
+  constructor(
+    public readonly requestId: string,
+    public readonly requestNumber: string,
+    public readonly orderId: string,
+    public readonly reasonType: string,
+    public readonly linesCount: number,
+    public readonly actorId: string,
+    public readonly occurredAt: Date,
+  ) {}
+}
+
+export class SupplementaryApprovedEvent {
+  readonly event = 'production.supplementary.approved';
+  constructor(
+    public readonly requestId: string,
+    public readonly requestNumber: string,
+    public readonly actorId: string,
+    public readonly occurredAt: Date,
+  ) {}
+}
+
+export class SupplementaryRejectedEvent {
+  readonly event = 'production.supplementary.rejected';
+  constructor(
+    public readonly requestId: string,
+    public readonly requestNumber: string,
+    public readonly actorId: string,
+    public readonly occurredAt: Date,
+  ) {}
+}
+
+export class SupplementaryTransferredEvent {
+  readonly event = 'production.supplementary.transferred';
+  constructor(
+    public readonly requestId: string,
+    public readonly requestNumber: string,
+    public readonly linesCount: number,
+    public readonly actorId: string,
+    public readonly occurredAt: Date,
+  ) {}
+}
+
+export class SupplementaryCompletedEvent {
+  readonly event = 'production.supplementary.completed';
+  constructor(
+    public readonly requestId: string,
+    public readonly requestNumber: string,
+    public readonly occurredAt: Date,
+  ) {}
+}
+
+export class SupplementarySummaryUpdatedEvent {
+  readonly event = 'production.supplementary.summary.updated';
+  constructor(
+    public readonly orderId: string,
+    public readonly actorId: string,
+    public readonly occurredAt: Date,
+  ) {}
+}
