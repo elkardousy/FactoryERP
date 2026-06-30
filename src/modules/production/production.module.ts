@@ -37,6 +37,13 @@ import { GetQualityBoxUseCase } from './use-cases/get-quality-box/get-quality-bo
 import { ListQualityBoxesUseCase } from './use-cases/list-quality-boxes/list-quality-boxes.use-case';
 import { GetQualitySummaryUseCase } from './use-cases/get-quality-summary/get-quality-summary.use-case';
 import { GetQualityHistoryUseCase } from './use-cases/get-quality-history/get-quality-history.use-case';
+import { ProductionReturnsController } from './controllers/production-returns.controller';
+import { ProductionReturnsRepository } from './repositories/production-returns.repository';
+import { CreateReturnUseCase } from './use-cases/create-return/create-return.use-case';
+import { GetReturnUseCase } from './use-cases/get-return/get-return.use-case';
+import { ListReturnsUseCase } from './use-cases/list-returns/list-returns.use-case';
+import { GetReturnHistoryUseCase } from './use-cases/get-return-history/get-return-history.use-case';
+import { GetReturnSummaryUseCase } from './use-cases/get-return-summary/get-return-summary.use-case';
 
 @Module({
   imports: [InventoryModule],
@@ -46,6 +53,7 @@ import { GetQualityHistoryUseCase } from './use-cases/get-quality-history/get-qu
     ProductionStagesController,
     ProductionWipController,
     ProductionQualityController,
+    ProductionReturnsController,
   ],
   providers: [
     // Repositories
@@ -54,6 +62,7 @@ import { GetQualityHistoryUseCase } from './use-cases/get-quality-history/get-qu
     ProductionStagesRepository,
     ProductionWipRepository,
     ProductionQualityRepository,
+    ProductionReturnsRepository,
     // Use Cases — Commands
     CreateProductionOrderUseCase,
     UpdateProductionOrderUseCase,
@@ -66,6 +75,7 @@ import { GetQualityHistoryUseCase } from './use-cases/get-quality-history/get-qu
     RecordStageOutputUseCase,
     ProcessStageCompletionWipUseCase,
     RecordQualityOutputUseCase,
+    CreateReturnUseCase,
     // Use Cases — Queries
     GetProductionOrderUseCase,
     ListProductionOrdersUseCase,
@@ -81,6 +91,10 @@ import { GetQualityHistoryUseCase } from './use-cases/get-quality-history/get-qu
     ListQualityBoxesUseCase,
     GetQualitySummaryUseCase,
     GetQualityHistoryUseCase,
+    GetReturnUseCase,
+    ListReturnsUseCase,
+    GetReturnHistoryUseCase,
+    GetReturnSummaryUseCase,
     // Event infrastructure
     ProductionEventPublisher,
     ProductionEventListener,

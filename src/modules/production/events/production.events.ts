@@ -110,3 +110,27 @@ export class MaterialReleaseCreatedEvent {
     public readonly occurredAt: Date,
   ) {}
 }
+
+export class ProductionMaterialReturnedEvent {
+  readonly event = 'production.material.returned';
+  constructor(
+    public readonly returnId: string,
+    public readonly orderId: string,
+    public readonly partId: string,
+    public readonly destinationWarehouseId: string,
+    public readonly dozensReturned: number,
+    public readonly wipRemaining: number,
+    public readonly partStatusUpdated: boolean,
+    public readonly actorId: string,
+    public readonly occurredAt: Date,
+  ) {}
+}
+
+export class ProductionReturnSummaryUpdatedEvent {
+  readonly event = 'production.return.summary.updated';
+  constructor(
+    public readonly orderId: string,
+    public readonly actorId: string,
+    public readonly occurredAt: Date,
+  ) {}
+}

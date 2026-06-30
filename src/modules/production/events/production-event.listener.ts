@@ -9,9 +9,11 @@ import {
 } from './production.events';
 import type {
   MaterialReleaseCreatedEvent,
+  ProductionMaterialReturnedEvent,
   ProductionOrderCreatedEvent,
   ProductionOrderStatusChangedEvent,
   ProductionOrderUpdatedEvent,
+  ProductionReturnSummaryUpdatedEvent,
   ProductionStageCompletedEvent,
   ProductionStageStartedEvent,
   ProductionWipUpdatedEvent,
@@ -109,6 +111,20 @@ export class ProductionEventListener {
   onQualitySummaryUpdated(event: ProductionQualitySummaryUpdatedEvent): void {
     this.logger.debug(
       `[PROD-010] QualitySummaryUpdated: order=${event.orderId}`,
+    );
+  }
+
+  @OnEvent('production.material.returned')
+  onMaterialReturned(event: ProductionMaterialReturnedEvent): void {
+    this.logger.debug(
+      `[PROD-011] MaterialReturned: return=${event.returnId} order=${event.orderId} part=${event.partId} warehouse=${event.destinationWarehouseId} dozens=${event.dozensReturned} wipRemaining=${event.wipRemaining} partStatusUpdated=${event.partStatusUpdated}`,
+    );
+  }
+
+  @OnEvent('production.return.summary.updated')
+  onReturnSummaryUpdated(event: ProductionReturnSummaryUpdatedEvent): void {
+    this.logger.debug(
+      `[PROD-012] ReturnSummaryUpdated: order=${event.orderId}`,
     );
   }
 }
