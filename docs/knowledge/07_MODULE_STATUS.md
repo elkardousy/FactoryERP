@@ -1,7 +1,7 @@
 # 07 — Module Status
 
-**Generated:** 2026-06-29  
-**Commit:** 5a5e3d6
+**Generated:** 2026-06-29 — **Updated:** 2026-07-01 (Production Module COMPLETE)  
+**Commit:** 338869c (Production Module Final)
 
 ---
 
@@ -19,6 +19,7 @@
 | `suppliers` | COMPLETE | 1 | 1 | CRUD + soft-delete | 1 spec file |
 | `warehouses` | COMPLETE | 1 | 1 | CRUD + soft-delete | 1 spec file |
 | `inventory` | COMPLETE | 1 | 5 | 16 (8 txn + 8 rsv) | 2 spec files |
+| `production` | **COMPLETE** | **10** | **10** | **55 (22 cmd + 33 qry)** | **10 spec files** |
 
 ---
 
@@ -169,24 +170,49 @@ These are known technical debt items and do not affect functionality.
 
 ---
 
+## Production Module Detail
+
+**Path:** `src/modules/production/`  
+**Status:** COMPLETE (2026-07-01)  
+**Commit:** 338869c  
+**Tests:** 482/482
+
+The Production Module implements the end-to-end garment manufacturing execution system. 11 features (P01–P11) across 2 calendar days.
+
+| Sub-Feature | Controllers | Repositories | Use Cases |
+|---|---|---|---|
+| P01 — Order Management | `ProductionController` | `ProductionOrdersRepository` | 8 |
+| P02 — Material Release | `MaterialReleaseController` | `MaterialReleaseRepository` | 3 |
+| P03 — Stage Tracking | `ProductionStagesController` | `ProductionStagesRepository` | 4 |
+| P04 — WIP Management | `ProductionWipController` | `ProductionWipRepository` | 5 |
+| P05 — Scrap Recording | (absorbed into P03) | (absorbed into P03) | — |
+| P06 — Quality Output | `ProductionQualityController` | `ProductionQualityRepository` | 5 |
+| P07 — Returns | `ProductionReturnsController` | `ProductionReturnsRepository` | 5 |
+| P08 — Packing | `ProductionPackingController` | `ProductionPackingRepository` | 8 |
+| P09 — Finished Goods | `ProductionFinishedGoodsController` | `ProductionFinishedGoodsRepository` | 6 |
+| P10 — Supplementary | `ProductionSupplementaryController` | `ProductionSupplementaryRepository` | 10 |
+| P11 — Reporting | `ProductionReportingController` | `ProductionReportingRepository` | — (service pattern) |
+
+**Events:** 25 domain events (PROD-001 through PROD-025)  
+**REST Endpoints:** 77 total (65 operational + 12 reporting)
+
+---
+
 ## Modules NOT Yet Implemented (Schema-Only)
 
 These domains exist in the Prisma schema but have NO NestJS module:
 
 | Domain | Schema Tables | Status |
 |--------|--------------|--------|
-| Production Orders | `production_orders`, `production_order_parts`, `release_groups`, etc. | No module |
-| WIP / Stage Tracking | `production_stage_logs`, `scrap_records`, `wip_inventory` | No module |
-| Packing | `packing_orders`, `dozen_assemblies`, `packing_verifications` | No module |
 | Container Receiving | `containers`, `packaging_list_items`, `receiving_audit_items` | No module |
 | CMO | `customer_manufacturing_orders`, `customer_manufacturing_order_lines` | No module |
 | Shipping | `shipping_orders`, `delivery_notes`, `proof_of_delivery` | No module |
 | Employees / HR | `employees`, `employee_attendance` | No module |
 | Machines | `machines`, `machine_assignments`, `machine_downtime_events` | No module |
 | Workflow | `workflow_templates`, `workflow_instances` | No module |
-| Supplementary | `supplementary_material_requests` | No module |
 | Investigations | `inventory_investigations` | No module |
 | Physical Bag Operations | `physical_bags` (full lifecycle ops) | Partial — inventory module has read-only access |
-| Finished Goods | `finished_goods_bags` | No module |
 
-**Summary:** ~13 major business domains exist in the schema but have no NestJS module.
+**Production-related tables now covered:** `production_orders`, `production_order_parts`, `release_groups`, `release_group_lines`, `production_stage_logs`, `scrap_records`, `incomplete_item_records`, `wip_inventory`, `quality_output_boxes`, `return_transactions`, `packing_orders`, `dozen_assemblies`, `dozen_assembly_lines`, `packing_verifications`, `finished_goods_bags`, `supplementary_material_requests`, `supplementary_request_lines`, `supplementary_request_negligence`
+
+**Summary:** ~8 major business domains remain schema-only after Production Module completion.
