@@ -251,3 +251,68 @@ Per FEOS-11 (Module Governance):
 ## 11. Final Acceptance Gate
 
 See `10_PRODUCTION_FINAL_ACCEPTANCE.md` for the complete sign-off checklist. The Production Module is not shipped until that document is fully checked.
+
+---
+
+## 12. Commit Policy
+
+### Purpose
+
+The commit policy exists to prevent two failure modes:
+
+1. **Fragmented implementation** — spreading a single feature across multiple commits, making it impossible to audit gate compliance per feature.
+2. **Post-feature fix commits** — committing before gates pass, then patching failures in subsequent commits. This hides quality regressions and voids the gate guarantees.
+
+A passing implementation commit means all four quality gates (C-001, C-002, C-003, Prisma) passed simultaneously before `git commit` was executed.
+
+### Rule 1 — One Implementation Commit Per Feature
+
+Every feature (P01–P11) MUST produce exactly one implementation commit.
+
+The implementation commit is the only commit permitted to contain:
+
+- source code
+- tests
+- Prisma schema changes
+- SQL migrations
+- configuration changes
+- API changes
+- business logic
+
+All quality gates MUST pass before the implementation commit is created. Creating the commit and then fixing lint or build errors in a follow-up commit is a violation of this rule.
+
+### Rule 2 — One Optional Documentation Commit Per Feature
+
+After the implementation commit, one optional documentation-only commit is permitted exclusively for:
+
+- progress tracker updates (`08_PRODUCTION_PROGRESS_TEMPLATE.md`)
+- feature log updates
+- commit hash backfill in tracking files
+- final feature report creation or updates
+- execution tracking records
+
+The documentation commit MUST NOT modify:
+
+- source code
+- tests
+- Prisma schema
+- SQL migrations
+- configuration files
+- API definitions
+- business logic
+
+If the documentation commit contains any of the above, it is not a documentation commit — it is an illegal fix commit.
+
+### Rule 3 — No Third Commit
+
+No feature may produce more than two commits (one implementation + one optional documentation).
+
+Any additional commit requires an explicit written justification recorded inside the feature report under a `## Commit Exceptions` section, referencing the specific circumstance that required it.
+
+### Summary
+
+| Commit | Permitted Contents | Allowed |
+|---|---|---|
+| Implementation commit | Source, tests, migrations, config, APIs | Required (exactly 1) |
+| Documentation commit | Tracking docs, reports, hash backfill | Optional (at most 1) |
+| Any third commit | Anything | PROHIBITED unless justified in feature report |
