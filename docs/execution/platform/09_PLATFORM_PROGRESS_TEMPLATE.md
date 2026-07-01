@@ -23,15 +23,15 @@
 | Metric | Value |
 |---|---|
 | Phase | 4.5 — Cross-Platform Development Environment |
-| Start Date | TBD (pending authorization) |
+| Start Date | 2026-07-01 |
 | Target Completion | TBD |
 | Features Total | 10 |
-| Features DONE | 0 |
+| Features DONE | 1 |
 | Features IN PROGRESS | 0 |
-| Features PENDING | 10 |
+| Features PENDING | 9 |
 | Blocking Issues | 0 |
-| Quality Gate | NOT YET RUN |
-| Current Commit | d8b5b4b (MMCC closure) |
+| Quality Gate | PASS (build/lint/test/prisma) |
+| Current Commit | fd04f2a (F01 — Node Version Pinning) |
 
 ---
 
@@ -208,22 +208,24 @@
 
 | Field | Value |
 |---|---|
-| **Status** | PENDING |
-| **Owner** | — |
+| **Status** | DONE |
+| **Owner** | Chief Platform Engineer |
 | **Specification** | 05_BOOTSTRAP_AND_TOOLCHAIN_SPECIFICATION.md §3 |
-| **Commit** | — |
-| **Started** | — |
-| **Completed** | — |
+| **Commit** | fd04f2a |
+| **Started** | 2026-07-01 |
+| **Completed** | 2026-07-01 |
 
 **Quality Gates:**
-- [ ] `.nvmrc` committed at repository root with content `24.16.0`
-- [ ] `package.json` `engines.node` = `>=24.0.0 <25.0.0`
-- [ ] CI uses `node-version-file: '.nvmrc'` in `actions/setup-node`
-- [ ] Doctor script verifies Node version against `.nvmrc`
+- [x] `.nvmrc` committed at repository root with content `24.16.0`
+- [x] `package.json` `engines.node` = `>=24.0.0 <25.0.0`
+- [ ] CI uses `node-version-file: '.nvmrc'` in `actions/setup-node` — (F07 CI pipeline; not yet implemented)
+- [ ] Doctor script verifies Node version against `.nvmrc` — (F05 bootstrap scripts; not yet implemented)
 
 **Open Issues:** None
 
 **Deferred Items:** None
+
+**Report:** [F01_REPORT.md](reports/F01_REPORT.md)
 
 ---
 
