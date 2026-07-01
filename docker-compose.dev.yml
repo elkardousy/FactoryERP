@@ -1,0 +1,84 @@
+services:
+  # ─── PostgreSQL (primary infrastructure — always started) ────────────────────
+  db:
+    image: postgres:16.4-alpine
+    container_name: factory-erp-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-factory_dev}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-factory_erp}
+    ports:
+      - "5432:5432"
+    volumes:
+      - factory-postgres-data:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-factory_dev} -d ${POSTGRES_DB:-factory_erp}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - factory-dev-network
+
+  # ─── PgAdmin (optional — start with: docker compose -f docker-compose.dev.yml --profile tools up -d) ──
+  pgadmin:
+    image: dpage/pgadmin4:8.14
+    container_name: factory-erp-pgadmin
+    restart: unless-stopped
+    profiles:
+      - tools
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@factory.local}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    ports:
+      - "5050:80"
+    volumes:
+      - factory-pgadmin-data:/var/lib/pgadmin
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - factory-dev-network
+
+  # ─── Redis (reserved — start with: docker compose -f docker-compose.dev.yml --profile cache up -d) ────
+  redis:
+    image: redis:7.4-alpine
+    container_name: factory-erp-redis
+    restart: unless-stopped
+    profiles:
+      - cache
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - factory-dev-network
+
+  # ─── MailHog (reserved — start with: docker compose -f docker-compose.dev.yml --profile mail up -d) ───
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    container_name: factory-erp-mailhog
+    restart: unless-stopped
+    profiles:
+      - mail
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    networks:
+      - factory-dev-network
+
+# ─── Named Volumes ─────────────────────────────────────────────────────────────
+volumes:
+  factory-postgres-data:
+  factory-pgadmin-data:
+
+# ─── Networks ──────────────────────────────────────────────────────────────────
+networks:
+  factory-dev-network:
+    driver: bridge
