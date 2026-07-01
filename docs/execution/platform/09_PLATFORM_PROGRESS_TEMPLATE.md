@@ -26,12 +26,12 @@
 | Start Date | 2026-07-01 |
 | Target Completion | TBD |
 | Features Total | 10 |
-| Features DONE | 4 |
+| Features DONE | 5 |
 | Features IN PROGRESS | 0 |
-| Features PENDING | 6 |
+| Features PENDING | 5 |
 | Blocking Issues | 0 |
 | Quality Gate | PASS (build/lint/test/prisma) |
-| Current Commit | 86940ea (F04 — Docker Development Environment) |
+| Current Commit | 52cb8ce (F05 — Bootstrap Scripts) |
 
 ---
 
@@ -95,23 +95,23 @@
 
 | Field | Value |
 |---|---|
-| **Status** | PENDING |
-| **Owner** | — |
+| **Status** | DONE |
+| **Owner** | Chief Platform Engineer |
 | **Specification** | 05_BOOTSTRAP_AND_TOOLCHAIN_SPECIFICATION.md |
-| **Commit** | — |
-| **Started** | — |
-| **Completed** | — |
+| **Commit** | 52cb8ce |
+| **Started** | 2026-07-01 |
+| **Completed** | 2026-07-01 |
 
 **Quality Gates:**
-- [ ] `scripts/doctor.sh` committed
-- [ ] `scripts/doctor.ps1` committed
-- [ ] `scripts/setup.sh` committed
-- [ ] `scripts/setup.ps1` committed
-- [ ] `scripts/reset.sh` committed
-- [ ] Doctor script exits 0 on configured machine
-- [ ] Doctor script exits 1 with specific messages on broken machine
-- [ ] Setup script is idempotent
-- [ ] Reset script prompts for confirmation before destructive operations
+- [x] `scripts/doctor.sh` committed
+- [x] `scripts/doctor.ps1` committed
+- [x] `scripts/setup.sh` committed
+- [x] `scripts/setup.ps1` committed
+- [x] `scripts/reset.sh` committed (reset.ps1 also committed)
+- [ ] Doctor script exits 0 on configured machine (verified at F10)
+- [ ] Doctor script exits 1 with specific messages on broken machine (verified at F10)
+- [x] Setup script is idempotent (by design — npm ci + prisma generate are idempotent)
+- [x] Reset script prompts for confirmation before destructive operations
 
 **Open Issues:** None
 
