@@ -2549,3 +2549,1572 @@ npx prisma validate → PASS
 | F10 | Chief Software Architect + QA Director (formal sign-off on `10_PLATFORM_FINAL_ACCEPTANCE.md`) |
 
 Platform engineer self-certification is governed by the completion requirements in this section. Falsifying a quality gate result or marking a feature DONE while gates fail is a governance violation of the highest severity.
+
+---
+
+---
+
+# Part 3 — Execution Orchestration, Final Acceptance & Platform Closure
+
+---
+
+## Section 26: Execution Orchestration
+
+### 26.1 Purpose
+
+Part 3 transforms the PMIC from a standards document into an active execution authority. The sections that follow govern every aspect of Phase 4.5 from the first moment of F02 preparation through the final Platform Closure event. This document is the single authoritative reference for execution decisions during that period.
+
+The execution orchestration defined here is designed to function with minimal human intervention on the transition path between features. It maximizes forward momentum while maintaining the invariants established in Parts 1 and 2.
+
+### 26.2 Execution Lifecycle
+
+The Phase 4.5 execution lifecycle has six phases:
+
+| Phase | Name | Entry Condition | Exit Condition |
+|---|---|---|---|
+| L-1 | Initialized | PMIC Part 3 committed | F02 preparation begins |
+| L-2 | Active Execution | F02 started | F09 complete |
+| L-3 | Final Validation | F10 started | F10 complete |
+| L-4 | Certification | F10 complete | Repository Certification issued |
+| L-5 | Acceptance | Certification issued | Final Acceptance signed |
+| L-6 | Closed | Final Acceptance signed | Archive complete |
+
+The lifecycle is strictly sequential. No phase may be entered before its entry condition is satisfied. No phase may be exited until its exit condition is met.
+
+### 26.3 Execution State Machine
+
+At any moment, Phase 4.5 execution is in exactly one of the following states:
+
+| State | Code | Description |
+|---|---|---|
+| ACTIVE | ACT | A feature is IN PROGRESS; no stop condition active |
+| PAUSED | PAU | Stop condition active; recovery in progress |
+| BLOCKED | BLK | Class C, D, or E stop condition; architect intervention required |
+| TRANSITIONING | TRN | Feature just completed; transition validation running |
+| CERTIFYING | CRT | F10 complete; certification workflow running |
+| ACCEPTING | ACC | Certification issued; final acceptance workflow running |
+| CLOSED | CLO | Phase 4.5 complete; platform closed |
+
+State transitions are governed by the rules in §29. No state may be skipped. The BLOCKED state requires explicit architect resolution before returning to ACTIVE.
+
+### 26.4 Feature Lifecycle
+
+Every Phase 4.5 feature passes through these states in order:
+
+```
+PENDING → READY → IN PROGRESS → DONE → COMPLETE
+```
+
+| State | Definition |
+|---|---|
+| PENDING | Feature exists; prerequisite features not yet DONE |
+| READY | All prerequisites DONE; quality gates PASS on HEAD; no active stop condition |
+| IN PROGRESS | Feature implementation begun; §23.1 preparation complete |
+| DONE | All implementation and documentation committed; quality gates PASS |
+| COMPLETE | Formally accepted per §25.3; transition to next feature authorized |
+
+No feature may move directly from PENDING to IN PROGRESS. The READY state is a mandatory validation gate. A feature cannot be COMPLETE until it is first DONE.
+
+### 26.5 Execution Authority
+
+The execution authority hierarchy for Phase 4.5 is:
+
+| Authority Level | Role | Scope |
+|---|---|---|
+| L1 — Supreme | FEOS | Inviolable engineering principles; cannot be overridden |
+| L2 — Architectural | Chief Software Architect | Stop conditions Classes C–E; EDR approval; architecture decisions |
+| L3 — Execution | Chief Platform Engineer | Feature execution; quality gate certification; self-certification F02–F09 |
+| L4 — Governance | Engineering Governance Lead | Stop condition classification; EDR review; policy interpretation |
+| L5 — Tracking | Technical Program Manager | Progress template; scheduling; velocity; escalation |
+| L6 — Quality | QA Director | Final acceptance co-sign; quality evidence review |
+
+### 26.6 Execution Responsibilities
+
+| Responsibility | Owner | Frequency |
+|---|---|---|
+| Feature implementation | Chief Platform Engineer | Per feature |
+| Quality gate execution | Chief Platform Engineer | Before every commit |
+| Feature report authoring | Chief Platform Engineer | Per feature |
+| Progress template updates | Technical Program Manager | Per feature |
+| Stop condition classification | Engineering Governance Lead | On trigger |
+| EDR authoring | Chief Platform Engineer | On deviation |
+| EDR approval | Chief Software Architect | On submission |
+| Transition validation | Chief Platform Engineer | Between features |
+| Repository certification | Chief Software Architect | Post F10 |
+| Final acceptance | Chief Software Architect + QA Director | Post certification |
+| Platform closure | Chief Software Architect | Post acceptance |
+
+### 26.7 Execution Ownership
+
+The Chief Platform Engineer is the single execution owner for Phase 4.5 Features F02–F09. This role has full authority to implement, commit, report, and self-certify within the boundaries established by the PMIC, the IEF, FEOS, and the KEB. Authority that exceeds these boundaries requires escalation per §26.5.
+
+The Chief Software Architect owns F10, Repository Certification, Final Acceptance, and Platform Closure. These phases require architectural judgment that cannot be self-certified at the platform engineer level.
+
+---
+
+## Section 27: Continuous Execution Engine
+
+### 27.1 Automatic Feature Progression
+
+Phase 4.5 employs a continuous execution model. When a feature satisfies all completion requirements (§25.3), execution progresses automatically to the next feature in the dependency graph (§24.1) without waiting for human authorization of the transition.
+
+This automatic progression is the default. It is overridden only when:
+- A stop condition is triggered (§6)
+- A dependency is not satisfied (§24)
+- Quality gates fail (§21.6)
+- An Engineering Decision is required (§8)
+- An explicit PAUSE is issued by the Chief Architect
+
+In the absence of any override condition, the execution engine is always moving forward.
+
+### 27.2 Execution Queue
+
+The execution queue is the ordered list of features awaiting implementation. At Phase 4.5 initialization (L-1 → L-2 transition), the queue is:
+
+```
+F02 → F03 → F04 → F05 → F06 → F07 → F08 → F09 → F10
+```
+
+The queue is static. It cannot be reordered, extended, or shortened without an Engineering Decision at the architect level. Features are dequeued — moved to IN PROGRESS — only when their READY conditions are satisfied.
+
+### 27.3 Execution Scheduling
+
+Phase 4.5 does not enforce calendar scheduling at the feature level. Features are executed sequentially as capacity allows. The only scheduling constraint is the Phase 4.5 completion boundary, which is set by the organization and tracked in the progress template (§28.6).
+
+The Technical Program Manager is responsible for monitoring execution velocity (§28.5) and alerting the Chief Architect when projected completion exceeds the boundary.
+
+### 27.4 Repository Validation (Pre-Execution)
+
+Before dequeuing any feature, the execution engine performs the repository validation defined in §23.2 (steps RV-01 through RV-07). This validation is not optional, not abbreviated, and not waived for features that appear trivial.
+
+A repository validation failure halts the dequeue and triggers the stop condition protocol. A feature cannot enter IN PROGRESS on a repository that is not in a known-good state.
+
+### 27.5 Dependency Validation
+
+Before dequeuing any feature, the execution engine verifies the dependency state per §24.2. Each feature's prerequisite features must be in COMPLETE state (not merely DONE) in the progress template.
+
+The distinction matters: a feature that is DONE has committed implementation and documentation but has not yet been formally accepted. Only COMPLETE features satisfy the dependency requirement. This prevents cascading partially-accepted features.
+
+### 27.6 Execution Checkpoints
+
+The execution engine requires explicit checkpoint confirmation at three points in every feature lifecycle:
+
+| Checkpoint | Code | Trigger | Required Action |
+|---|---|---|---|
+| CP-1 | RV | Repository validation complete | Proceed or halt per §27.4 |
+| CP-2 | QG | All four quality gates pass | Proceed to commit or halt per §21.6 |
+| CP-3 | TC | Transition validation complete (§29) | Proceed to next feature or halt |
+
+Each checkpoint is a synchronization point. Work that should have been caught at CP-1 cannot be deferred to CP-2, and work at CP-2 cannot be deferred to CP-3.
+
+### 27.7 Automatic Continuation Policy
+
+The execution engine continues automatically when:
+
+| Condition | State |
+|---|---|
+| CP-3 (transition validation) passes for feature FXX | SATISFIED |
+| Next feature FYY has no active stop condition | SATISFIED |
+| Next feature FYY's dependencies are COMPLETE | SATISFIED |
+| Repository quality gates pass on HEAD | SATISFIED |
+| No pending Engineering Decisions for FYY | SATISFIED |
+| Progress template updated for FXX completion | SATISFIED |
+| Feature report committed for FXX | SATISFIED |
+| Working tree is clean | SATISFIED |
+
+When all eight conditions are SATISFIED simultaneously, automatic continuation to FYY is authorized without additional human approval.
+
+### 27.8 Automatic Stop Policy
+
+The execution engine stops automatically when any of the following occurs:
+
+| Trigger | Stop Code | Severity |
+|---|---|---|
+| Quality gate failure | SC-001–SC-003 | Class A |
+| Protected file modification | SC-005 | Class B |
+| Engineering decision required | SC-007 | Class B |
+| Architecture conflict discovered | SC-009 | Class C |
+| Unexpected dependency graph | SC-010 | Class D |
+| Platform limitation | SC-011–SC-014 | Class E |
+| Missing prerequisite feature | — | Class B |
+| Progress template inconsistency | — | Class A |
+| No valid next feature in queue | — | Terminal (F09 complete) |
+| F10 reached | — | L-2 → L-3 transition |
+
+Automatic stops are not failures. They are the execution engine's self-protection mechanism. Resolving the stop condition and resuming execution is the normal path.
+
+### 27.9 Automatic Recovery Entry
+
+When a stop condition is resolved per the recovery protocol (§7), the execution engine re-enters the execution loop at the checkpoint immediately preceding the stop. It does not restart from the beginning of the feature or the beginning of the phase.
+
+| Stop Class | Recovery Entry Point |
+|---|---|
+| Class A | QG — quality gates re-run in full |
+| Class B | CP-1 — repository re-validated |
+| Class C | CP-1 — repository re-validated after architect resolution |
+| Class D | CP-1 — repository re-validated after graph resolution |
+| Class E | Architect decision — may be CP-1 or feature re-scoped |
+
+---
+
+## Section 28: Progress Tracking
+
+### 28.1 Progress Model
+
+The Phase 4.5 progress model tracks execution state at two levels:
+
+| Level | Granularity | Document | Owner |
+|---|---|---|---|
+| Feature | Per-feature status, quality gates, blockers | `09_PLATFORM_PROGRESS_TEMPLATE.md` | Technical Program Manager |
+| Phase | Overall completion percentage, maturity, health | PMIC §28.6 (this document) | Chief Software Architect |
+
+The two levels are synchronized at each feature completion. A discrepancy between them is a documentation inconsistency, which is a Class A stop condition.
+
+### 28.2 Execution Status
+
+The overall Phase 4.5 execution status is reported using a three-value signal:
+
+| Signal | Meaning |
+|---|---|
+| GREEN | All features on track; no active stop conditions; quality gates PASS |
+| AMBER | A Class A or B stop condition is active and in recovery; no blocking of phase completion projected |
+| RED | A Class C, D, or E stop condition is active; architect intervention required; phase completion at risk |
+
+Status is assessed and recorded in the progress template after each feature completion and after each stop condition resolution.
+
+### 28.3 Feature Status
+
+Feature status values and their transitions are defined in §26.4. The progress template (`09_PLATFORM_PROGRESS_TEMPLATE.md`) is the authoritative source of record for feature status. The PMIC does not duplicate feature-level status — it references the progress template.
+
+### 28.4 Completion Percentage
+
+Phase 4.5 completion is calculated as:
+
+```
+Completion % = (Features COMPLETE / 10) × 100
+```
+
+F01 enters the denominator as COMPLETE (it was accepted in the prior session). The 10-feature total is fixed. Adding or removing features from scope changes the denominator and requires an Engineering Decision.
+
+| Features COMPLETE | Phase Completion |
+|---|---|
+| 1 (F01) | 10% |
+| 3 | 30% |
+| 5 | 50% |
+| 7 | 70% |
+| 9 | 90% |
+| 10 | 100% |
+
+100% feature completion does not equal Phase 4.5 closure. Repository Certification (§31), Platform Final Acceptance (§32), and Platform Closure (§33) are post-implementation activities that must complete after all features reach 100%.
+
+### 28.5 Engineering Metrics
+
+The following engineering metrics are tracked throughout Phase 4.5 and reported in the Platform Final Report (§36):
+
+| Metric | Tracking Method | Frequency |
+|---|---|---|
+| Commits per feature | `git log` | Per feature |
+| Quality gate cycles per feature | Feature report | Per feature |
+| Stop conditions triggered | Progress template | Per event |
+| Engineering Decisions issued | EDR register | Per EDR |
+| Test count | `npm run test` output | Per feature |
+| Lint errors resolved | `npm run lint` output | Per feature |
+| Cross-platform blockers resolved | CPB register | Per feature |
+| Time to complete per feature | Progress template timestamps | Per feature |
+
+### 28.6 Repository Maturity
+
+Repository maturity is tracked across the ten dimensions defined in §12.11. Maturity score is updated at each feature completion:
+
+| Feature | Dimensions Advanced | Expected Score After |
+|---|---|---|
+| F01 (COMPLETE) | Node version governance | 17/100 → 20/100 |
+| F02 | Line-ending governance, encoding | 20/100 → 30/100 |
+| F03 | Secrets management, environment | 30/100 → 42/100 |
+| F04 | Docker infrastructure | 42/100 → 55/100 |
+| F05 | Onboarding quality | 55/100 → 65/100 |
+| F06 | DevContainer, developer tooling | 65/100 → 73/100 |
+| F07 | CI/CD maturity, cross-platform testing | 73/100 → 84/100 |
+| F08 | Cross-platform validation | 84/100 → 90/100 |
+| F09 | Documentation, onboarding | 90/100 → 95/100 |
+| F10 | Acceptance, platform validation | 95/100 → 98/100 |
+
+The gap between 98/100 and 100/100 represents known deferred items (§12.11) that are out of scope for Phase 4.5.
+
+### 28.7 Execution Dashboard
+
+The live execution dashboard is the Summary section of `09_PLATFORM_PROGRESS_TEMPLATE.md`. The following fields are updated at each feature completion:
+
+| Dashboard Field | Update Trigger |
+|---|---|
+| Features DONE | Feature COMPLETE |
+| Features IN PROGRESS | Feature enters IN PROGRESS |
+| Blocking Issues | Stop condition triggered / resolved |
+| Quality Gate | Post-completion verification |
+| Current Commit | Post-commit |
+| Phase Execution Status | Per §28.2 |
+
+### 28.8 Tracking Responsibilities
+
+| Responsibility | Owner | Classification |
+|---|---|---|
+| Update progress template after each feature | Technical Program Manager | MANDATORY |
+| Review dashboard for consistency with PMIC | Chief Architect | Per Part |
+| Escalate AMBER to RED when recovery stalls | Technical Program Manager | MANDATORY |
+| Maintain Engineering Decisions Register | Engineering Governance Lead | MANDATORY |
+| Maintain Blocking Issues Register | Technical Program Manager | MANDATORY |
+| Archive final dashboard at Platform Closure | Documentation Architect | MANDATORY |
+
+---
+
+## Section 29: Automatic Transition Rules
+
+### 29.1 Feature Completion Trigger
+
+A feature transition is initiated when the Chief Platform Engineer signals that a feature is DONE (§25.2). The transition engine then validates the feature before promoting it to COMPLETE and authorizing the next feature.
+
+A signal is implicit — it is the act of committing the feature report and updating the progress template with DONE status. No separate signal mechanism is required.
+
+### 29.2 Transition Validation
+
+Transition validation is a structured checklist executed between the DONE signal and the COMPLETE promotion. It covers five domains:
+
+| Domain | Sections | Classification |
+|---|---|---|
+| Dependency verification | §29.3 | MANDATORY |
+| Quality gate verification | §29.4 | MANDATORY |
+| Repository validation | §29.5 | MANDATORY |
+| Commit verification | §29.6 | MANDATORY |
+| Documentation verification | §29.7 | MANDATORY |
+
+All five domains must pass. A failure in any domain blocks the COMPLETE promotion and triggers stop condition SC-001 or the domain-specific stop condition.
+
+### 29.3 Dependency Verification
+
+Before marking a feature COMPLETE, verify:
+
+| Check | Standard |
+|---|---|
+| All predecessor features are in COMPLETE state | Progress template confirms COMPLETE for all |
+| No dependency feature is only DONE (not yet accepted) | DONE is insufficient — all must be COMPLETE |
+| No circular dependency has emerged | §24.5 |
+| Dependency graph unchanged from §24.1 | No additional dependencies introduced |
+
+### 29.4 Quality Gate Verification
+
+Before marking a feature COMPLETE, verify that the quality gates documented in the feature report represent the state of the current HEAD commit:
+
+| Check | Standard |
+|---|---|
+| Feature report documents gate results for the implementation commit | Not a prior commit |
+| Gate results are PASS for all four gates | Build, Lint, Tests (482/482), Prisma Validate |
+| Tests count has not decreased from 482 | Strict minimum enforced |
+| No lint errors present | Zero error tolerance |
+
+### 29.5 Repository Validation
+
+Before marking a feature COMPLETE:
+
+| Check | Standard |
+|---|---|
+| `git status` is clean | No unstaged or staged changes |
+| HEAD commit is the feature implementation commit (or documentation commit) | No uncommitted changes represent feature work |
+| No unresolved merge conflicts | `git grep -r "<<<<<<" -- .` returns empty |
+| No debug artifacts committed | `git log --name-only -1` inspection |
+| Protected directories unchanged | `git diff HEAD~2 -- src/ prisma/ test/` |
+
+### 29.6 Commit Verification
+
+Before marking a feature COMPLETE:
+
+| Check | Standard |
+|---|---|
+| Implementation commit exists with correct message format | `feat(platform/FXX): ...` |
+| Documentation commit exists (or combined) | `docs(platform/FXX): ...` |
+| No more than 3 commits for this feature | Commit exception policy §22.7 |
+| If 3 commits used: Commit Exception documented in feature report | MANDATORY |
+| Commit hash matches feature report | Exact match |
+
+### 29.7 Documentation Verification
+
+Before marking a feature COMPLETE:
+
+| Check | Standard |
+|---|---|
+| `reports/FXX_REPORT.md` committed and contains all MANDATORY sections (§20.1) | Complete per template |
+| `09_PLATFORM_PROGRESS_TEMPLATE.md` reflects DONE status with commit hash | Updated |
+| All triggered EDRs are committed | `ENGINEERING_DECISION_REPORT_FXX.md` |
+| Feature report references correct IEF specification sections | Citations valid |
+| CPB register updated for any resolved blockers | Progress template §28.7 |
+
+### 29.8 Transition Approval
+
+Transition approval for F02–F09 is self-authorized by the Chief Platform Engineer when all transition validation checks in §29.2–§29.7 pass. No additional sign-off is required.
+
+Transition from F09 → F10 (entering L-3 Final Validation) requires explicit acknowledgment from the Chief Software Architect before F10 begins. This is the single mandatory human checkpoint in the automatic execution model for features F02–F10.
+
+### 29.9 Transition Workflow
+
+```
+DONE signal
+  → Dependency verification (§29.3)
+    [FAIL] → Stop condition → Recovery (§7)
+    [PASS] → Quality gate verification (§29.4)
+      [FAIL] → Stop condition → Recovery (§7)
+      [PASS] → Repository validation (§29.5)
+        [FAIL] → Stop condition → Recovery (§7)
+        [PASS] → Commit verification (§29.6)
+          [FAIL] → Stop condition → Recovery (§7)
+          [PASS] → Documentation verification (§29.7)
+            [FAIL] → Stop condition → Recovery (§7)
+            [PASS] → COMPLETE promotion
+              → Execution queue: dequeue next feature
+              → Dependency validation (§27.5)
+                → Repository validation (§27.4)
+                  → Next feature enters IN PROGRESS
+```
+
+---
+
+## Section 30: Feature Completion Workflow
+
+Section 30 consolidates the execution steps from §23 into a single authoritative workflow specification. Where §23 is prescriptive (each step and its classification), this section is narrative — it describes what must happen and why at each phase of a feature's lifecycle.
+
+### 30.1 Preparation
+
+Preparation is a read-only phase. No files are created or modified. The engineer reads all governance artifacts relevant to the feature: the IEF specification, the PMIC Part 1 stop conditions, applicable Part 2 standards, prior feature reports, and the current state of the progress template. This phase exists because ambiguity discovered during implementation is more costly than ambiguity discovered before it begins.
+
+Preparation is complete when the engineer can answer: What files will this feature create or modify? What standards from Part 2 apply? What did the prior feature do that this one must be compatible with?
+
+### 30.2 Repository Validation
+
+Repository validation is a formal confirmation that the repository is in a known-good state before any implementation begins. A feature implemented on top of an unknown repository state produces an unknown feature state. This phase eliminates that risk.
+
+The six validation steps (RV-01 through RV-06) from §23.2 are non-negotiable. A failing RV step does not mean "the feature may begin cautiously." It means execution is blocked until the repository is restored to a known-good state.
+
+### 30.3 Implementation
+
+Implementation is the only phase in which files are created or modified. Scope is strictly bounded by the feature definition. Files outside scope must not be touched regardless of their relevance or apparent improvement value.
+
+The governing principle is: this feature does one thing, and only that thing. Infrastructure improvements that are "obvious" while implementing a feature are deferred to their own feature or documented as a recommended future action in the feature report.
+
+### 30.4 Quality Gates
+
+Quality gates are not a post-implementation step. They are an ongoing verification that runs at every meaningful change boundary during implementation. The four gates (§21.1–§21.4) must all pass before any commit is made. They are re-run in full after any fix — not selectively re-run for the changed subsystem.
+
+The quality gate sequence is fixed (§21.5). Running tests before build is prohibited. The sequence exists because later gates can surface issues that earlier gates do not.
+
+### 30.5 Documentation
+
+Documentation is produced concurrent with implementation, not after. The feature report documents what was done, why, what was unchanged, and what quality evidence was collected. It is not a retrospective summary — it is a formal engineering record that persists as part of the repository's permanent history.
+
+An undocumented feature is not DONE. Implementation without documentation violates the completion requirements in §25.2.
+
+### 30.6 Commit
+
+The commit is the atomic unit of feature delivery. A feature's implementation commit contains all feature files — no partial commits, no "work in progress" commits, no "fix" commits that split the implementation. The quality gates must pass on the exact set of files that will be committed.
+
+The documentation commit follows immediately. Between the implementation commit and the documentation commit, the repository must remain in the quality-gate-passing state.
+
+### 30.7 Post-Commit Repository Validation
+
+After both commits are made, a final repository validation confirms the committed state matches the expected state. `git status` must be clean. `git log` must show the commits in the expected order. The four quality gates must pass on HEAD. This is a brief verification, not a full re-execution of all gates — but the verification must be explicit, not assumed.
+
+### 30.8 Transition
+
+Transition executes the workflow in §29.9. It is not optional and not abbreviated. A feature that skips transition validation is a feature that has been declared COMPLETE without evidence. The transition is the governance mechanism that converts DONE into COMPLETE.
+
+### 30.9 Completion
+
+A feature is COMPLETE when the transition validation passes and the next feature is authorized to begin. The progress template status changes from DONE to COMPLETE (where the template distinguishes these states). The execution queue advances. The phase completion percentage advances.
+
+### 30.10 Failure Handling
+
+Failures at any workflow phase are handled by stopping at the current phase, diagnosing the root cause, applying the minimum-scope fix, and re-running all validation from the beginning of the phase in which the failure occurred.
+
+Failures do not skip backwards (i.e., a quality gate failure during commit phase does not require returning to preparation). But they do require a full re-run of the failed phase's validation, not a selective re-run.
+
+### 30.11 Recovery
+
+Recovery from a stop condition follows §7. The key recovery principle: do not accumulate partially-applied changes. If a stop condition occurs mid-implementation, the repository must be restored to the last known-good commit before recovery work begins. Partial infrastructure state is more dangerous than no infrastructure state because it creates a misleading baseline.
+
+---
+
+## Section 31: Repository Certification
+
+### 31.1 Repository Integrity
+
+Repository certification is the formal assessment that the repository, at the moment F10 completes, satisfies all structural, historical, and quality requirements established by FEOS, the IEF, and the PMIC. Certification is a pre-condition for Platform Final Acceptance (§32).
+
+Repository integrity requires:
+
+| Requirement | Verification |
+|---|---|
+| Git history is linear on `main` — no merge commits | `git log --merges` returns empty |
+| No orphaned commits | `git fsck --lost-found` is clean |
+| No force-pushed history | `git reflog` inspection |
+| All Phase 4.5 feature commits present | Commit hash register vs. `git log` |
+| All Phase 4.5 documentation commits present | Commit hash register vs. `git log` |
+| All committed files are UTF-8 | Encoding check (F08 validation) |
+| No credentials in any committed file | `git log -S "password" -- . \| grep -v .env.example` |
+| No debug artifacts in history | `git log --name-only` inspection |
+
+### 31.2 Repository Maturity
+
+At certification, repository maturity must meet or exceed the target score established in §28.6:
+
+| Dimension | Minimum Required Score |
+|---|---|
+| Node version governance | 10/10 |
+| Line-ending governance | 10/10 |
+| Environment standardization | 9/10 |
+| Docker infrastructure | 10/10 |
+| DevContainer | 10/10 |
+| CI/CD | 10/10 |
+| Developer experience | 10/10 |
+| Cross-platform testing | 9/10 |
+| Secrets management | 10/10 |
+| Onboarding documentation | 9/10 |
+| **Overall** | **≥ 97/100** |
+
+A score below the minimum in any dimension constitutes a certification blocker. The blocker must be resolved — either by implementing the missing capability or documenting it as an accepted deferred item in the Final Report (§36).
+
+### 31.3 Engineering Maturity
+
+Engineering maturity at certification is assessed across the Phase 4.5 engineering pillars:
+
+| Pillar | Assessment |
+|---|---|
+| Infrastructure as Code | All infrastructure in committed, versioned files |
+| Quality Automation | Four mandatory quality gates enforced in CI |
+| Cross-Platform Coverage | Three-OS CI matrix passing |
+| Zero-Configuration Onboarding | New developer reaches running environment via documented steps only |
+| Secrets Hygiene | No credentials in repository; `.env.example` as only source of truth |
+| Developer Tooling | Linting, formatting, debugging fully configured in workspace |
+| Container Parity | Local Docker matches CI database configuration |
+
+### 31.4 Platform Readiness
+
+Platform readiness is the operational assessment of whether the infrastructure platform can support the application reliably:
+
+| Capability | Readiness Criterion |
+|---|---|
+| Database availability | PostgreSQL starts healthy within 60 seconds |
+| Application startup | NestJS starts without error against containerized database |
+| Build repeatability | `npm ci && npm run build` succeeds on a clean checkout |
+| Test repeatability | `npm run test` passes 482/482 on a clean checkout |
+| Onboarding | Zero-to-running in < 15 minutes verified |
+| Schema safety | `prisma validate` passes; schema unmodified |
+
+### 31.5 Cross-Platform Readiness
+
+Cross-platform readiness is verified in F08 and confirmed at certification:
+
+| Platform | CI Evidence | Manual Evidence |
+|---|---|---|
+| Ubuntu 24 | CI matrix `ubuntu-latest` green | F07 completion |
+| Windows 11 | CI matrix `windows-latest` green | F07 completion |
+| macOS 14 arm64 | CI matrix `macos-latest` green | F07 completion |
+| Debian 12 | DevContainer base image | F06 completion |
+
+### 31.6 Documentation Readiness
+
+Documentation readiness requires that all mandatory documentation artifacts are present, committed, and internally consistent:
+
+| Document | Required State |
+|---|---|
+| `09_PLATFORM_PROGRESS_TEMPLATE.md` | All 10 features COMPLETE |
+| `reports/F01_REPORT.md` through `reports/F10_REPORT.md` | All committed |
+| `PLATFORM_MASTER_IMPLEMENTATION_CONTRACT.md` (this document) | Parts 1, 2, 3 complete |
+| `10_PLATFORM_FINAL_ACCEPTANCE.md` | Populated (pre-acceptance) |
+| All triggered EDRs | Committed |
+| IEF documents 00–10 | Unmodified since IEF closure |
+
+### 31.7 Developer Readiness
+
+Developer readiness is the subjective but verifiable assessment that a developer new to the repository can achieve a productive development environment using only documented steps:
+
+| Criterion | Verification |
+|---|---|
+| `scripts/doctor.sh` exits 0 on a clean setup | Manual test |
+| Application runs locally against Docker PostgreSQL | Manual test |
+| All VSCode tasks execute correctly | Manual test |
+| Debug profiles attach successfully | Manual test |
+| Onboarding steps documented in `README.md` produce the stated result | End-to-end sign-off |
+
+### 31.8 Certification Authority
+
+Repository Certification is issued by the Chief Software Architect. The certification is a formal written statement in `10_PLATFORM_FINAL_ACCEPTANCE.md` confirming that the repository satisfies §31.1 through §31.7.
+
+Certification cannot be delegated. It cannot be issued before F10 completes. It cannot be issued while any stop condition remains unresolved.
+
+### 31.9 Certification Evidence
+
+The following evidence is collected and committed before certification is issued:
+
+| Evidence Item | Source | Committed In |
+|---|---|---|
+| All feature reports with quality gate results | Feature implementation | `reports/FXX_REPORT.md` |
+| CI pipeline green on all three OS targets | GitHub Actions | CI run URL in `F07_REPORT.md` |
+| `git log --oneline` showing linear Phase 4.5 history | `git log` | `10_PLATFORM_FINAL_ACCEPTANCE.md` |
+| Repository maturity score ≥ 97/100 | Architect assessment | `10_PLATFORM_FINAL_ACCEPTANCE.md` |
+| Zero outstanding stop conditions | Progress template | `09_PLATFORM_PROGRESS_TEMPLATE.md` |
+| All CPBs resolved | CPB register | `09_PLATFORM_PROGRESS_TEMPLATE.md` |
+
+---
+
+## Section 32: Platform Final Acceptance
+
+### 32.1 Acceptance Authority
+
+Platform Final Acceptance requires co-authorization from two roles:
+
+| Role | Authority | Scope |
+|---|---|---|
+| Chief Software Architect | Primary | Overall platform quality, architecture compliance, FEOS alignment |
+| QA Director | Secondary | Quality evidence review, testing coverage, acceptance criteria completeness |
+
+Both signatures are required. The QA Director's signature confirms quality evidence is complete. The Chief Software Architect's signature confirms the platform is fit for engineering purpose and the Phase 4.5 mission is accomplished.
+
+### 32.2 Acceptance Workflow
+
+```
+F10 COMPLETE
+  → Repository Certification (§31)
+    [BLOCKED] → Resolve certification blockers → Retry
+    [ISSUED] → QA Director quality review
+      [NOT READY] → Document gaps → Fix → Re-certify
+      [READY] → Chief Architect final acceptance review
+        [NOT ACCEPTED] → Document deficiencies → Fix → Re-certify
+        [ACCEPTED] → Platform Final Acceptance signed
+          → Platform Closure (§33)
+```
+
+### 32.3 Acceptance Checklist
+
+The acceptance checklist is the structured evaluation that the acceptance authority uses to reach the acceptance decision. It is populated in `10_PLATFORM_FINAL_ACCEPTANCE.md`:
+
+| Domain | Criteria Count | All PASS Required |
+|---|---|---|
+| Repository Integrity | 8 (§31.1) | Yes |
+| Repository Maturity | 10 dimensions (§31.2) | ≥ 97/100 |
+| Platform Readiness | 6 (§31.4) | Yes |
+| Cross-Platform Readiness | 4 platforms (§31.5) | Yes |
+| Documentation Readiness | 7 documents (§31.6) | Yes |
+| Developer Readiness | 5 criteria (§31.7) | Yes |
+| Quality Gate Evidence | 4 gates × 10 features | Yes |
+| Engineering Decisions | All EDRs reviewed and closed | Yes |
+| Deferred Items | All documented in Final Report | Yes |
+
+### 32.4 Acceptance Evidence
+
+The acceptance decision is supported by the evidence package assembled in §31.9. No acceptance criterion may be marked PASS without corresponding evidence. The evidence package is committed to the repository before the acceptance decision is made.
+
+Evidence that is asserted without collection (e.g., "CI was green — we didn't record the run URL") is inadmissible for acceptance criteria purposes. Such criteria are marked FAIL and the gap documented.
+
+### 32.5 Quality Evidence
+
+Quality evidence specifically covers the accumulated quality gate results across all ten features:
+
+| Evidence Type | Source |
+|---|---|
+| Build PASS × 10 features | Feature reports |
+| Lint PASS × 10 features | Feature reports |
+| Tests 482/482 PASS × 10 features | Feature reports |
+| Prisma Validate PASS × 10 features | Feature reports |
+| CI matrix green × 3 OS | F07 report + CI run URL |
+
+The QA Director reviews this evidence and confirms completeness before co-signing.
+
+### 32.6 Repository Evidence
+
+Repository evidence covers the structural and historical integrity of the repository:
+
+| Evidence Type | Source |
+|---|---|
+| Git log showing linear history | `git log --oneline` output |
+| All feature commits present | Commit hash register |
+| No credentials in history | Search result |
+| Clean working tree at certification | `git status` output |
+| All maturity dimensions scored | Architect assessment |
+
+### 32.7 Engineering Evidence
+
+Engineering evidence covers the decisions made during Phase 4.5:
+
+| Evidence Type | Source |
+|---|---|
+| Engineering Decision Reports (all triggered) | Committed EDR files |
+| Stop condition resolutions | Progress template Blocking Issues Register |
+| Deferred items documented | Final Report §36 |
+| Cross-platform blocker resolutions | CPB register in progress template |
+| Feature report sign-offs | Reports committed in `reports/` |
+
+### 32.8 Approval Matrix
+
+| Action | Chief Architect | QA Director | Engineering Governance Lead |
+|---|---|---|---|
+| Issue Repository Certification | REQUIRED | — | — |
+| Sign Final Acceptance | REQUIRED | REQUIRED | — |
+| Approve Platform Closure | REQUIRED | — | REQUIRED |
+| Archive documentation | — | — | REQUIRED |
+| Issue Phase 4.5 Complete tag | REQUIRED | — | — |
+
+### 32.9 Final Approval
+
+Final approval is recorded as a written statement in `10_PLATFORM_FINAL_ACCEPTANCE.md`:
+
+```
+PLATFORM FINAL ACCEPTANCE
+
+Date: <date>
+Phase: 4.5 — Cross-Platform Development Environment
+
+I confirm that the Phase 4.5 infrastructure platform has been 
+implemented, validated, and certified according to the requirements 
+of the FEOS, the IEF, and the Platform Master Implementation Contract.
+
+Chief Software Architect: <name>, <date>
+QA Director: <name>, <date>
+```
+
+This statement, once committed to `main`, constitutes the formal Platform Final Acceptance. The phase enters L-5 Closed.
+
+---
+
+## Section 33: Platform Closure
+
+### 33.1 Closure Criteria
+
+Platform Closure is the terminal event of Phase 4.5. Closure MUST NOT begin before all of the following are true:
+
+| Criterion | Verification |
+|---|---|
+| All 10 features are COMPLETE | Progress template |
+| Repository Certification issued | `10_PLATFORM_FINAL_ACCEPTANCE.md` |
+| Platform Final Acceptance signed | `10_PLATFORM_FINAL_ACCEPTANCE.md` |
+| Platform Final Report complete (§36) | `PLATFORM_IMPLEMENTATION_FINAL_REPORT.md` |
+| Knowledge Baseline update complete (§34) | KEB documents updated |
+| FEOS Engineering Metrics update complete (§35) | FEOS metrics updated |
+| No active stop conditions | Progress template |
+| All deferred items documented | Final Report §36 |
+
+### 33.2 Closure Workflow
+
+```
+Platform Final Acceptance signed
+  → Platform Final Report authored (§36)
+  → Knowledge Baseline update (§34)
+  → FEOS Engineering Metrics update (§35)
+  → Repository tag issued (§33.5)
+  → Post-closure actions complete (§33.6)
+  → Archive complete (§33.7)
+  → Platform Closure declared
+    → Phase 4.5 enters L-6 CLOSED
+```
+
+### 33.3 Closure Documentation
+
+The following documents are committed as part of Platform Closure:
+
+| Document | Location | Content |
+|---|---|---|
+| Platform Final Report | `docs/execution/platform/PLATFORM_IMPLEMENTATION_FINAL_REPORT.md` | §36 |
+| Updated KEB entries | `docs/knowledge/` | §34 |
+| Updated FEOS metrics | `docs/feos/` | §35 |
+| `10_PLATFORM_FINAL_ACCEPTANCE.md` | `docs/execution/platform/` | Closure statement |
+| Updated progress template | `docs/execution/platform/09_PLATFORM_PROGRESS_TEMPLATE.md` | All COMPLETE |
+| PMIC (this document) | `docs/execution/platform/` | Parts 1–3 COMPLETE |
+
+All closure documentation is committed in a single closure commit:
+
+```
+docs(platform): Phase 4.5 Platform Closure
+```
+
+### 33.4 Repository State at Closure
+
+At Platform Closure, the repository MUST be in the following state:
+
+| Property | Required State |
+|---|---|
+| Working tree | Clean |
+| All quality gates | PASS |
+| Test count | 482 (unchanged from Phase 4.5 entry) |
+| TypeScript errors | 0 |
+| ESLint errors | 0 |
+| Schema validity | PASS |
+| Git history | Linear; all Phase 4.5 commits in sequence |
+| Protected directories | Unmodified |
+| `.env` | Gitignored; not committed |
+| `dist/` | Gitignored; not committed |
+
+### 33.5 Tagging Policy
+
+Upon Platform Closure, a git tag is issued:
+
+| Tag | Format | Example |
+|---|---|---|
+| Phase 4.5 completion | `platform/v1.0.0` | `platform/v1.0.0` |
+
+The tag is lightweight or annotated at the architect's discretion. Annotated tags include the date and a one-line summary. The tag is pushed to the remote repository as the final act of Phase 4.5.
+
+The tag is immutable. It marks the exact commit at which Phase 4.5 was declared closed and the platform certified.
+
+### 33.6 Post-Closure Actions
+
+| Action | Owner | Timing |
+|---|---|---|
+| Notify stakeholders of Phase 4.5 completion | Technical Program Manager | Immediately after closure |
+| Update project roadmap with Phase 4.5 COMPLETE | Chief Software Architect | Within 1 day |
+| Brief development team on new infrastructure | Chief Platform Engineer | Within 1 week |
+| Delete any implementation worktrees or branches | Chief Platform Engineer | Immediately after closure |
+| Confirm CI is green on `main` post-closure | Chief Platform Engineer | Immediately after tag |
+| Schedule post-Phase 4.5 retrospective | Technical Program Manager | Within 2 weeks |
+
+### 33.7 Archive Policy
+
+Phase 4.5 execution documentation is archived in place — it remains in `docs/execution/platform/` permanently. No documents are deleted. No documents are moved to an archive directory.
+
+The rationale: the Phase 4.5 execution record is engineering history. Future platform improvements (Phase 5.x, 6.x) reference this record to understand decisions made, blockers encountered, and standards established. Archiving-by-deletion destroys that reference.
+
+Documents that are superseded (e.g., if a future platform phase changes a standard established here) are updated in place with a `SUPERSEDED` marker and a reference to the superseding document. Original content is preserved.
+
+---
+
+## Section 34: Knowledge Baseline Update
+
+### 34.1 Update Policy
+
+The Knowledge Engineering Baseline (KEB) is updated at Platform Closure. KEB updates are a closure prerequisite — Platform Closure cannot be declared while KEB updates are pending. Updates to the KEB during Phase 4.5 execution (not at closure) require an Engineering Decision documenting the justification for an out-of-cycle update.
+
+**MANDATORY:** The KEB is updated by a team member with Knowledge Architect authority. The Chief Platform Engineer documents what must be updated; the Knowledge Architect performs the update and commits it.
+
+### 34.2 Required Updates
+
+Phase 4.5 introduces infrastructure that does not exist in the pre-Phase 4.5 KEB. The following KEB entries must be created or updated:
+
+| KEB Entry | Update Type | Content |
+|---|---|---|
+| Node.js version governance | CREATE or UPDATE | `.nvmrc` pattern; `engines` field; `actions/setup-node` integration |
+| Docker development environment | CREATE | Compose architecture; named volumes; health checks; service profiles |
+| DevContainer configuration | CREATE | Base image; `postCreateCommand`; port forwarding; extension set |
+| Bootstrap scripts | CREATE | `doctor.sh` pattern; idempotent setup pattern; confirmation-guarded reset |
+| CI/CD pipeline | CREATE | Matrix build strategy; OS targets; `npm ci` vs `npm install`; prisma in CI |
+| Developer experience configuration | CREATE | `.editorconfig`; `.gitattributes`; `.vscode/` configuration pattern |
+| Secrets management | CREATE or UPDATE | `.env.example` pattern; `${localEnv:VAR}` in DevContainer; GitHub Actions Secrets |
+| Cross-platform standards | CREATE | Line endings; encoding; shell compatibility; path separators |
+| Quality gate sequence | UPDATE | Four-gate sequence; `DATABASE_URL` prefix requirement for Prisma in Phase 4.5 context |
+
+### 34.3 Validation
+
+KEB updates are validated before commit by:
+
+| Check | Standard |
+|---|---|
+| Updated entries reflect the final implemented state (not the IEF specification) | Actual > specified |
+| No KEB entry contradicts FEOS | FEOS supremacy preserved |
+| No KEB entry contradicts the PMIC | PMIC is authoritative |
+| All technical details are accurate for the certified platform state | Verified against committed infrastructure files |
+| Cross-references to PMIC sections included | Citation standard |
+
+### 34.4 Cross References
+
+Each new or updated KEB entry cross-references:
+
+- The PMIC section that governs the entry
+- The IEF specification document that specified it
+- The Feature Report(s) that implemented it
+- The FEOS principle(s) it embodies
+
+Cross-references use document names and section numbers, not line numbers (which are unstable).
+
+### 34.5 Repository Synchronization
+
+KEB updates are committed to the repository in the closure commit (§33.3). The KEB update and the Platform Final Report are committed together to ensure the knowledge record and the execution record are synchronized in history.
+
+### 34.6 Knowledge Preservation
+
+The following types of knowledge are specifically preserved in the KEB update:
+
+| Knowledge Type | Preservation Mechanism |
+|---|---|
+| Decisions not obvious from the code | KEB entry with rationale |
+| Platform limitations discovered | KEB entry + corresponding CPB resolution |
+| Engineering Decisions (cross-cutting) | KEB entry referencing the EDR |
+| Failure modes encountered and resolved | KEB entry for each resolved stop condition (Class B+) |
+| Compatibility constraints | KEB entry under cross-platform standards |
+
+Knowledge that is derivable from the committed infrastructure files without judgment is not repeated in the KEB. The KEB captures the non-obvious and the hard-won.
+
+---
+
+## Section 35: FEOS Engineering Metrics Update
+
+### 35.1 Repository Maturity
+
+The FEOS Engineering Metrics document (`docs/feos/17_ENGINEERING_METRICS.md`) is updated at Platform Closure to reflect the Phase 4.5 maturity achievements. The pre-Phase 4.5 baseline (17/100) and the post-Phase 4.5 target (≥ 97/100) are both recorded.
+
+| Dimension | Pre-4.5 Score | Post-4.5 Score | Delta |
+|---|---|---|---|
+| Node version governance | 0/10 | 10/10 | +10 |
+| Line-ending governance | 2/10 | 10/10 | +8 |
+| Environment standardization | 1/10 | 9/10 | +8 |
+| Docker infrastructure | 0/10 | 10/10 | +10 |
+| DevContainer | 0/10 | 10/10 | +10 |
+| CI/CD | 0/10 | 10/10 | +10 |
+| Developer experience | 1/10 | 10/10 | +9 |
+| Cross-platform testing | 0/10 | 9/10 | +9 |
+| Secrets management | 3/10 | 10/10 | +7 |
+| Onboarding documentation | 1/10 | 9/10 | +8 |
+
+### 35.2 Infrastructure Maturity
+
+The FEOS metrics update records infrastructure maturity across the four infrastructure pillars:
+
+| Pillar | Pre-4.5 | Post-4.5 |
+|---|---|---|
+| Container infrastructure | 0% — no Docker | 100% — PostgreSQL, health checks, named volumes |
+| Environment standardization | 10% — manual, undocumented | 100% — `.env.example`, secrets policy, CI secrets |
+| Build reproducibility | 40% — builds locally, no CI | 100% — `npm ci`, `--engines-strict`, three-OS CI |
+| Developer toolchain | 20% — unconfigured editors | 100% — `.editorconfig`, `.gitattributes`, `.vscode/` |
+
+### 35.3 Developer Experience Maturity
+
+| Metric | Pre-4.5 | Post-4.5 |
+|---|---|---|
+| Time to first build (new developer) | Unknown; undocumented | < 15 minutes (documented and verified) |
+| Environment setup steps | Undocumented | Single command: `bash scripts/setup.sh` |
+| Debug configuration | None | Two debug profiles; F5 launch |
+| Editor standardization | None | `.editorconfig` + `.vscode/settings.json` |
+| Onboarding documentation | Absent | `README.md` with verified steps |
+
+### 35.4 Cross-Platform Maturity
+
+| Platform | Pre-4.5 | Post-4.5 |
+|---|---|---|
+| Windows 11 support | Untested; unverified | CI verified; CRLF protection active |
+| Ubuntu 24 support | PRIMARY; no formal verification | CI verified; build/test/lint/prisma all PASS |
+| macOS 14 arm64 | Used in development; unverified | CI verified; `bcrypt` arm64 confirmed |
+| Debian 12 | Not applicable | DevContainer base; verified in F06 |
+
+### 35.5 CI Maturity
+
+| Metric | Pre-4.5 | Post-4.5 |
+|---|---|---|
+| CI pipeline | None | GitHub Actions; three-OS matrix |
+| Automated quality gates | None | Build, Lint, Tests (482/482), Prisma Validate, npm audit |
+| Branch protection | None | Configured; status checks required |
+| Execution time | N/A | < 10 minutes per matrix leg (target) |
+| fail-fast | N/A | Enabled; matrix cancels on first failure |
+
+### 35.6 Container Maturity
+
+| Metric | Pre-4.5 | Post-4.5 |
+|---|---|---|
+| Docker Compose file | None | `docker-compose.dev.yml` — Compose Specification |
+| Health checks | None | PostgreSQL health check; dependency ordering |
+| Image version pinning | N/A | Exact `major.minor.patch` for all images |
+| Named volumes | N/A | `factory-postgres-data`; cross-platform data persistence |
+| DevContainer | None | `devcontainer.json`; full workspace configuration |
+
+### 35.7 Toolchain Maturity
+
+| Tool | Pre-4.5 | Post-4.5 |
+|---|---|---|
+| Node.js | Unversioned | `24.16.0` pinned in `.nvmrc`; `engines` range enforced |
+| npm | Unversioned | `>=11.0.0` enforced |
+| Git | Configured | `.gitattributes` governs line endings; branch protection on `main` |
+| Docker | Not in use | `24.0.0+` required; Compose v2 enforced |
+| Prisma | Operational | `6.16.2` locked; validate in CI; generate documented |
+
+### 35.8 Documentation Maturity
+
+| Documentation Type | Pre-4.5 | Post-4.5 |
+|---|---|---|
+| Developer onboarding | Absent | `README.md` with verified steps |
+| Infrastructure specification | Absent | IEF documents 00–10 |
+| Governance documentation | FEOS + KEB | FEOS + KEB + PMIC (Parts 1–3) |
+| Feature execution records | Absent | 10 feature reports |
+| Engineering decisions | Untracked | EDR register + committed EDR files |
+| Platform acceptance | Absent | `10_PLATFORM_FINAL_ACCEPTANCE.md` |
+
+### 35.9 Overall Engineering Maturity
+
+| Category | Pre-4.5 Score | Post-4.5 Score | Change |
+|---|---|---|---|
+| Infrastructure | 10/100 | 95/100 | +85 |
+| Developer Experience | 15/100 | 95/100 | +80 |
+| Cross-Platform | 0/100 | 90/100 | +90 |
+| CI/CD | 0/100 | 100/100 | +100 |
+| Container | 0/100 | 100/100 | +100 |
+| Toolchain | 30/100 | 95/100 | +65 |
+| Documentation | 20/100 | 95/100 | +75 |
+| **Overall** | **17/100** | **≥ 97/100** | **+80** |
+
+The FEOS metrics update records the actual scores achieved (not these projections) based on the certified platform state at closure.
+
+---
+
+## Section 36: Platform Final Report
+
+The Platform Final Report (`PLATFORM_IMPLEMENTATION_FINAL_REPORT.md`) is authored at Platform Closure. Section 36 defines its mandatory content. The report is an engineering record — it does not need to persuade anyone; it needs to be accurate.
+
+### 36.1 Executive Summary
+
+The executive summary covers, in no more than one page:
+
+- Phase 4.5 mission and scope
+- Features delivered (count, names)
+- Repository maturity delta (pre- vs. post-)
+- Engineering Decisions issued
+- Stop conditions encountered
+- Outstanding deferred items
+- Phase 4.5 status: COMPLETE or PARTIAL (with justification)
+
+### 36.2 Features Delivered
+
+A table listing all ten features with:
+
+| Column | Content |
+|---|---|
+| Feature ID | F01–F10 |
+| Name | Feature name |
+| Status | COMPLETE |
+| Commit | Implementation commit hash |
+| Date | Completion date |
+| Specification | IEF document reference |
+| EDR | EDR reference or "None" |
+
+### 36.3 Engineering Decisions Summary
+
+A summary table of all Engineering Decision Reports issued during Phase 4.5:
+
+| Column | Content |
+|---|---|
+| EDR ID | `ENGINEERING_DECISION_REPORT_FXX.md` |
+| Feature | Feature that triggered the EDR |
+| Title | Decision title |
+| Classification | Which stop condition class applied |
+| Status | APPROVED / SUPERSEDED |
+| Impact | Which IEF sections were affected |
+
+### 36.4 Deferred Work Register
+
+Every item that was identified as a candidate for Phase 4.5 but deferred, with:
+
+| Column | Content |
+|---|---|
+| Deferred Item ID | `DEFER-P45-NNN` |
+| Description | What was deferred |
+| Reason | Why it was deferred (scope, time, dependency) |
+| Impact | What the absence means for developers |
+| Target Phase | When it should be addressed |
+| Owner | Responsible role for future implementation |
+
+### 36.5 Repository Statistics
+
+Quantitative summary of the Phase 4.5 repository changes:
+
+| Statistic | Value |
+|---|---|
+| Commits (Phase 4.5) | Counted from `git log platform/v1.0.0 ^<pre-4.5-tag>` |
+| Files created | Counted from feature reports |
+| Files modified | Counted from feature reports (F01: 1 modified) |
+| Source files modified | 0 (MANDATORY — protected) |
+| Schema files modified | 0 (MANDATORY — protected) |
+| Test files modified | 0 (MANDATORY — protected) |
+| npm packages added | 0 (MANDATORY — per §12.8) |
+| Lines of infrastructure code | Counted from feature files |
+| Lines of documentation | Counted from Phase 4.5 documentation files |
+
+### 36.6 Quality Statistics
+
+| Statistic | Value |
+|---|---|
+| Quality gate cycles (total) | Counted from feature reports |
+| Quality gate failures encountered | Counted from stop condition log |
+| Tests at Phase 4.5 entry | 482 |
+| Tests at Phase 4.5 exit | 482 (no change) |
+| Lint errors resolved | Counted from feature reports |
+| CI pipeline runs | Counted from GitHub Actions |
+| CI pipeline pass rate | % |
+| npm audit vulnerabilities at entry | Recorded in F02 report |
+| npm audit vulnerabilities at exit | 0 high severity |
+
+### 36.7 Engineering Statistics
+
+| Statistic | Value |
+|---|---|
+| Engineering Decisions issued | Count |
+| Stop conditions triggered | Count by class |
+| Stop conditions resolved (self-recovered) | Count |
+| Stop conditions requiring architect intervention | Count |
+| CPBs identified at audit | 8 (CPB-001–CPB-008) |
+| CPBs resolved by Phase 4.5 | Count |
+| CPBs deferred | Count |
+| Phase 4.5 duration (calendar days) | Measured |
+| Phase 4.5 implementation effort | Estimated from velocity tracking |
+| Repository maturity delta | 17/100 → ≥ 97/100 |
+
+### 36.8 Lessons Learned
+
+The lessons learned section captures engineering observations that should inform future platform phases. The entries are objective, not retrospective blame. Each entry identifies:
+
+- The observation
+- The root cause (if known)
+- The mitigation applied
+- The recommended practice for future phases
+
+Categories of lessons captured:
+
+| Category | Examples |
+|---|---|
+| Process | "Dependency validation at CP-1 prevented cascading failures in three instances" |
+| Technical | "bcrypt native module on arm64 required explicit build tool verification in F05" |
+| Toolchain | "PowerShell 5.1 pipeline operators require workarounds; documented in §13.9" |
+| Documentation | "IEF-to-PMIC terminology mapping saved ~30 minutes per feature transition" |
+
+### 36.9 Recommendations
+
+Forward-looking recommendations for platform improvement beyond Phase 4.5:
+
+| Recommendation | Priority | Target Phase |
+|---|---|---|
+| Redis configuration (deferred DEFER-P45-001) | MEDIUM | When session/cache feature is needed |
+| MailHog configuration (deferred DEFER-P45-002) | LOW | When email feature is implemented |
+| CD pipeline (staging + production) | HIGH | Next infrastructure phase |
+| GitHub Codespaces validation | LOW | Post Phase 4.5 |
+| Secrets vault integration | HIGH | Before production deployment |
+| `security.yml` scheduled workflow | MEDIUM | Near-term platform maintenance |
+| Fedora 40 local validation | LOW | If Fedora developers join the team |
+
+### 36.10 Future Work
+
+Future work is distinguished from deferred items: deferred items were explicitly in Phase 4.5 scope and moved out; future work was never in scope but is identified here as the natural continuation of the platform investment.
+
+| Future Work Item | Rationale | Owner |
+|---|---|---|
+| Production deployment pipeline | Phase 4.5 established CI; CD is the next step | Future DevOps phase |
+| Environment-specific Compose files | `docker-compose.prod.yml` for staging/prod | Future platform phase |
+| Container image for NestJS application | Current: host process; Future: production container | Future DevOps phase |
+| Observability infrastructure | Logs, metrics, traces in development | Future platform phase |
+| Database migration automation in CI | Current: manual migration workflow | Future platform phase |
+
+---
+
+## Section 37: Release Readiness
+
+### 37.1 Release Criteria
+
+Phase 4.5 does not produce a software release. It produces a certified development platform. "Release readiness" in this context means the platform is ready for the development team to use as the standard development environment — the old workflow (ad-hoc, undocumented, single-OS) is retired and the new platform is the only supported path.
+
+Release readiness requires:
+
+| Criterion | Classification | Detail |
+|---|---|---|
+| All 10 features COMPLETE | MANDATORY | Progress template confirms |
+| Platform Final Acceptance signed | MANDATORY | `10_PLATFORM_FINAL_ACCEPTANCE.md` |
+| Platform Closure declared | MANDATORY | §33.2 workflow complete |
+| Team briefed on new infrastructure | MANDATORY | §33.6 post-closure action |
+| Developer documentation accessible | MANDATORY | `README.md` at repository root |
+| Doctor script passes on all team machines | MANDATORY | Verified before "release" announcement |
+
+### 37.2 Repository Readiness
+
+The repository is release-ready when:
+
+| Check | Required State |
+|---|---|
+| All quality gates PASS on HEAD | Build, Lint, Tests, Prisma |
+| CI green on `main` | All three OS targets |
+| `platform/v1.0.0` tag pushed | Immutable reference point |
+| No active stop conditions | Zero |
+| Working tree clean | `git status` clean |
+| All feature reports committed | F01–F10 |
+
+### 37.3 Developer Readiness
+
+The development team is ready to adopt the new platform when:
+
+| Readiness Indicator | Verification Method |
+|---|---|
+| Docker installed and functional on all team machines | `docker compose version` per team member |
+| `.env` file present and correctly populated | Doctor script passes |
+| Node `24.16.0` active (nvm) | `.nvmrc` auto-switch or manual verify |
+| DevContainer option available (optional) | `ms-vscode-remote.remote-containers` installed |
+| CI pipeline understood | Team briefing complete |
+| Bootstrap scripts tested | `doctor.sh` passes on each machine |
+
+### 37.4 Infrastructure Readiness
+
+The infrastructure platform is ready when:
+
+| Component | Readiness |
+|---|---|
+| PostgreSQL container | Starts healthy within 60 seconds per `docker-compose.dev.yml` |
+| Application-to-database connectivity | NestJS starts against containerized PostgreSQL |
+| DevContainer (optional) | Opens without error; container runs as non-root |
+| CI pipeline | Triggers on PR and push to `main`; all matrix jobs pass |
+| Doctor script | Passes on all supported OS targets |
+
+### 37.5 CI Readiness
+
+CI readiness is binary: the pipeline must be green on `main` before the platform is released to the team. A green CI pipeline on `main` means:
+
+- `ubuntu-latest`, `windows-latest`, `macos-latest` all pass
+- Build, lint, tests (482/482), prisma validate, npm audit all pass
+- All actions are pinned to major version tags
+- No credentials appear in workflow files
+- Branch protection is active on `main`
+
+### 37.6 Cross-Platform Readiness
+
+Cross-platform readiness is confirmed by the CI matrix (F07) and the dedicated cross-platform validation (F08). The platform is cross-platform-ready when:
+
+| Platform | Required Evidence |
+|---|---|
+| Ubuntu 24 | CI `ubuntu-latest` green; F07 report |
+| Windows 11 | CI `windows-latest` green; F07 report |
+| macOS 14 arm64 | CI `macos-latest` green; F07 report |
+| Debian 12 | DevContainer validated; F06 report |
+
+### 37.7 Documentation Readiness
+
+The documentation is ready for team use when:
+
+| Document | State |
+|---|---|
+| `README.md` | Prerequisites, setup steps, development workflow, troubleshooting |
+| `.env.example` | All required variables with placeholder values and comments |
+| `CLAUDE.md` | Updated with bootstrap script references and new infrastructure commands |
+| `docs/execution/platform/` | IEF + PMIC + all feature reports committed |
+
+### 37.8 Approval Authority
+
+Release readiness is confirmed by the Chief Software Architect as part of Platform Closure (§33). The `platform/v1.0.0` tag creation constitutes the release readiness declaration.
+
+---
+
+## Section 38: Cross-Platform Certification
+
+### 38.1 Certification Matrix
+
+Cross-platform certification is the formal record of which platforms have been validated and what evidence supports each validation:
+
+| Platform | Priority | Validation Method | Evidence Source | Status |
+|---|---|---|---|---|
+| Windows 11 x64 | PRIMARY | CI matrix + local | CI run URL + F07 report | At F07 completion |
+| Ubuntu 24 LTS x64 | PRIMARY | CI matrix + local | CI run URL + F07 report | At F07 completion |
+| macOS 14 arm64 | SECONDARY | CI matrix | CI run URL + F07 report | At F07 completion |
+| Debian 12 x64 | SECONDARY | DevContainer | F06 report | At F06 completion |
+| Fedora 40 x64 | TERTIARY | Deferred | DEFER-P45-004 | Post Phase 4.5 |
+
+### 38.2 Windows Certification
+
+Windows 11 certification requirements:
+
+| Requirement | Standard | Evidence |
+|---|---|---|
+| Build passes | `npm run build` exits 0 | CI `windows-latest` log |
+| Tests pass (482/482) | `npm run test` exits 0 | CI `windows-latest` log |
+| Lint passes | `npm run lint` exits 0 | CI `windows-latest` log |
+| Prisma validate passes | `npx prisma validate` exits 0 | CI `windows-latest` log |
+| `npm ci --engines-strict` passes | Node `>=24.0.0 <25.0.0` enforced | CI `windows-latest` log |
+| Line endings are LF in checkout | `.gitattributes` normalizes | F08 validation |
+| PowerShell scripts pass | `doctor.ps1` exits 0 | F05 report |
+| No `node_modules/.bin` path issues | `npx`-based invocations in CI | F07 specification |
+
+### 38.3 Ubuntu Certification
+
+Ubuntu 24 certification requirements:
+
+| Requirement | Standard | Evidence |
+|---|---|---|
+| All four quality gates pass | Standard gates | CI `ubuntu-latest` log |
+| `scripts/doctor.sh` exits 0 | All 12 checks pass | F05 report |
+| `scripts/setup.sh` is idempotent | Passes on second run | F05 report |
+| Docker Compose starts PostgreSQL healthy | Within 60 seconds | F04 report |
+| Execute bits set on `.sh` files | `ls -la scripts/` | F05 report |
+| npm audit passes at high severity | `--audit-level=high` | CI `ubuntu-latest` log |
+| LF line endings in all governed files | `git ls-files --eol` | F02, F08 reports |
+
+### 38.4 Debian Certification
+
+Debian 12 certification is via the DevContainer base image (`mcr.microsoft.com/devcontainers/typescript-node:1-24-bookworm`):
+
+| Requirement | Standard | Evidence |
+|---|---|---|
+| DevContainer opens without error | VSCode DevContainer | F06 report |
+| `node --version` = `v24.16.0` inside container | Base image node version | F06 report |
+| `npm run build` passes inside container | Standard build gate | F06 report |
+| `npm run test` passes inside container | 482/482 | F06 report |
+| `prisma generate` passes inside container | With `DATABASE_URL` pointing to `db` service | F06 report |
+| Container user is non-root (`vscode`) | `id` command inside container | F06 report |
+| `bcrypt` native module compiles | `npm ci` in container | F06 report |
+
+### 38.5 Fedora Certification
+
+Fedora 40 certification is deferred (DEFER-P45-004). The DevContainer (Debian base) provides Fedora-equivalent Linux coverage for the immediate purpose of Phase 4.5. Fedora-specific validation is triggered if a Fedora-using developer joins the team or if Fedora-specific issues are reported post-Phase 4.5.
+
+### 38.6 macOS Certification
+
+macOS 14 arm64 certification requirements:
+
+| Requirement | Standard | Evidence |
+|---|---|---|
+| All four quality gates pass | Standard gates | CI `macos-latest` log |
+| `bcrypt` native module compiles | Xcode CLI tools on runner | CI `macos-latest` log |
+| `scripts/doctor.sh` exits 0 | POSIX sh on macOS | F05 report (manual) |
+| Node `24.16.0` on arm64 | Native arm64 build | CI `macos-latest` log |
+| npm audit passes | `--audit-level=high` | CI `macos-latest` log |
+
+Docker on macOS GitHub Actions runners is not available. Docker-dependent certification (Compose health checks, DevContainer) is covered by Ubuntu CI and local macOS developer validation respectively.
+
+### 38.7 Docker Compatibility
+
+Docker compatibility is certified across:
+
+| Component | Certified Version | Evidence |
+|---|---|---|
+| Docker Engine | `24.0.0+` | F04 report |
+| Docker Desktop (Windows) | `4.25.0+` | F04 report |
+| Docker Desktop (macOS) | `4.25.0+` | F04 report |
+| Compose CLI v2 | `2.20.0+` | F04 report |
+| PostgreSQL image | `postgres:16.4-alpine` | F04 validation |
+| PgAdmin image | `dpage/pgadmin4:8.14` | F04 validation |
+
+### 38.8 DevContainer Compatibility
+
+DevContainer compatibility is certified with:
+
+| Component | Version | Evidence |
+|---|---|---|
+| Dev Containers extension | Latest at F06 | F06 report |
+| Base image | `mcr.microsoft.com/devcontainers/typescript-node:1-24-bookworm` | F06 report |
+| VSCode minimum version | `1.90.0` | F06 specification |
+| Docker Desktop integration | Required on Windows/macOS | F06 documentation |
+
+### 38.9 Toolchain Compatibility
+
+| Tool | Windows 11 | Ubuntu 24 | macOS 14 | Debian 12 |
+|---|---|---|---|---|
+| Node `24.16.0` | ✓ | ✓ | ✓ (arm64) | ✓ (DevContainer) |
+| npm `11.x` | ✓ | ✓ | ✓ | ✓ |
+| Git `2.40+` | ✓ | ✓ | ✓ | ✓ |
+| Docker v2 | ✓ (Desktop) | ✓ (Engine) | ✓ (Desktop) | N/A |
+| Prisma `6.16.2` | ✓ | ✓ | ✓ (arm64) | ✓ |
+| `bcrypt` native | ✓ (build tools) | ✓ | ✓ (Xcode) | ✓ (base image) |
+
+### 38.10 Validation Requirements
+
+Cross-platform certification is validated using the evidence from F06, F07, and F08 feature reports. The certification matrix in §38.1 is populated at Platform Closure with the actual status of each platform. A platform marked FAILED in the certification matrix blocks Platform Final Acceptance.
+
+---
+
+## Section 39: Phase Completion Criteria
+
+### 39.1 Definition of Ready (Phase)
+
+Phase 4.5 is ready to begin active execution (L-2) when:
+
+| Criterion | Verification |
+|---|---|
+| PMIC Parts 1, 2, and 3 committed | `git log` |
+| F01 COMPLETE | Progress template |
+| IEF documents 00–10 committed | `docs/execution/platform/` |
+| Quality gates PASS on HEAD | All four gates |
+| Repository clean | `git status` |
+| Execution queue defined (§27.2) | This document §27.2 |
+| Stop condition protocol known (§6) | Part 1 |
+| Transition rules known (§29) | Part 3 |
+
+### 39.2 Definition of Complete (Phase)
+
+Phase 4.5 is COMPLETE when:
+
+| Criterion | Verification |
+|---|---|
+| All 10 features are in COMPLETE state | Progress template |
+| Repository integrity verified (§31.1) | Chief Architect assessment |
+| Repository maturity ≥ 97/100 (§31.2) | Maturity assessment |
+| Platform Final Acceptance signed (§32.9) | `10_PLATFORM_FINAL_ACCEPTANCE.md` |
+| Platform Final Report committed (§36) | `PLATFORM_IMPLEMENTATION_FINAL_REPORT.md` |
+| Knowledge Baseline updated (§34) | KEB documents committed |
+| FEOS Engineering Metrics updated (§35) | FEOS metrics updated |
+| All CPBs resolved or deferred | CPB register |
+| All EDRs reviewed and closed | EDR register |
+
+Phase COMPLETE does not require all deferred items to be implemented. It requires that all deferred items are documented.
+
+### 39.3 Definition of Certified (Phase)
+
+Phase 4.5 is CERTIFIED when COMPLETE AND:
+
+| Criterion | Verification |
+|---|---|
+| Repository Certification issued (§31.8) | Written in `10_PLATFORM_FINAL_ACCEPTANCE.md` |
+| Cross-platform certification matrix populated (§38.1) | All required platforms green |
+| Release readiness confirmed (§37.8) | `platform/v1.0.0` tag |
+| No active stop conditions | Zero |
+
+### 39.4 Definition of Released (Phase)
+
+Phase 4.5 is RELEASED when CERTIFIED AND:
+
+| Criterion | Verification |
+|---|---|
+| `platform/v1.0.0` tag pushed to remote | `git ls-remote --tags` |
+| Development team briefed | Post-closure action §33.6 |
+| Old infrastructure documentation (if any) retired | Architecture decision |
+| New platform is the sole supported path | Team acknowledgment |
+
+### 39.5 Required Documentation
+
+| Document | Required For | Location |
+|---|---|---|
+| `PLATFORM_MASTER_IMPLEMENTATION_CONTRACT.md` | All milestones | `docs/execution/platform/` |
+| `09_PLATFORM_PROGRESS_TEMPLATE.md` | COMPLETE + | `docs/execution/platform/` |
+| `reports/F01_REPORT.md` through `reports/F10_REPORT.md` | COMPLETE + | `docs/execution/platform/reports/` |
+| `10_PLATFORM_FINAL_ACCEPTANCE.md` | CERTIFIED + | `docs/execution/platform/` |
+| `PLATFORM_IMPLEMENTATION_FINAL_REPORT.md` | COMPLETE + | `docs/execution/platform/` |
+| All triggered `ENGINEERING_DECISION_REPORT_FXX.md` | COMPLETE + | `docs/execution/platform/` |
+| Updated KEB documents | COMPLETE + | `docs/knowledge/` |
+| Updated FEOS metrics | COMPLETE + | `docs/feos/` |
+
+### 39.6 Required Reports
+
+| Report | Required By | Purpose |
+|---|---|---|
+| F01–F10 Feature Reports | Platform COMPLETE | Implementation evidence |
+| Platform Final Report | Platform COMPLETE | Execution record |
+| Engineering Decision Reports | Per deviation | Decision record |
+| CPB Resolution Register | Platform COMPLETE | Blocker resolution record |
+| Platform Final Acceptance | Platform CERTIFIED | Governance record |
+
+### 39.7 Required Evidence
+
+| Evidence | Required For | Source |
+|---|---|---|
+| Quality gate results × 10 features | COMPLETE | Feature reports |
+| CI pipeline green × 3 OS | CERTIFIED | F07 report + CI URL |
+| Repository maturity score ≥ 97/100 | CERTIFIED | Architect assessment |
+| Linear git history (no merges) | CERTIFIED | `git log --merges` |
+| All 8 CPBs addressed | COMPLETE | CPB register |
+| Zero high-severity npm vulnerabilities | CERTIFIED | F07 CI log |
+| Non-root DevContainer confirmed | CERTIFIED | F06 report |
+| `platform/v1.0.0` tag | RELEASED | `git ls-remote` |
+
+### 39.8 Required Approvals
+
+| Milestone | Required Approvers |
+|---|---|
+| Features F02–F09 COMPLETE | Chief Platform Engineer (self-certified) |
+| F10 COMPLETE | Chief Software Architect |
+| Repository Certification | Chief Software Architect |
+| Platform Final Acceptance | Chief Software Architect + QA Director |
+| Platform Closure | Chief Software Architect + Engineering Governance Lead |
+| Phase RELEASED | Chief Software Architect |
+
+### 39.9 Completion Authority
+
+Phase 4.5 is formally COMPLETE when the Chief Software Architect makes the written declaration in `10_PLATFORM_FINAL_ACCEPTANCE.md` that all criteria in §39.2 are satisfied. This declaration is irrevocable. Post-closure defects are addressed in a future platform phase, not by reopening Phase 4.5.
+
+---
+
+## Section 40: Permanent Governance
+
+### 40.1 Document Evolution
+
+The PMIC is a living engineering governance document. It does not become obsolete when Phase 4.5 closes. Future platform phases inherit the governance framework established here. Parts that remain valid are unchanged. Parts that are superseded by future phases are marked `SUPERSEDED` with a reference to the superseding document.
+
+The following parts have permanent applicability beyond Phase 4.5:
+
+| Part | Sections | Permanent Applicability |
+|---|---|---|
+| Part 1 — Governance & Execution Authority | §1–§10 | Authority hierarchy, stop conditions, recovery protocol, EDR framework, governance principles |
+| Part 2 — Infrastructure Engineering Standards | §11–§25 | Toolchain, repository, cross-platform, commit, and quality standards; feature execution template |
+| Part 3 — Execution Orchestration | §26–§40 | Execution model, progress tracking, certification, closure, and permanent governance |
+
+### 40.2 Versioning Policy
+
+The PMIC is versioned at the document level:
+
+| Version | Trigger | Authority |
+|---|---|---|
+| 1.0 | Part 3 committed (Phase 4.5) | Chief Software Architect |
+| 1.x | Minor standards update; no structural change | Engineering Governance Lead |
+| 2.0 | New platform phase introduces structural governance change | Chief Software Architect |
+
+Version 1.x changes are addenda — they append clarifications or update existing sections but do not remove or restructure. Version 2.0 changes require a new Part or a formal governance restructure with full architect approval.
+
+### 40.3 Review Cycle
+
+| Review Type | Trigger | Owner | Scope |
+|---|---|---|---|
+| Feature-boundary review | After each feature completes | Chief Platform Engineer | Verify PMIC guidance was accurate for the feature |
+| Part-boundary review | After each Part is committed | Chief Software Architect | Verify Part is complete and accurate |
+| Post-closure review | At Platform Closure | Chief Software Architect + Engineering Governance Lead | Identify sections to update for future phases |
+| Annual review | Each calendar year | Engineering Governance Lead | Identify obsolete guidance; update or retire |
+
+### 40.4 Change Control
+
+Changes to the PMIC follow the same Engineering Decision protocol as changes to IEF specifications:
+
+| Change Type | Authority | Classification |
+|---|---|---|
+| Correction of a factual error | Chief Platform Engineer | No EDR required; commit message documents the change |
+| Interpretation clarification | Engineering Governance Lead | No EDR required |
+| Standard relaxation | Chief Software Architect | EDR required |
+| Standard tightening | Engineering Governance Lead | EDR required |
+| New section addition | Chief Software Architect | EDR required |
+| Section removal | Chief Software Architect | EDR required |
+| Classification change (MANDATORY → RECOMMENDED) | Chief Software Architect | EDR required |
+
+No change to a MANDATORY classification is made without an Engineering Decision, regardless of how obvious or minor the change appears.
+
+### 40.5 Engineering Ownership
+
+The PMIC is owned by the Chief Software Architect. Day-to-day governance decisions are delegated to the Engineering Governance Lead. The Chief Platform Engineer is the primary consumer of Part 2 during implementation. The Technical Program Manager is the primary consumer of Part 3 during progress tracking.
+
+Ownership does not transfer on personnel change. It transfers by explicit decision, documented in the project governance record.
+
+### 40.6 Relationship with FEOS
+
+The FEOS is the supreme authority. The PMIC operates beneath it in the authority hierarchy (§4.2). In any conflict between the PMIC and the FEOS:
+
+- The FEOS governs
+- The conflict is documented as a Class C stop condition
+- An Engineering Decision resolves the conflict by updating the PMIC (not the FEOS)
+
+The FEOS is never modified to comply with the PMIC.
+
+### 40.7 Relationship with KEB
+
+The KEB documents engineering knowledge that is non-obvious and hard-won. The PMIC documents the standards and governance that shape how work is done. They operate at different abstraction levels and serve different audiences.
+
+The KEB is a reference document for future decisions. The PMIC is an authority document for current execution. When they conflict, the PMIC governs during active execution; the conflict is reviewed post-execution and the KEB is updated if the PMIC's position represents a settled engineering position.
+
+### 40.8 Relationship with Future Platform Phases
+
+Future platform phases (Phase 5.x, 6.x) inherit the PMIC governance framework by reference. They do not re-establish stop conditions, recovery protocols, quality gate sequences, or commit standards. They reference the PMIC and document only what changes.
+
+The Phase 4.5 PMIC remains the baseline. Future phases extend it:
+
+- They may add features to the execution queue (which becomes a new queue, not an extension of the F01–F10 queue)
+- They may add stop conditions (new SC codes, higher than SC-014)
+- They may tighten standards (lower classification from RECOMMENDED to MANDATORY)
+- They may add new Engineering Decision triggers
+
+Future phases MUST NOT relax standards established here without a formal Engineering Decision. The default is that Phase 4.5 standards become the minimum floor for all future platform work.
+
+---
+
+## Document Status
+
+| Field | Value |
+|---|---|
+| Part 1 | COMPLETE — Governance & Execution Authority |
+| Part 2 | COMPLETE — Infrastructure Engineering Standards |
+| Part 3 | COMPLETE — Execution Orchestration, Final Acceptance & Platform Closure |
+| **Overall PMIC** | **COMPLETE** |
