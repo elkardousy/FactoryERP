@@ -1,0 +1,66 @@
+{
+  "name": "FactoryERP Development",
+  "dockerComposeFile": [
+    "../docker-compose.dev.yml",
+    "docker-compose.devcontainer.yml"
+  ],
+  "service": "app",
+  "workspaceFolder": "/workspaces/backend",
+  "remoteUser": "vscode",
+  "postCreateCommand": "npm ci && DATABASE_URL=\"postgresql://factory_dev:factory_dev@db:5432/factory_erp\" npx prisma generate",
+  "forwardPorts": [3000, 5432, 5050],
+  "portsAttributes": {
+    "3000": {
+      "label": "FactoryERP API",
+      "onAutoForward": "openBrowserOnce",
+      "visibility": "private"
+    },
+    "5432": {
+      "label": "PostgreSQL",
+      "onAutoForward": "silent",
+      "visibility": "private"
+    },
+    "5050": {
+      "label": "PgAdmin",
+      "onAutoForward": "silent",
+      "visibility": "private"
+    }
+  },
+  "remoteEnv": {
+    "DATABASE_URL": "${localEnv:DATABASE_URL}",
+    "JWT_SECRET": "${localEnv:JWT_SECRET}",
+    "JWT_EXPIRES_IN": "${localEnv:JWT_EXPIRES_IN}",
+    "REFRESH_EXPIRES_IN": "${localEnv:REFRESH_EXPIRES_IN}",
+    "NODE_ENV": "${localEnv:NODE_ENV}"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "prisma.prisma",
+        "ms-vscode.vscode-typescript-next",
+        "ms-azuretools.vscode-docker",
+        "mtxr.sqltools",
+        "mtxr.sqltools-driver-pg",
+        "humao.rest-client",
+        "EditorConfig.EditorConfig"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "[typescript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "explicit"
+        },
+        "eslint.validate": ["typescript", "javascript"],
+        "files.eol": "\n",
+        "files.encoding": "utf8",
+        "typescript.preferences.importModuleSpecifier": "relative",
+        "npm.packageManager": "npm"
+      }
+    }
+  }
+}
