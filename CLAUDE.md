@@ -5,6 +5,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
+# Setup (first-time or after reset)
+bash scripts/setup.sh                          # Linux/macOS — installs deps, starts Docker, generates Prisma client
+powershell.exe -File scripts/setup.ps1         # Windows equivalent
+bash scripts/doctor.sh                         # verify environment health (14 checks, exits 0 on pass)
+powershell.exe -File scripts/doctor.ps1        # Windows equivalent
+bash scripts/reset.sh                          # destroy Docker volumes + node_modules (requires confirmation)
+
+# Infrastructure
+docker compose -f docker-compose.dev.yml up -d              # start PostgreSQL (default service)
+docker compose -f docker-compose.dev.yml up -d --profile tools  # start PostgreSQL + PgAdmin
+docker compose -f docker-compose.dev.yml down               # stop services
+docker compose -f docker-compose.dev.yml down -v            # stop services and remove volumes
+
 # Build
 npm run build            # nest build (outputs to ./dist, clears outDir first)
 

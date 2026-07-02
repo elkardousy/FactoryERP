@@ -1,0 +1,144 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build",
+      "type": "shell",
+      "command": "npm run build",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": ["$tsc"]
+    },
+    {
+      "label": "Start Dev",
+      "type": "shell",
+      "command": "npm run start:dev",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Test",
+      "type": "shell",
+      "command": "npm run test",
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Test Watch",
+      "type": "shell",
+      "command": "npm run test:watch",
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Test Coverage",
+      "type": "shell",
+      "command": "npm run test:cov",
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Lint",
+      "type": "shell",
+      "command": "npm run lint",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Format",
+      "type": "shell",
+      "command": "npm run format",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Docker Up",
+      "type": "shell",
+      "command": "docker compose -f docker-compose.dev.yml up -d",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Docker Down",
+      "type": "shell",
+      "command": "docker compose -f docker-compose.dev.yml down",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Doctor",
+      "type": "shell",
+      "command": "bash scripts/doctor.sh",
+      "windows": {
+        "command": "powershell.exe -File scripts/doctor.ps1"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Prisma Generate",
+      "type": "shell",
+      "command": "DATABASE_URL=\"${env:DATABASE_URL}\" npx prisma generate",
+      "windows": {
+        "command": "$env:DATABASE_URL = (Get-Content .env | Select-String '^DATABASE_URL=(.+)' | ForEach-Object { $_.Matches.Groups[1].Value }); npx prisma generate"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Prisma Validate",
+      "type": "shell",
+      "command": "DATABASE_URL=\"${env:DATABASE_URL}\" npx prisma validate",
+      "windows": {
+        "command": "$env:DATABASE_URL = (Get-Content .env | Select-String '^DATABASE_URL=(.+)' | ForEach-Object { $_.Matches.Groups[1].Value }); npx prisma validate"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    }
+  ]
+}

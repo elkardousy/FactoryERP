@@ -1,98 +1,165 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# FactoryERP
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Enterprise resource planning backend built with NestJS 11, Prisma 6, and PostgreSQL 16.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+## Getting Started
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+### Prerequisites
 
-## Project setup
+Install the following tools before proceeding:
 
-```bash
-$ npm install
+| Tool | Version | Install Guide |
+|---|---|---|
+| Git | 2.40+ | https://git-scm.com/downloads |
+| Docker Desktop | 4.25+ | https://docs.docker.com/get-docker/ |
+| nvm (Linux/macOS) | latest | https://github.com/nvm-sh/nvm |
+| nvm-windows (Windows) | latest | https://github.com/coreybutler/nvm-windows |
+
+**Windows only — enable long paths** (required; `node_modules/` nesting exceeds the 260-character default limit):
+
+```powershell
+# Run as Administrator
+New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" `
+  -Name "LongPathsEnabled" -Value 1 -PropertyType DWORD -Force
 ```
 
-## Compile and run the project
+---
+
+### Clone and Setup
 
 ```bash
-# development
-$ npm run start
+git clone <repository-url>
+cd backend
 
-# watch mode
-$ npm run start:dev
+# Linux / macOS
+cp .env.example .env          # copy and edit credentials
+bash scripts/setup.sh         # install deps, start Docker, generate Prisma client
 
-# production mode
-$ npm run start:prod
+# Windows PowerShell
+Copy-Item .env.example .env   # copy and edit credentials
+powershell.exe -File scripts/setup.ps1
 ```
 
-## Run tests
+Edit `.env` and set `POSTGRES_PASSWORD` and `JWT_SECRET` to secure values before running setup.
+
+---
+
+### Start Development
 
 ```bash
-# unit tests
-$ npm run test
+# Start PostgreSQL (if not already running via setup.sh)
+docker compose -f docker-compose.dev.yml up -d
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+# Start NestJS in watch mode
+npm run start:dev
 ```
 
-## Deployment
+Visit **http://localhost:3000/api/docs** for the Swagger UI.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+---
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### Verify Environment
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+# Linux / macOS
+bash scripts/doctor.sh
+
+# Windows PowerShell
+powershell.exe -File scripts/doctor.ps1
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+The doctor script runs 14 checks and exits 0 if all pass.
 
-## Resources
+---
 
-Check out a few resources that may come in handy when working with NestJS:
+### DevContainer (Alternative)
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+Open the repository in VS Code and select **Remote-Containers: Reopen in Container** from the Command Palette. The DevContainer starts PostgreSQL automatically and runs `npm ci` and `prisma generate` on first launch. No local Node.js or Docker Compose setup is required — the container handles everything.
 
-## Support
+Requires: VS Code + [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers).
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+---
 
-## Stay in touch
+### Prisma Workflow
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+**`prisma.config.ts` skips `.env` loading** — all Prisma CLI commands must prefix `DATABASE_URL` explicitly:
 
-## License
+```bash
+# Generate client after schema changes
+DATABASE_URL="postgresql://..." npx prisma generate
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+# Validate schema
+DATABASE_URL="postgresql://..." npx prisma validate
+
+# Check migration status
+DATABASE_URL="postgresql://..." npx prisma migrate status
+
+# Open Prisma Studio
+DATABASE_URL="postgresql://..." npx prisma studio
+
+# PROHIBITED — destroys custom enums and @updatedAt directives
+# npx prisma db pull
+```
+
+---
+
+### Common Issues
+
+| Issue | Symptom | Fix |
+|---|---|---|
+| Wrong Node version | `engine "node" is incompatible` | `nvm use` in project directory |
+| bcrypt rebuild needed | `bcrypt_lib.node was compiled against a different Node.js version` | `rm -rf node_modules && npm ci` |
+| PostgreSQL port in use | `Ports are not available: 5432` | Stop local PostgreSQL or change port mapping in `docker-compose.dev.yml` |
+| `prisma generate` fails | `DATABASE_URL is required` | Set `DATABASE_URL` in `.env` or prefix command explicitly |
+| CRLF files after checkout | Files appear modified on checkout | `git rm --cached -r . && git reset --hard` |
+| DevContainer image pull fails | Timeout on `mcr.microsoft.com` | Check network/proxy; run `docker pull mcr.microsoft.com/devcontainers/typescript-node:1-24-bookworm` manually |
+
+---
+
+## Commands
+
+```bash
+# Build
+npm run build
+
+# Development
+npm run start:dev      # watch mode
+npm run start:prod     # production (requires dist/)
+
+# Tests
+npm run test           # unit tests (482 tests, 42 suites)
+npm run test:watch     # watch mode
+npm run test:cov       # with coverage report
+npm run test:e2e       # end-to-end tests
+
+# Code quality
+npm run lint           # ESLint with auto-fix
+npm run format         # Prettier --write
+
+# Infrastructure
+docker compose -f docker-compose.dev.yml up -d          # start PostgreSQL
+docker compose -f docker-compose.dev.yml up -d --profile tools   # + PgAdmin
+docker compose -f docker-compose.dev.yml down           # stop
+docker compose -f docker-compose.dev.yml down -v        # stop and remove volumes
+
+# Bootstrap
+bash scripts/setup.sh                          # first-time setup (Linux/macOS)
+powershell.exe -File scripts/setup.ps1         # first-time setup (Windows)
+bash scripts/doctor.sh                         # environment health check
+powershell.exe -File scripts/doctor.ps1        # environment health check (Windows)
+bash scripts/reset.sh                          # destroy environment (with confirmation)
+```
+
+---
+
+## Architecture
+
+```
+Controllers → Use Cases → Services → Repositories → PrismaService
+```
+
+NestJS 11 monolith. Clean Architecture with strict layer enforcement. Prisma 6 with PostgreSQL 16. All routes versioned under `/v1/`. Swagger at `/api/docs`.
+
+See [CLAUDE.md](CLAUDE.md) for full architecture reference, TypeScript constraints, and Prisma migration workflow.
